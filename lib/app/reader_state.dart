@@ -30,22 +30,4 @@ class SelectedChapterNotifier extends Notifier<int> {
 }
 final selectedChapterProvider = NotifierProvider<SelectedChapterNotifier, int>(() => SelectedChapterNotifier());
 
-class SelectedVersesNotifier extends Notifier<Set<int>> {
-  @override
-  Set<int> build() => <int>{};
-  
-  void toggle(int verseId) {
-    final newState = Set<int>.from(state);
-    if (newState.contains(verseId)) {
-      newState.remove(verseId);
-    } else {
-      newState.add(verseId);
-    }
-    state = newState;
-  }
-  
-  void clear() {
-    state = <int>{};
-  }
-}
-final selectedVersesProvider = NotifierProvider<SelectedVersesNotifier, Set<int>>(() => SelectedVersesNotifier());
+

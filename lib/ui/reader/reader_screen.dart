@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app/content_providers.dart';
 import '../../app/reader_state.dart';
+import '../../app/user_providers.dart';
 import 'verse_list_view.dart';
 import 'flowing_paragraph_view.dart';
 import 'parallel_view.dart';
@@ -49,7 +50,8 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
     final parallelVersesAsync = ref.watch(parallelVersesProvider);
     final bookName = ref.watch(selectedBookNameProvider);
     final chapter = ref.watch(selectedChapterProvider);
-    final selectedVerses = ref.watch(selectedVersesProvider);
+    final selectedVersesAsync = ref.watch(chapterHighlightsProvider);
+    final selectedVerses = selectedVersesAsync.value ?? <int>{};
     final activeVersions = ref.watch(activeVersionsProvider);
 
     return Scaffold(
@@ -85,19 +87,19 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
                 ? FlowingParagraphView(
                     verses: verses,
                     selectedVerses: selectedVerses,
-                    onVerseTap: (verseId) => ref.read(selectedVersesProvider.notifier).toggle(verseId),
+                    onVerseTap: (verseId) => ref.read(highlightActionProvider).toggleHighlight(verseId),
                   )
                 : VerseListView(
                     verses: verses,
                     selectedVerses: selectedVerses,
-                    onVerseTap: (verseId) => ref.read(selectedVersesProvider.notifier).toggle(verseId),
+                    onVerseTap: (verseId) => ref.read(highlightActionProvider).toggleHighlight(verseId),
                   );
           } else {
             return ParallelView(
               versesMap: versesMap,
               isFlowing: _isFlowing,
               selectedVerses: selectedVerses,
-              onVerseTap: (verseId) => ref.read(selectedVersesProvider.notifier).toggle(verseId),
+              onVerseTap: (verseId) => ref.read(highlightActionProvider).toggleHighlight(verseId),
             );
           }
         },
