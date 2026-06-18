@@ -262,12 +262,12 @@ Status legend: ☐ todo · ◐ in progress · ☑ done
 - ☑ 0.3 Establish package layout (§4) and the "domain has no Flutter/IO imports" lint rule.
 
 ### Phase 1 — Content store + reader (the core value)
-- ☐ 1.1 Define Content DB schema (§5A) + Drift tables.
-- ☐ 1.2 Build the Dart importer → emits Content SQLite; produce a small bundled starter bible. (Full MyBible/OSIS/ph4.org importer lands in Phase 5.3.)
-- ☐ 1.3 Domain: scripture reference model + parsing/normalization (port `scripture`).
-- ☐ 1.4 Single-version reader screen (verse-by-verse view) reading from Content DB.
-- ☐ 1.5 Flowing paragraph view + verse selection + highlight bands.
-- ☐ 1.6 Multi-version parallel panels + version swap.
+- ☑ 1.1 Define Content DB schema (§5A) + Drift tables.
+- ☑ 1.2 Build the Dart importer → emits Content SQLite; produce a small bundled starter bible. (Full MyBible/OSIS/ph4.org importer lands in Phase 5.3.)
+- ☑ 1.3 Domain: scripture reference model + parsing/normalization (port `scripture`).
+- ☑ 1.4 Single-version reader screen (verse-by-verse view) reading from Content DB.
+- ☑ 1.5 Flowing paragraph view + verse selection + highlight bands.
+- ☑ 1.6 Multi-version parallel panels + version swap.
 
 ### Phase 2 — User store + sync foundation
 - ☐ 2.1 Define User DB schema with sync metadata on every record (§6).

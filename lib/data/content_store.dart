@@ -22,6 +22,11 @@ LazyDatabase _openConnection() {
     final dbFolder = await getApplicationDocumentsDirectory();
     final file = File(p.join(dbFolder.path, 'content.db'));
     
+    // Always overwrite from assets during development
+    if (await file.exists()) {
+      await file.delete();
+    }
+    
     if (!await file.exists()) {
       try {
         final blob = await rootBundle.load('assets/content.db');
