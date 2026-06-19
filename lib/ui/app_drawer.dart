@@ -79,15 +79,6 @@ class AppDrawer extends ConsumerWidget {
             },
           ),
           ListTile(
-            leading: const Icon(Icons.menu_book),
-            title: const Text('Reading Plans'),
-            selected: currentModule == AppModule.readingPlans,
-            onTap: () {
-              ref.read(appModuleProvider.notifier).setModule(AppModule.readingPlans);
-              Navigator.of(context).pop();
-            },
-          ),
-          ListTile(
             leading: const Icon(Icons.settings),
             title: const Text('Settings'),
             onTap: () {

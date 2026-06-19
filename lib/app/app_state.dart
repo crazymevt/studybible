@@ -39,7 +39,6 @@ enum AppModule {
   dashboard,
   contentManager,
   backupRestore,
-  readingPlans,
 }
 
 class ShowDashboardOnStartNotifier extends Notifier<bool> {
