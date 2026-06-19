@@ -29,6 +29,10 @@ class ActiveToolNotifier extends Notifier<ActiveTool> {
     }
   }
 
+  void openTool(ActiveTool tool) {
+    state = tool;
+  }
+
   void close() {
     state = ActiveTool.none;
   }

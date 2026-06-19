@@ -77,25 +77,43 @@ class _VerseListViewState extends ConsumerState<VerseListView> {
     });
   }
 
-  void _openDictionary(String word) {
-    ref.read(dictionarySearchQueryProvider.notifier).setQuery(word);
-    if (MediaQuery.sizeOf(context).width > 800) {
-      ref.read(activeToolProvider.notifier).setTool(ActiveTool.dictionary);
-    } else {
-      showModalBottomSheet(
-        context: context,
-        isScrollControlled: true,
-        backgroundColor: Colors.transparent,
-        builder: (_) => Container(
-          height: MediaQuery.sizeOf(context).height * 0.8,
-          clipBehavior: Clip.antiAlias,
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-          ),
-          child: const DictionaryPanel(),
+  void _openDictionary(String word, Offset position) async {
+    final result = await showMenu<String>(
+      context: context,
+      position: RelativeRect.fromLTRB(
+        position.dx,
+        position.dy,
+        position.dx,
+        position.dy,
+      ),
+      items: [
+        PopupMenuItem(
+          value: 'dictionary',
+          child: Text('Look up "$word" in Dictionary'),
         ),
-      );
+      ],
+    );
+
+    if (result == 'dictionary') {
+      ref.read(dictionarySearchQueryProvider.notifier).setQuery(word);
+      if (MediaQuery.sizeOf(context).width > 800) {
+        ref.read(activeToolProvider.notifier).openTool(ActiveTool.dictionary);
+      } else {
+        showModalBottomSheet(
+          context: context,
+          isScrollControlled: true,
+          backgroundColor: Colors.transparent,
+          builder: (_) => Container(
+            height: MediaQuery.sizeOf(context).height * 0.8,
+            clipBehavior: Clip.antiAlias,
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+            ),
+            child: const DictionaryPanel(),
+          ),
+        );
+      }
     }
   }
 

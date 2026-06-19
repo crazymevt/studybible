@@ -9,7 +9,7 @@ List<InlineSpan> buildVerseSpans({
   required Verse verse,
   required Color? bgColor,
   required Function(int) onVerseTap,
-  required Function(String) onWordRightClick,
+  required Function(String, Offset) onWordRightClick,
   Function(int)? onFootnoteTap,
   InlineSpan? verseNumberSpan,
 }) {
@@ -117,7 +117,7 @@ List<InlineSpan> _buildWordSpans(
   String text,
   TextStyle? style, {
   required VoidCallback onVerseTap,
-  required Function(String) onWordRightClick,
+  required Function(String, Offset) onWordRightClick,
 }) {
   final spans = <InlineSpan>[];
   // Match unicode letters/numbers or non-letters/numbers
@@ -145,7 +145,7 @@ List<InlineSpan> _buildWordSpans(
             ..onSecondaryTapUp = (details) {
                final cleanWord = segment.toLowerCase();
                if (cleanWord.isNotEmpty) {
-                 onWordRightClick(cleanWord);
+                 onWordRightClick(cleanWord, details.globalPosition);
                }
             },
         ),
