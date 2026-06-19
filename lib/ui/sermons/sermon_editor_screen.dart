@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
+import 'package:flutter_quill/quill_delta.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app/sermon_providers.dart';
 import '../../app/user_providers.dart';
@@ -247,21 +248,32 @@ class _SermonEditorScreenState extends ConsumerState<SermonEditorScreen> {
   }
 
   void _generateOutline(int numPoints) {
-    // Generate text template
-    final buffer = StringBuffer();
-    buffer.writeln('Introduction');
-    buffer.writeln();
-    for (int i = 1; i <= numPoints; i++) {
-      buffer.writeln('Point $i: ');
-      buffer.writeln(' - Reference: ');
-      buffer.writeln(' - Application: ');
-      buffer.writeln();
-    }
-    buffer.writeln('Conclusion');
-    buffer.writeln();
-
-    // Convert string to a delta so we can insert it
     final currentLength = _controller.document.length;
-    _controller.document.insert(currentLength - 1, '\\n' + buffer.toString());
+    int index = currentLength > 1 ? currentLength - 1 : 0;
+    
+    final delta = Delta()
+      ..retain(index)
+      ..insert('\n')
+      ..insert('Introduction')
+      ..insert('\n', {'header': 2})
+      ..insert('\n');
+      
+    for (int i = 1; i <= numPoints; i++) {
+      delta
+        ..insert('Point $i: ', {'bold': true})
+        ..insert('\n', {'header': 3})
+        ..insert('Reference: ')
+        ..insert('\n', {'list': 'bullet'})
+        ..insert('Application: ')
+        ..insert('\n', {'list': 'bullet'})
+        ..insert('\n');
+    }
+    
+    delta
+      ..insert('Conclusion')
+      ..insert('\n', {'header': 2})
+      ..insert('\n');
+      
+    _controller.document.compose(delta, ChangeSource.local);
   }
 }
