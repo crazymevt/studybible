@@ -2,10 +2,13 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../../data/content_store.dart';
 import '../../data/models/verse_segment.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../app/reader_state.dart';
 
 import 'chapter_navigation_footer.dart';
 
-class VerseListView extends StatelessWidget {
+class VerseListView extends ConsumerStatefulWidget {
   final List<Verse> verses;
   final Set<int> selectedVerses;
   final Map<int, String> savedHighlights;
@@ -20,6 +23,43 @@ class VerseListView extends StatelessWidget {
     required this.onVerseTap,
     this.showFooter = true,
   });
+
+  @override
+  ConsumerState<VerseListView> createState() => _VerseListViewState();
+}
+
+class _VerseListViewState extends ConsumerState<VerseListView> {
+  final ItemScrollController itemScrollController = ItemScrollController();
+  final ItemPositionsListener itemPositionsListener = ItemPositionsListener.create();
+
+  @override
+  void initState() {
+    super.initState();
+    _checkScrollTarget();
+  }
+
+  @override
+  void didUpdateWidget(covariant VerseListView oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _checkScrollTarget();
+  }
+
+  void _checkScrollTarget() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final targetVerse = ref.read(targetVerseToScrollProvider);
+      if (targetVerse != null) {
+        if (!itemScrollController.isAttached) {
+          _checkScrollTarget();
+          return;
+        }
+        final targetIndex = widget.verses.indexWhere((v) => v.verse == targetVerse);
+        if (targetIndex != -1) {
+          itemScrollController.jumpTo(index: targetIndex);
+          ref.read(targetVerseToScrollProvider.notifier).set(null);
+        }
+      }
+    });
+  }
 
   List<InlineSpan> _buildVerseSpans(BuildContext context, Verse verse) {
     if (verse.segments.isEmpty || verse.segments == '[]') {
@@ -69,16 +109,18 @@ class VerseListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
+    return ScrollablePositionedList.builder(
+      itemScrollController: itemScrollController,
+      itemPositionsListener: itemPositionsListener,
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
-      itemCount: verses.length + (showFooter ? 1 : 0),
+      itemCount: widget.verses.length + (widget.showFooter ? 1 : 0),
       itemBuilder: (context, index) {
-        if (showFooter && index == verses.length) {
+        if (widget.showFooter && index == widget.verses.length) {
           return const ChapterNavigationFooter();
         }
-        final verse = verses[index];
-        final isSelected = selectedVerses.contains(verse.verse);
-        final highlightHex = savedHighlights[verse.verse];
+        final verse = widget.verses[index];
+        final isSelected = widget.selectedVerses.contains(verse.verse);
+        final highlightHex = widget.savedHighlights[verse.verse];
         final highlightColor = highlightHex != null 
             ? Color(int.parse(highlightHex.replaceFirst('#', '0xFF'))) 
             : null;
@@ -103,7 +145,7 @@ class VerseListView extends StatelessWidget {
               ],
             ),
           ),
-          onTap: () => onVerseTap(verse.verse),
+          onTap: () => widget.onVerseTap(verse.verse),
         );
       },
     );
