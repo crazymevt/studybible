@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -136,12 +137,34 @@ List<InlineSpan> _buildWordSpans(
         ),
       );
     } else {
+      Timer? longPressTimer;
+      bool isLongPress = false;
+
       spans.add(
         TextSpan(
           text: segment,
           style: style,
           recognizer: TapGestureRecognizer()
-            ..onTap = onVerseTap
+            ..onTapDown = (details) {
+              isLongPress = false;
+              longPressTimer = Timer(const Duration(milliseconds: 500), () {
+                isLongPress = true;
+                final cleanWord = segment.toLowerCase();
+                if (cleanWord.isNotEmpty) {
+                  onWordRightClick(cleanWord, details.globalPosition);
+                }
+              });
+            }
+            ..onTapUp = (details) {
+              longPressTimer?.cancel();
+              if (!isLongPress) {
+                onVerseTap();
+              }
+            }
+            ..onTapCancel = () {
+              longPressTimer?.cancel();
+              isLongPress = false;
+            }
             ..onSecondaryTapUp = (details) {
                final cleanWord = segment.toLowerCase();
                if (cleanWord.isNotEmpty) {
