@@ -10,6 +10,9 @@ import 'parallel_view.dart';
 import 'verse_action_bar.dart';
 import 'study_pane.dart';
 import 'book_chooser_sheet.dart';
+import '../app_drawer.dart';
+import '../../app/dashboard_providers.dart';
+import 'dart:async';
 
 class ReaderScreen extends ConsumerStatefulWidget {
   const ReaderScreen({super.key});
@@ -20,6 +23,63 @@ class ReaderScreen extends ConsumerStatefulWidget {
 
 class _ReaderScreenState extends ConsumerState<ReaderScreen> {
   bool _isFlowing = false;
+  
+  // Tracking
+  int _sessionStartTime = 0;
+  late final AppLifecycleListener _lifecycleListener;
+  Timer? _chapterReadTimer;
+  String? _trackingBook;
+  int? _trackingChapter;
+  late final DashboardAction _dashboardAction;
+
+  @override
+  void initState() {
+    super.initState();
+    _dashboardAction = ref.read(dashboardActionProvider);
+    _sessionStartTime = DateTime.now().millisecondsSinceEpoch;
+    _lifecycleListener = AppLifecycleListener(
+      onStateChange: _handleLifecycleState,
+    );
+  }
+
+  void _handleLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused || state == AppLifecycleState.hidden) {
+      _logSession();
+    } else if (state == AppLifecycleState.resumed) {
+      _sessionStartTime = DateTime.now().millisecondsSinceEpoch;
+    }
+  }
+
+  void _logSession() {
+    if (_sessionStartTime > 0) {
+      final endTime = DateTime.now().millisecondsSinceEpoch;
+      _dashboardAction.logTime(_sessionStartTime, endTime, 'reading');
+      _sessionStartTime = 0; // Prevent duplicate logging
+    }
+  }
+
+  @override
+  void dispose() {
+    _logSession();
+    _lifecycleListener.dispose();
+    _chapterReadTimer?.cancel();
+    super.dispose();
+  }
+
+  void _updateChapterTracking(String book, int chapter) {
+    if (_trackingBook == book && _trackingChapter == chapter) return;
+    
+    _trackingBook = book;
+    _trackingChapter = chapter;
+    _chapterReadTimer?.cancel();
+    
+    // Start a 5-second timer to mark the chapter as read
+    _chapterReadTimer = Timer(const Duration(seconds: 5), () {
+      if (mounted) {
+        ref.read(dashboardActionProvider).markChapterRead(book, chapter);
+      }
+    });
+  }
 
   void _showVersionPicker() async {
     final availableVersions = await ref.read(versionsProvider.future);
@@ -59,7 +119,21 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
     final selectedVerses = ref.watch(selectedVersesProvider);
     final activeVersions = ref.watch(activeVersionsProvider);
 
+    // Auto-tracking logic
+    ref.listen<String>(selectedBookNameProvider, (prev, next) {
+      _updateChapterTracking(next, ref.read(selectedChapterProvider));
+    });
+    ref.listen<int>(selectedChapterProvider, (prev, next) {
+      _updateChapterTracking(ref.read(selectedBookNameProvider), next);
+    });
+    
+    // Trigger initial tracking if not already tracking
+    if (_trackingBook == null) {
+      _updateChapterTracking(bookName, chapter);
+    }
+
     return Scaffold(
+      drawer: const AppDrawer(),
       appBar: AppBar(
         title: InkWell(
           borderRadius: BorderRadius.circular(8),

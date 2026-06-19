@@ -9,7 +9,16 @@ import 'tables/content_tables.dart';
 
 part 'content_store.g.dart';
 
-@DriftDatabase(tables: [Versions, Books, Verses, CrossReferences])
+@DriftDatabase(tables: [
+  Versions,
+  Books,
+  Verses,
+  CrossReferences,
+  Commentaries,
+  CommentaryEntries,
+  Dictionaries,
+  DictionaryEntries,
+])
 class ContentStore extends _$ContentStore {
   ContentStore([QueryExecutor? e]) : super(e ?? _openConnection());
 

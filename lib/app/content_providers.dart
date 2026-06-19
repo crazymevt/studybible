@@ -85,6 +85,85 @@ final crossReferenceVerseProvider = FutureProvider.family<Verse?, CrossReference
 
 final navigationControllerProvider = Provider((ref) => NavigationController(ref));
 
+final commentariesProvider = FutureProvider<List<Commentary>>((ref) {
+  final store = ref.watch(contentStoreProvider);
+  return store.select(store.commentaries).get();
+});
+
+class ShowBookIntroNotifier extends Notifier<bool> {
+  @override
+  bool build() => false;
+
+  void toggle() {
+    state = !state;
+  }
+}
+
+final showBookIntroProvider = NotifierProvider<ShowBookIntroNotifier, bool>(() => ShowBookIntroNotifier());
+
+final commentaryEntriesProvider = FutureProvider<List<CommentaryEntry>>((ref) async {
+  final store = ref.watch(contentStoreProvider);
+  final bookName = ref.watch(selectedBookNameProvider);
+  final chapter = ref.watch(selectedChapterProvider);
+  final selectedVerses = ref.watch(selectedVersesProvider);
+  final showIntro = ref.watch(showBookIntroProvider);
+
+  if (showIntro) {
+    return (store.select(store.commentaryEntries)
+          ..where((c) => c.bookName.equals(bookName) & c.chapter.isNull()))
+        .get();
+  }
+
+  if (selectedVerses.isNotEmpty) {
+    return (store.select(store.commentaryEntries)
+          ..where((c) => c.bookName.equals(bookName) & c.chapter.equals(chapter) & c.verse.isIn(selectedVerses)))
+        .get();
+  } else {
+    // Show all commentaries for the chapter
+    return (store.select(store.commentaryEntries)
+          ..where((c) => c.bookName.equals(bookName) & c.chapter.equals(chapter)))
+        .get();
+  }
+});
+
+class DictionaryEntryWithDict {
+  final DictionaryEntry entry;
+  final Dictionary dictionary;
+  DictionaryEntryWithDict({required this.entry, required this.dictionary});
+}
+
+class DictionarySearchQueryNotifier extends Notifier<String> {
+  @override
+  String build() => '';
+
+  void setQuery(String query) {
+    state = query;
+  }
+}
+
+final dictionarySearchQueryProvider = NotifierProvider<DictionarySearchQueryNotifier, String>(() => DictionarySearchQueryNotifier());
+
+final dictionaryEntriesProvider = FutureProvider<List<DictionaryEntryWithDict>>((ref) async {
+  final store = ref.watch(contentStoreProvider);
+  final query = ref.watch(dictionarySearchQueryProvider);
+  if (query.trim().isEmpty) return [];
+
+  final search = '%${query.trim()}%';
+
+  final q = store.select(store.dictionaryEntries).join([
+    innerJoin(store.dictionaries, store.dictionaries.id.equalsExp(store.dictionaryEntries.dictionaryId)),
+  ])
+  ..where(store.dictionaryEntries.word.like(search));
+
+  final results = await q.get();
+  return results.map((row) {
+    return DictionaryEntryWithDict(
+      entry: row.readTable(store.dictionaryEntries),
+      dictionary: row.readTable(store.dictionaries),
+    );
+  }).toList();
+});
+
 class NavigationController {
   final Ref ref;
   NavigationController(this.ref);

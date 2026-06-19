@@ -279,9 +279,9 @@ Status legend: ☐ todo · ◐ in progress · ☑ done
 - ☐ 2.7 *(optional/later)* BYO-backend impl: user-supplied Supabase URL+key, outbox queue, realtime.
 
 ### Phase 3 — Study features
-- ☐ 3.1 Commentaries (verse-ref lookup + parallel view) + HTML render/sanitize.
-- ☐ 3.2 Multi-dictionary search + tap-a-word lookup.
-- ☐ 3.3 In-bible + global search (FTS5; port `search` semantics).
+- ☑ 3.1 Commentaries (verse-ref lookup + parallel view) + HTML render/sanitize.
+- ☑ 3.2 Multi-dictionary search + tap-a-word lookup.
+- ☑ 3.3 In-bible + global search (FTS5; port `search` semantics).
 - ☑ 3.4 Cross-references.
 - ☑ 3.5 Notes: markdown editor attached to a verse or chapter.
 - ☑ 3.6 Bookmarks: tag a verse with a custom label (e.g. "Faith").

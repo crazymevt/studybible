@@ -41,3 +41,35 @@ class CrossReferences extends Table {
   IntColumn get targetChapter => integer()();
   IntColumn get targetVerse => integer()();
 }
+
+@DataClassName('Commentary')
+class Commentaries extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get abbreviation => text()();
+  TextColumn get name => text()();
+}
+
+@DataClassName('CommentaryEntry')
+class CommentaryEntries extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get commentaryId => integer().references(Commentaries, #id)();
+  TextColumn get bookName => text()();
+  IntColumn get chapter => integer().nullable()();
+  IntColumn get verse => integer().nullable()();
+  TextColumn get textContent => text()();
+}
+
+@DataClassName('Dictionary')
+class Dictionaries extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get abbreviation => text()();
+  TextColumn get name => text()();
+}
+
+@DataClassName('DictionaryEntry')
+class DictionaryEntries extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get dictionaryId => integer().references(Dictionaries, #id)();
+  TextColumn get word => text()();
+  TextColumn get definition => text()();
+}

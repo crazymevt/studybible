@@ -147,7 +147,9 @@ final chapterBookmarksProvider = StreamProvider<List<Bookmark>>((ref) {
       .watch();
 });
 
-final bookmarkActionProvider = Provider((ref) => BookmarkAction(ref));
+final bookmarkActionProvider = Provider<BookmarkAction>((ref) {
+  return BookmarkAction(ref);
+});
 
 class BookmarkAction {
   final Ref ref;

@@ -5,7 +5,9 @@ enum ActiveTool {
   crossReference,
   notes,
   search,
+  dictionary,
   library,
+  commentaries,
 }
 
 class ActiveToolNotifier extends Notifier<ActiveTool> {
@@ -26,3 +28,20 @@ class ActiveToolNotifier extends Notifier<ActiveTool> {
 }
 
 final activeToolProvider = NotifierProvider<ActiveToolNotifier, ActiveTool>(() => ActiveToolNotifier());
+
+enum AppModule {
+  reader,
+  journalsPrayers,
+  dashboard,
+}
+
+class AppModuleNotifier extends Notifier<AppModule> {
+  @override
+  AppModule build() => AppModule.reader;
+
+  void setModule(AppModule module) {
+    state = module;
+  }
+}
+
+final appModuleProvider = NotifierProvider<AppModuleNotifier, AppModule>(() => AppModuleNotifier());

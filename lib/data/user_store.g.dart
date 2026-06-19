@@ -1534,12 +1534,2382 @@ class BookmarksCompanion extends UpdateCompanion<Bookmark> {
   }
 }
 
+class $JournalsTable extends Journals with TableInfo<$JournalsTable, Journal> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $JournalsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<int> updatedAt = GeneratedColumn<int>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _deviceIdMeta = const VerificationMeta(
+    'deviceId',
+  );
+  @override
+  late final GeneratedColumn<String> deviceId = GeneratedColumn<String>(
+    'device_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _deletedMeta = const VerificationMeta(
+    'deleted',
+  );
+  @override
+  late final GeneratedColumn<bool> deleted = GeneratedColumn<bool>(
+    'deleted',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("deleted" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+    'title',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _contentMeta = const VerificationMeta(
+    'content',
+  );
+  @override
+  late final GeneratedColumn<String> content = GeneratedColumn<String>(
+    'content',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _tagsMeta = const VerificationMeta('tags');
+  @override
+  late final GeneratedColumn<String> tags = GeneratedColumn<String>(
+    'tags',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    updatedAt,
+    deviceId,
+    deleted,
+    title,
+    content,
+    tags,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'journals';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<Journal> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('device_id')) {
+      context.handle(
+        _deviceIdMeta,
+        deviceId.isAcceptableOrUnknown(data['device_id']!, _deviceIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_deviceIdMeta);
+    }
+    if (data.containsKey('deleted')) {
+      context.handle(
+        _deletedMeta,
+        deleted.isAcceptableOrUnknown(data['deleted']!, _deletedMeta),
+      );
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+        _titleMeta,
+        title.isAcceptableOrUnknown(data['title']!, _titleMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('content')) {
+      context.handle(
+        _contentMeta,
+        content.isAcceptableOrUnknown(data['content']!, _contentMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_contentMeta);
+    }
+    if (data.containsKey('tags')) {
+      context.handle(
+        _tagsMeta,
+        tags.isAcceptableOrUnknown(data['tags']!, _tagsMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  Journal map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return Journal(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}updated_at'],
+      )!,
+      deviceId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}device_id'],
+      )!,
+      deleted: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}deleted'],
+      )!,
+      title: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}title'],
+      )!,
+      content: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}content'],
+      )!,
+      tags: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}tags'],
+      ),
+    );
+  }
+
+  @override
+  $JournalsTable createAlias(String alias) {
+    return $JournalsTable(attachedDatabase, alias);
+  }
+}
+
+class Journal extends DataClass implements Insertable<Journal> {
+  final String id;
+  final int updatedAt;
+  final String deviceId;
+  final bool deleted;
+  final String title;
+  final String content;
+  final String? tags;
+  const Journal({
+    required this.id,
+    required this.updatedAt,
+    required this.deviceId,
+    required this.deleted,
+    required this.title,
+    required this.content,
+    this.tags,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['updated_at'] = Variable<int>(updatedAt);
+    map['device_id'] = Variable<String>(deviceId);
+    map['deleted'] = Variable<bool>(deleted);
+    map['title'] = Variable<String>(title);
+    map['content'] = Variable<String>(content);
+    if (!nullToAbsent || tags != null) {
+      map['tags'] = Variable<String>(tags);
+    }
+    return map;
+  }
+
+  JournalsCompanion toCompanion(bool nullToAbsent) {
+    return JournalsCompanion(
+      id: Value(id),
+      updatedAt: Value(updatedAt),
+      deviceId: Value(deviceId),
+      deleted: Value(deleted),
+      title: Value(title),
+      content: Value(content),
+      tags: tags == null && nullToAbsent ? const Value.absent() : Value(tags),
+    );
+  }
+
+  factory Journal.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return Journal(
+      id: serializer.fromJson<String>(json['id']),
+      updatedAt: serializer.fromJson<int>(json['updatedAt']),
+      deviceId: serializer.fromJson<String>(json['deviceId']),
+      deleted: serializer.fromJson<bool>(json['deleted']),
+      title: serializer.fromJson<String>(json['title']),
+      content: serializer.fromJson<String>(json['content']),
+      tags: serializer.fromJson<String?>(json['tags']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'updatedAt': serializer.toJson<int>(updatedAt),
+      'deviceId': serializer.toJson<String>(deviceId),
+      'deleted': serializer.toJson<bool>(deleted),
+      'title': serializer.toJson<String>(title),
+      'content': serializer.toJson<String>(content),
+      'tags': serializer.toJson<String?>(tags),
+    };
+  }
+
+  Journal copyWith({
+    String? id,
+    int? updatedAt,
+    String? deviceId,
+    bool? deleted,
+    String? title,
+    String? content,
+    Value<String?> tags = const Value.absent(),
+  }) => Journal(
+    id: id ?? this.id,
+    updatedAt: updatedAt ?? this.updatedAt,
+    deviceId: deviceId ?? this.deviceId,
+    deleted: deleted ?? this.deleted,
+    title: title ?? this.title,
+    content: content ?? this.content,
+    tags: tags.present ? tags.value : this.tags,
+  );
+  Journal copyWithCompanion(JournalsCompanion data) {
+    return Journal(
+      id: data.id.present ? data.id.value : this.id,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deviceId: data.deviceId.present ? data.deviceId.value : this.deviceId,
+      deleted: data.deleted.present ? data.deleted.value : this.deleted,
+      title: data.title.present ? data.title.value : this.title,
+      content: data.content.present ? data.content.value : this.content,
+      tags: data.tags.present ? data.tags.value : this.tags,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('Journal(')
+          ..write('id: $id, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deviceId: $deviceId, ')
+          ..write('deleted: $deleted, ')
+          ..write('title: $title, ')
+          ..write('content: $content, ')
+          ..write('tags: $tags')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, updatedAt, deviceId, deleted, title, content, tags);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is Journal &&
+          other.id == this.id &&
+          other.updatedAt == this.updatedAt &&
+          other.deviceId == this.deviceId &&
+          other.deleted == this.deleted &&
+          other.title == this.title &&
+          other.content == this.content &&
+          other.tags == this.tags);
+}
+
+class JournalsCompanion extends UpdateCompanion<Journal> {
+  final Value<String> id;
+  final Value<int> updatedAt;
+  final Value<String> deviceId;
+  final Value<bool> deleted;
+  final Value<String> title;
+  final Value<String> content;
+  final Value<String?> tags;
+  final Value<int> rowid;
+  const JournalsCompanion({
+    this.id = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deviceId = const Value.absent(),
+    this.deleted = const Value.absent(),
+    this.title = const Value.absent(),
+    this.content = const Value.absent(),
+    this.tags = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  JournalsCompanion.insert({
+    required String id,
+    required int updatedAt,
+    required String deviceId,
+    this.deleted = const Value.absent(),
+    required String title,
+    required String content,
+    this.tags = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       updatedAt = Value(updatedAt),
+       deviceId = Value(deviceId),
+       title = Value(title),
+       content = Value(content);
+  static Insertable<Journal> custom({
+    Expression<String>? id,
+    Expression<int>? updatedAt,
+    Expression<String>? deviceId,
+    Expression<bool>? deleted,
+    Expression<String>? title,
+    Expression<String>? content,
+    Expression<String>? tags,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deviceId != null) 'device_id': deviceId,
+      if (deleted != null) 'deleted': deleted,
+      if (title != null) 'title': title,
+      if (content != null) 'content': content,
+      if (tags != null) 'tags': tags,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  JournalsCompanion copyWith({
+    Value<String>? id,
+    Value<int>? updatedAt,
+    Value<String>? deviceId,
+    Value<bool>? deleted,
+    Value<String>? title,
+    Value<String>? content,
+    Value<String?>? tags,
+    Value<int>? rowid,
+  }) {
+    return JournalsCompanion(
+      id: id ?? this.id,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deviceId: deviceId ?? this.deviceId,
+      deleted: deleted ?? this.deleted,
+      title: title ?? this.title,
+      content: content ?? this.content,
+      tags: tags ?? this.tags,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<int>(updatedAt.value);
+    }
+    if (deviceId.present) {
+      map['device_id'] = Variable<String>(deviceId.value);
+    }
+    if (deleted.present) {
+      map['deleted'] = Variable<bool>(deleted.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (content.present) {
+      map['content'] = Variable<String>(content.value);
+    }
+    if (tags.present) {
+      map['tags'] = Variable<String>(tags.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('JournalsCompanion(')
+          ..write('id: $id, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deviceId: $deviceId, ')
+          ..write('deleted: $deleted, ')
+          ..write('title: $title, ')
+          ..write('content: $content, ')
+          ..write('tags: $tags, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $PrayersTable extends Prayers with TableInfo<$PrayersTable, Prayer> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $PrayersTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<int> updatedAt = GeneratedColumn<int>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _deviceIdMeta = const VerificationMeta(
+    'deviceId',
+  );
+  @override
+  late final GeneratedColumn<String> deviceId = GeneratedColumn<String>(
+    'device_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _deletedMeta = const VerificationMeta(
+    'deleted',
+  );
+  @override
+  late final GeneratedColumn<bool> deleted = GeneratedColumn<bool>(
+    'deleted',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("deleted" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _descriptionMeta = const VerificationMeta(
+    'description',
+  );
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+    'description',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<int> createdAt = GeneratedColumn<int>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _answeredAtMeta = const VerificationMeta(
+    'answeredAt',
+  );
+  @override
+  late final GeneratedColumn<int> answeredAt = GeneratedColumn<int>(
+    'answered_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    updatedAt,
+    deviceId,
+    deleted,
+    name,
+    description,
+    createdAt,
+    answeredAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'prayers';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<Prayer> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('device_id')) {
+      context.handle(
+        _deviceIdMeta,
+        deviceId.isAcceptableOrUnknown(data['device_id']!, _deviceIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_deviceIdMeta);
+    }
+    if (data.containsKey('deleted')) {
+      context.handle(
+        _deletedMeta,
+        deleted.isAcceptableOrUnknown(data['deleted']!, _deletedMeta),
+      );
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('description')) {
+      context.handle(
+        _descriptionMeta,
+        description.isAcceptableOrUnknown(
+          data['description']!,
+          _descriptionMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_descriptionMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('answered_at')) {
+      context.handle(
+        _answeredAtMeta,
+        answeredAt.isAcceptableOrUnknown(data['answered_at']!, _answeredAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  Prayer map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return Prayer(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}updated_at'],
+      )!,
+      deviceId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}device_id'],
+      )!,
+      deleted: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}deleted'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      description: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}description'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}created_at'],
+      )!,
+      answeredAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}answered_at'],
+      ),
+    );
+  }
+
+  @override
+  $PrayersTable createAlias(String alias) {
+    return $PrayersTable(attachedDatabase, alias);
+  }
+}
+
+class Prayer extends DataClass implements Insertable<Prayer> {
+  final String id;
+  final int updatedAt;
+  final String deviceId;
+  final bool deleted;
+  final String name;
+  final String description;
+  final int createdAt;
+  final int? answeredAt;
+  const Prayer({
+    required this.id,
+    required this.updatedAt,
+    required this.deviceId,
+    required this.deleted,
+    required this.name,
+    required this.description,
+    required this.createdAt,
+    this.answeredAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['updated_at'] = Variable<int>(updatedAt);
+    map['device_id'] = Variable<String>(deviceId);
+    map['deleted'] = Variable<bool>(deleted);
+    map['name'] = Variable<String>(name);
+    map['description'] = Variable<String>(description);
+    map['created_at'] = Variable<int>(createdAt);
+    if (!nullToAbsent || answeredAt != null) {
+      map['answered_at'] = Variable<int>(answeredAt);
+    }
+    return map;
+  }
+
+  PrayersCompanion toCompanion(bool nullToAbsent) {
+    return PrayersCompanion(
+      id: Value(id),
+      updatedAt: Value(updatedAt),
+      deviceId: Value(deviceId),
+      deleted: Value(deleted),
+      name: Value(name),
+      description: Value(description),
+      createdAt: Value(createdAt),
+      answeredAt: answeredAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(answeredAt),
+    );
+  }
+
+  factory Prayer.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return Prayer(
+      id: serializer.fromJson<String>(json['id']),
+      updatedAt: serializer.fromJson<int>(json['updatedAt']),
+      deviceId: serializer.fromJson<String>(json['deviceId']),
+      deleted: serializer.fromJson<bool>(json['deleted']),
+      name: serializer.fromJson<String>(json['name']),
+      description: serializer.fromJson<String>(json['description']),
+      createdAt: serializer.fromJson<int>(json['createdAt']),
+      answeredAt: serializer.fromJson<int?>(json['answeredAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'updatedAt': serializer.toJson<int>(updatedAt),
+      'deviceId': serializer.toJson<String>(deviceId),
+      'deleted': serializer.toJson<bool>(deleted),
+      'name': serializer.toJson<String>(name),
+      'description': serializer.toJson<String>(description),
+      'createdAt': serializer.toJson<int>(createdAt),
+      'answeredAt': serializer.toJson<int?>(answeredAt),
+    };
+  }
+
+  Prayer copyWith({
+    String? id,
+    int? updatedAt,
+    String? deviceId,
+    bool? deleted,
+    String? name,
+    String? description,
+    int? createdAt,
+    Value<int?> answeredAt = const Value.absent(),
+  }) => Prayer(
+    id: id ?? this.id,
+    updatedAt: updatedAt ?? this.updatedAt,
+    deviceId: deviceId ?? this.deviceId,
+    deleted: deleted ?? this.deleted,
+    name: name ?? this.name,
+    description: description ?? this.description,
+    createdAt: createdAt ?? this.createdAt,
+    answeredAt: answeredAt.present ? answeredAt.value : this.answeredAt,
+  );
+  Prayer copyWithCompanion(PrayersCompanion data) {
+    return Prayer(
+      id: data.id.present ? data.id.value : this.id,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deviceId: data.deviceId.present ? data.deviceId.value : this.deviceId,
+      deleted: data.deleted.present ? data.deleted.value : this.deleted,
+      name: data.name.present ? data.name.value : this.name,
+      description: data.description.present
+          ? data.description.value
+          : this.description,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      answeredAt: data.answeredAt.present
+          ? data.answeredAt.value
+          : this.answeredAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('Prayer(')
+          ..write('id: $id, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deviceId: $deviceId, ')
+          ..write('deleted: $deleted, ')
+          ..write('name: $name, ')
+          ..write('description: $description, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('answeredAt: $answeredAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    updatedAt,
+    deviceId,
+    deleted,
+    name,
+    description,
+    createdAt,
+    answeredAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is Prayer &&
+          other.id == this.id &&
+          other.updatedAt == this.updatedAt &&
+          other.deviceId == this.deviceId &&
+          other.deleted == this.deleted &&
+          other.name == this.name &&
+          other.description == this.description &&
+          other.createdAt == this.createdAt &&
+          other.answeredAt == this.answeredAt);
+}
+
+class PrayersCompanion extends UpdateCompanion<Prayer> {
+  final Value<String> id;
+  final Value<int> updatedAt;
+  final Value<String> deviceId;
+  final Value<bool> deleted;
+  final Value<String> name;
+  final Value<String> description;
+  final Value<int> createdAt;
+  final Value<int?> answeredAt;
+  final Value<int> rowid;
+  const PrayersCompanion({
+    this.id = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deviceId = const Value.absent(),
+    this.deleted = const Value.absent(),
+    this.name = const Value.absent(),
+    this.description = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.answeredAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  PrayersCompanion.insert({
+    required String id,
+    required int updatedAt,
+    required String deviceId,
+    this.deleted = const Value.absent(),
+    required String name,
+    required String description,
+    required int createdAt,
+    this.answeredAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       updatedAt = Value(updatedAt),
+       deviceId = Value(deviceId),
+       name = Value(name),
+       description = Value(description),
+       createdAt = Value(createdAt);
+  static Insertable<Prayer> custom({
+    Expression<String>? id,
+    Expression<int>? updatedAt,
+    Expression<String>? deviceId,
+    Expression<bool>? deleted,
+    Expression<String>? name,
+    Expression<String>? description,
+    Expression<int>? createdAt,
+    Expression<int>? answeredAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deviceId != null) 'device_id': deviceId,
+      if (deleted != null) 'deleted': deleted,
+      if (name != null) 'name': name,
+      if (description != null) 'description': description,
+      if (createdAt != null) 'created_at': createdAt,
+      if (answeredAt != null) 'answered_at': answeredAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  PrayersCompanion copyWith({
+    Value<String>? id,
+    Value<int>? updatedAt,
+    Value<String>? deviceId,
+    Value<bool>? deleted,
+    Value<String>? name,
+    Value<String>? description,
+    Value<int>? createdAt,
+    Value<int?>? answeredAt,
+    Value<int>? rowid,
+  }) {
+    return PrayersCompanion(
+      id: id ?? this.id,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deviceId: deviceId ?? this.deviceId,
+      deleted: deleted ?? this.deleted,
+      name: name ?? this.name,
+      description: description ?? this.description,
+      createdAt: createdAt ?? this.createdAt,
+      answeredAt: answeredAt ?? this.answeredAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<int>(updatedAt.value);
+    }
+    if (deviceId.present) {
+      map['device_id'] = Variable<String>(deviceId.value);
+    }
+    if (deleted.present) {
+      map['deleted'] = Variable<bool>(deleted.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<int>(createdAt.value);
+    }
+    if (answeredAt.present) {
+      map['answered_at'] = Variable<int>(answeredAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PrayersCompanion(')
+          ..write('id: $id, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deviceId: $deviceId, ')
+          ..write('deleted: $deleted, ')
+          ..write('name: $name, ')
+          ..write('description: $description, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('answeredAt: $answeredAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $ReadingProgressesTable extends ReadingProgresses
+    with TableInfo<$ReadingProgressesTable, ReadingProgress> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ReadingProgressesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<int> updatedAt = GeneratedColumn<int>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _deviceIdMeta = const VerificationMeta(
+    'deviceId',
+  );
+  @override
+  late final GeneratedColumn<String> deviceId = GeneratedColumn<String>(
+    'device_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _deletedMeta = const VerificationMeta(
+    'deleted',
+  );
+  @override
+  late final GeneratedColumn<bool> deleted = GeneratedColumn<bool>(
+    'deleted',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("deleted" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _bookNameMeta = const VerificationMeta(
+    'bookName',
+  );
+  @override
+  late final GeneratedColumn<String> bookName = GeneratedColumn<String>(
+    'book_name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _chapterMeta = const VerificationMeta(
+    'chapter',
+  );
+  @override
+  late final GeneratedColumn<int> chapter = GeneratedColumn<int>(
+    'chapter',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _readAtMeta = const VerificationMeta('readAt');
+  @override
+  late final GeneratedColumn<int> readAt = GeneratedColumn<int>(
+    'read_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _iterationMeta = const VerificationMeta(
+    'iteration',
+  );
+  @override
+  late final GeneratedColumn<int> iteration = GeneratedColumn<int>(
+    'iteration',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(1),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    updatedAt,
+    deviceId,
+    deleted,
+    bookName,
+    chapter,
+    readAt,
+    iteration,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'reading_progresses';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ReadingProgress> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('device_id')) {
+      context.handle(
+        _deviceIdMeta,
+        deviceId.isAcceptableOrUnknown(data['device_id']!, _deviceIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_deviceIdMeta);
+    }
+    if (data.containsKey('deleted')) {
+      context.handle(
+        _deletedMeta,
+        deleted.isAcceptableOrUnknown(data['deleted']!, _deletedMeta),
+      );
+    }
+    if (data.containsKey('book_name')) {
+      context.handle(
+        _bookNameMeta,
+        bookName.isAcceptableOrUnknown(data['book_name']!, _bookNameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_bookNameMeta);
+    }
+    if (data.containsKey('chapter')) {
+      context.handle(
+        _chapterMeta,
+        chapter.isAcceptableOrUnknown(data['chapter']!, _chapterMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_chapterMeta);
+    }
+    if (data.containsKey('read_at')) {
+      context.handle(
+        _readAtMeta,
+        readAt.isAcceptableOrUnknown(data['read_at']!, _readAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_readAtMeta);
+    }
+    if (data.containsKey('iteration')) {
+      context.handle(
+        _iterationMeta,
+        iteration.isAcceptableOrUnknown(data['iteration']!, _iterationMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ReadingProgress map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ReadingProgress(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}updated_at'],
+      )!,
+      deviceId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}device_id'],
+      )!,
+      deleted: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}deleted'],
+      )!,
+      bookName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}book_name'],
+      )!,
+      chapter: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}chapter'],
+      )!,
+      readAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}read_at'],
+      )!,
+      iteration: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}iteration'],
+      )!,
+    );
+  }
+
+  @override
+  $ReadingProgressesTable createAlias(String alias) {
+    return $ReadingProgressesTable(attachedDatabase, alias);
+  }
+}
+
+class ReadingProgress extends DataClass implements Insertable<ReadingProgress> {
+  final String id;
+  final int updatedAt;
+  final String deviceId;
+  final bool deleted;
+  final String bookName;
+  final int chapter;
+  final int readAt;
+  final int iteration;
+  const ReadingProgress({
+    required this.id,
+    required this.updatedAt,
+    required this.deviceId,
+    required this.deleted,
+    required this.bookName,
+    required this.chapter,
+    required this.readAt,
+    required this.iteration,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['updated_at'] = Variable<int>(updatedAt);
+    map['device_id'] = Variable<String>(deviceId);
+    map['deleted'] = Variable<bool>(deleted);
+    map['book_name'] = Variable<String>(bookName);
+    map['chapter'] = Variable<int>(chapter);
+    map['read_at'] = Variable<int>(readAt);
+    map['iteration'] = Variable<int>(iteration);
+    return map;
+  }
+
+  ReadingProgressesCompanion toCompanion(bool nullToAbsent) {
+    return ReadingProgressesCompanion(
+      id: Value(id),
+      updatedAt: Value(updatedAt),
+      deviceId: Value(deviceId),
+      deleted: Value(deleted),
+      bookName: Value(bookName),
+      chapter: Value(chapter),
+      readAt: Value(readAt),
+      iteration: Value(iteration),
+    );
+  }
+
+  factory ReadingProgress.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ReadingProgress(
+      id: serializer.fromJson<String>(json['id']),
+      updatedAt: serializer.fromJson<int>(json['updatedAt']),
+      deviceId: serializer.fromJson<String>(json['deviceId']),
+      deleted: serializer.fromJson<bool>(json['deleted']),
+      bookName: serializer.fromJson<String>(json['bookName']),
+      chapter: serializer.fromJson<int>(json['chapter']),
+      readAt: serializer.fromJson<int>(json['readAt']),
+      iteration: serializer.fromJson<int>(json['iteration']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'updatedAt': serializer.toJson<int>(updatedAt),
+      'deviceId': serializer.toJson<String>(deviceId),
+      'deleted': serializer.toJson<bool>(deleted),
+      'bookName': serializer.toJson<String>(bookName),
+      'chapter': serializer.toJson<int>(chapter),
+      'readAt': serializer.toJson<int>(readAt),
+      'iteration': serializer.toJson<int>(iteration),
+    };
+  }
+
+  ReadingProgress copyWith({
+    String? id,
+    int? updatedAt,
+    String? deviceId,
+    bool? deleted,
+    String? bookName,
+    int? chapter,
+    int? readAt,
+    int? iteration,
+  }) => ReadingProgress(
+    id: id ?? this.id,
+    updatedAt: updatedAt ?? this.updatedAt,
+    deviceId: deviceId ?? this.deviceId,
+    deleted: deleted ?? this.deleted,
+    bookName: bookName ?? this.bookName,
+    chapter: chapter ?? this.chapter,
+    readAt: readAt ?? this.readAt,
+    iteration: iteration ?? this.iteration,
+  );
+  ReadingProgress copyWithCompanion(ReadingProgressesCompanion data) {
+    return ReadingProgress(
+      id: data.id.present ? data.id.value : this.id,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deviceId: data.deviceId.present ? data.deviceId.value : this.deviceId,
+      deleted: data.deleted.present ? data.deleted.value : this.deleted,
+      bookName: data.bookName.present ? data.bookName.value : this.bookName,
+      chapter: data.chapter.present ? data.chapter.value : this.chapter,
+      readAt: data.readAt.present ? data.readAt.value : this.readAt,
+      iteration: data.iteration.present ? data.iteration.value : this.iteration,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ReadingProgress(')
+          ..write('id: $id, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deviceId: $deviceId, ')
+          ..write('deleted: $deleted, ')
+          ..write('bookName: $bookName, ')
+          ..write('chapter: $chapter, ')
+          ..write('readAt: $readAt, ')
+          ..write('iteration: $iteration')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    updatedAt,
+    deviceId,
+    deleted,
+    bookName,
+    chapter,
+    readAt,
+    iteration,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ReadingProgress &&
+          other.id == this.id &&
+          other.updatedAt == this.updatedAt &&
+          other.deviceId == this.deviceId &&
+          other.deleted == this.deleted &&
+          other.bookName == this.bookName &&
+          other.chapter == this.chapter &&
+          other.readAt == this.readAt &&
+          other.iteration == this.iteration);
+}
+
+class ReadingProgressesCompanion extends UpdateCompanion<ReadingProgress> {
+  final Value<String> id;
+  final Value<int> updatedAt;
+  final Value<String> deviceId;
+  final Value<bool> deleted;
+  final Value<String> bookName;
+  final Value<int> chapter;
+  final Value<int> readAt;
+  final Value<int> iteration;
+  final Value<int> rowid;
+  const ReadingProgressesCompanion({
+    this.id = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deviceId = const Value.absent(),
+    this.deleted = const Value.absent(),
+    this.bookName = const Value.absent(),
+    this.chapter = const Value.absent(),
+    this.readAt = const Value.absent(),
+    this.iteration = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ReadingProgressesCompanion.insert({
+    required String id,
+    required int updatedAt,
+    required String deviceId,
+    this.deleted = const Value.absent(),
+    required String bookName,
+    required int chapter,
+    required int readAt,
+    this.iteration = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       updatedAt = Value(updatedAt),
+       deviceId = Value(deviceId),
+       bookName = Value(bookName),
+       chapter = Value(chapter),
+       readAt = Value(readAt);
+  static Insertable<ReadingProgress> custom({
+    Expression<String>? id,
+    Expression<int>? updatedAt,
+    Expression<String>? deviceId,
+    Expression<bool>? deleted,
+    Expression<String>? bookName,
+    Expression<int>? chapter,
+    Expression<int>? readAt,
+    Expression<int>? iteration,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deviceId != null) 'device_id': deviceId,
+      if (deleted != null) 'deleted': deleted,
+      if (bookName != null) 'book_name': bookName,
+      if (chapter != null) 'chapter': chapter,
+      if (readAt != null) 'read_at': readAt,
+      if (iteration != null) 'iteration': iteration,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ReadingProgressesCompanion copyWith({
+    Value<String>? id,
+    Value<int>? updatedAt,
+    Value<String>? deviceId,
+    Value<bool>? deleted,
+    Value<String>? bookName,
+    Value<int>? chapter,
+    Value<int>? readAt,
+    Value<int>? iteration,
+    Value<int>? rowid,
+  }) {
+    return ReadingProgressesCompanion(
+      id: id ?? this.id,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deviceId: deviceId ?? this.deviceId,
+      deleted: deleted ?? this.deleted,
+      bookName: bookName ?? this.bookName,
+      chapter: chapter ?? this.chapter,
+      readAt: readAt ?? this.readAt,
+      iteration: iteration ?? this.iteration,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<int>(updatedAt.value);
+    }
+    if (deviceId.present) {
+      map['device_id'] = Variable<String>(deviceId.value);
+    }
+    if (deleted.present) {
+      map['deleted'] = Variable<bool>(deleted.value);
+    }
+    if (bookName.present) {
+      map['book_name'] = Variable<String>(bookName.value);
+    }
+    if (chapter.present) {
+      map['chapter'] = Variable<int>(chapter.value);
+    }
+    if (readAt.present) {
+      map['read_at'] = Variable<int>(readAt.value);
+    }
+    if (iteration.present) {
+      map['iteration'] = Variable<int>(iteration.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ReadingProgressesCompanion(')
+          ..write('id: $id, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deviceId: $deviceId, ')
+          ..write('deleted: $deleted, ')
+          ..write('bookName: $bookName, ')
+          ..write('chapter: $chapter, ')
+          ..write('readAt: $readAt, ')
+          ..write('iteration: $iteration, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $TimeTrackersTable extends TimeTrackers
+    with TableInfo<$TimeTrackersTable, TimeTracker> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $TimeTrackersTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<int> updatedAt = GeneratedColumn<int>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _deviceIdMeta = const VerificationMeta(
+    'deviceId',
+  );
+  @override
+  late final GeneratedColumn<String> deviceId = GeneratedColumn<String>(
+    'device_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _deletedMeta = const VerificationMeta(
+    'deleted',
+  );
+  @override
+  late final GeneratedColumn<bool> deleted = GeneratedColumn<bool>(
+    'deleted',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("deleted" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _startTimeMeta = const VerificationMeta(
+    'startTime',
+  );
+  @override
+  late final GeneratedColumn<int> startTime = GeneratedColumn<int>(
+    'start_time',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _endTimeMeta = const VerificationMeta(
+    'endTime',
+  );
+  @override
+  late final GeneratedColumn<int> endTime = GeneratedColumn<int>(
+    'end_time',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _durationMsMeta = const VerificationMeta(
+    'durationMs',
+  );
+  @override
+  late final GeneratedColumn<int> durationMs = GeneratedColumn<int>(
+    'duration_ms',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _activityTypeMeta = const VerificationMeta(
+    'activityType',
+  );
+  @override
+  late final GeneratedColumn<String> activityType = GeneratedColumn<String>(
+    'activity_type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    updatedAt,
+    deviceId,
+    deleted,
+    startTime,
+    endTime,
+    durationMs,
+    activityType,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'time_trackers';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<TimeTracker> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('device_id')) {
+      context.handle(
+        _deviceIdMeta,
+        deviceId.isAcceptableOrUnknown(data['device_id']!, _deviceIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_deviceIdMeta);
+    }
+    if (data.containsKey('deleted')) {
+      context.handle(
+        _deletedMeta,
+        deleted.isAcceptableOrUnknown(data['deleted']!, _deletedMeta),
+      );
+    }
+    if (data.containsKey('start_time')) {
+      context.handle(
+        _startTimeMeta,
+        startTime.isAcceptableOrUnknown(data['start_time']!, _startTimeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_startTimeMeta);
+    }
+    if (data.containsKey('end_time')) {
+      context.handle(
+        _endTimeMeta,
+        endTime.isAcceptableOrUnknown(data['end_time']!, _endTimeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_endTimeMeta);
+    }
+    if (data.containsKey('duration_ms')) {
+      context.handle(
+        _durationMsMeta,
+        durationMs.isAcceptableOrUnknown(data['duration_ms']!, _durationMsMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_durationMsMeta);
+    }
+    if (data.containsKey('activity_type')) {
+      context.handle(
+        _activityTypeMeta,
+        activityType.isAcceptableOrUnknown(
+          data['activity_type']!,
+          _activityTypeMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_activityTypeMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  TimeTracker map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return TimeTracker(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}updated_at'],
+      )!,
+      deviceId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}device_id'],
+      )!,
+      deleted: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}deleted'],
+      )!,
+      startTime: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}start_time'],
+      )!,
+      endTime: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}end_time'],
+      )!,
+      durationMs: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}duration_ms'],
+      )!,
+      activityType: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}activity_type'],
+      )!,
+    );
+  }
+
+  @override
+  $TimeTrackersTable createAlias(String alias) {
+    return $TimeTrackersTable(attachedDatabase, alias);
+  }
+}
+
+class TimeTracker extends DataClass implements Insertable<TimeTracker> {
+  final String id;
+  final int updatedAt;
+  final String deviceId;
+  final bool deleted;
+  final int startTime;
+  final int endTime;
+  final int durationMs;
+  final String activityType;
+  const TimeTracker({
+    required this.id,
+    required this.updatedAt,
+    required this.deviceId,
+    required this.deleted,
+    required this.startTime,
+    required this.endTime,
+    required this.durationMs,
+    required this.activityType,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['updated_at'] = Variable<int>(updatedAt);
+    map['device_id'] = Variable<String>(deviceId);
+    map['deleted'] = Variable<bool>(deleted);
+    map['start_time'] = Variable<int>(startTime);
+    map['end_time'] = Variable<int>(endTime);
+    map['duration_ms'] = Variable<int>(durationMs);
+    map['activity_type'] = Variable<String>(activityType);
+    return map;
+  }
+
+  TimeTrackersCompanion toCompanion(bool nullToAbsent) {
+    return TimeTrackersCompanion(
+      id: Value(id),
+      updatedAt: Value(updatedAt),
+      deviceId: Value(deviceId),
+      deleted: Value(deleted),
+      startTime: Value(startTime),
+      endTime: Value(endTime),
+      durationMs: Value(durationMs),
+      activityType: Value(activityType),
+    );
+  }
+
+  factory TimeTracker.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return TimeTracker(
+      id: serializer.fromJson<String>(json['id']),
+      updatedAt: serializer.fromJson<int>(json['updatedAt']),
+      deviceId: serializer.fromJson<String>(json['deviceId']),
+      deleted: serializer.fromJson<bool>(json['deleted']),
+      startTime: serializer.fromJson<int>(json['startTime']),
+      endTime: serializer.fromJson<int>(json['endTime']),
+      durationMs: serializer.fromJson<int>(json['durationMs']),
+      activityType: serializer.fromJson<String>(json['activityType']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'updatedAt': serializer.toJson<int>(updatedAt),
+      'deviceId': serializer.toJson<String>(deviceId),
+      'deleted': serializer.toJson<bool>(deleted),
+      'startTime': serializer.toJson<int>(startTime),
+      'endTime': serializer.toJson<int>(endTime),
+      'durationMs': serializer.toJson<int>(durationMs),
+      'activityType': serializer.toJson<String>(activityType),
+    };
+  }
+
+  TimeTracker copyWith({
+    String? id,
+    int? updatedAt,
+    String? deviceId,
+    bool? deleted,
+    int? startTime,
+    int? endTime,
+    int? durationMs,
+    String? activityType,
+  }) => TimeTracker(
+    id: id ?? this.id,
+    updatedAt: updatedAt ?? this.updatedAt,
+    deviceId: deviceId ?? this.deviceId,
+    deleted: deleted ?? this.deleted,
+    startTime: startTime ?? this.startTime,
+    endTime: endTime ?? this.endTime,
+    durationMs: durationMs ?? this.durationMs,
+    activityType: activityType ?? this.activityType,
+  );
+  TimeTracker copyWithCompanion(TimeTrackersCompanion data) {
+    return TimeTracker(
+      id: data.id.present ? data.id.value : this.id,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deviceId: data.deviceId.present ? data.deviceId.value : this.deviceId,
+      deleted: data.deleted.present ? data.deleted.value : this.deleted,
+      startTime: data.startTime.present ? data.startTime.value : this.startTime,
+      endTime: data.endTime.present ? data.endTime.value : this.endTime,
+      durationMs: data.durationMs.present
+          ? data.durationMs.value
+          : this.durationMs,
+      activityType: data.activityType.present
+          ? data.activityType.value
+          : this.activityType,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TimeTracker(')
+          ..write('id: $id, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deviceId: $deviceId, ')
+          ..write('deleted: $deleted, ')
+          ..write('startTime: $startTime, ')
+          ..write('endTime: $endTime, ')
+          ..write('durationMs: $durationMs, ')
+          ..write('activityType: $activityType')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    updatedAt,
+    deviceId,
+    deleted,
+    startTime,
+    endTime,
+    durationMs,
+    activityType,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is TimeTracker &&
+          other.id == this.id &&
+          other.updatedAt == this.updatedAt &&
+          other.deviceId == this.deviceId &&
+          other.deleted == this.deleted &&
+          other.startTime == this.startTime &&
+          other.endTime == this.endTime &&
+          other.durationMs == this.durationMs &&
+          other.activityType == this.activityType);
+}
+
+class TimeTrackersCompanion extends UpdateCompanion<TimeTracker> {
+  final Value<String> id;
+  final Value<int> updatedAt;
+  final Value<String> deviceId;
+  final Value<bool> deleted;
+  final Value<int> startTime;
+  final Value<int> endTime;
+  final Value<int> durationMs;
+  final Value<String> activityType;
+  final Value<int> rowid;
+  const TimeTrackersCompanion({
+    this.id = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deviceId = const Value.absent(),
+    this.deleted = const Value.absent(),
+    this.startTime = const Value.absent(),
+    this.endTime = const Value.absent(),
+    this.durationMs = const Value.absent(),
+    this.activityType = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  TimeTrackersCompanion.insert({
+    required String id,
+    required int updatedAt,
+    required String deviceId,
+    this.deleted = const Value.absent(),
+    required int startTime,
+    required int endTime,
+    required int durationMs,
+    required String activityType,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       updatedAt = Value(updatedAt),
+       deviceId = Value(deviceId),
+       startTime = Value(startTime),
+       endTime = Value(endTime),
+       durationMs = Value(durationMs),
+       activityType = Value(activityType);
+  static Insertable<TimeTracker> custom({
+    Expression<String>? id,
+    Expression<int>? updatedAt,
+    Expression<String>? deviceId,
+    Expression<bool>? deleted,
+    Expression<int>? startTime,
+    Expression<int>? endTime,
+    Expression<int>? durationMs,
+    Expression<String>? activityType,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deviceId != null) 'device_id': deviceId,
+      if (deleted != null) 'deleted': deleted,
+      if (startTime != null) 'start_time': startTime,
+      if (endTime != null) 'end_time': endTime,
+      if (durationMs != null) 'duration_ms': durationMs,
+      if (activityType != null) 'activity_type': activityType,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  TimeTrackersCompanion copyWith({
+    Value<String>? id,
+    Value<int>? updatedAt,
+    Value<String>? deviceId,
+    Value<bool>? deleted,
+    Value<int>? startTime,
+    Value<int>? endTime,
+    Value<int>? durationMs,
+    Value<String>? activityType,
+    Value<int>? rowid,
+  }) {
+    return TimeTrackersCompanion(
+      id: id ?? this.id,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deviceId: deviceId ?? this.deviceId,
+      deleted: deleted ?? this.deleted,
+      startTime: startTime ?? this.startTime,
+      endTime: endTime ?? this.endTime,
+      durationMs: durationMs ?? this.durationMs,
+      activityType: activityType ?? this.activityType,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<int>(updatedAt.value);
+    }
+    if (deviceId.present) {
+      map['device_id'] = Variable<String>(deviceId.value);
+    }
+    if (deleted.present) {
+      map['deleted'] = Variable<bool>(deleted.value);
+    }
+    if (startTime.present) {
+      map['start_time'] = Variable<int>(startTime.value);
+    }
+    if (endTime.present) {
+      map['end_time'] = Variable<int>(endTime.value);
+    }
+    if (durationMs.present) {
+      map['duration_ms'] = Variable<int>(durationMs.value);
+    }
+    if (activityType.present) {
+      map['activity_type'] = Variable<String>(activityType.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TimeTrackersCompanion(')
+          ..write('id: $id, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deviceId: $deviceId, ')
+          ..write('deleted: $deleted, ')
+          ..write('startTime: $startTime, ')
+          ..write('endTime: $endTime, ')
+          ..write('durationMs: $durationMs, ')
+          ..write('activityType: $activityType, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $AchievementsTable extends Achievements
+    with TableInfo<$AchievementsTable, Achievement> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $AchievementsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<int> updatedAt = GeneratedColumn<int>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _deviceIdMeta = const VerificationMeta(
+    'deviceId',
+  );
+  @override
+  late final GeneratedColumn<String> deviceId = GeneratedColumn<String>(
+    'device_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _deletedMeta = const VerificationMeta(
+    'deleted',
+  );
+  @override
+  late final GeneratedColumn<bool> deleted = GeneratedColumn<bool>(
+    'deleted',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("deleted" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _unlockedAtMeta = const VerificationMeta(
+    'unlockedAt',
+  );
+  @override
+  late final GeneratedColumn<int> unlockedAt = GeneratedColumn<int>(
+    'unlocked_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    updatedAt,
+    deviceId,
+    deleted,
+    unlockedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'achievements';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<Achievement> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('device_id')) {
+      context.handle(
+        _deviceIdMeta,
+        deviceId.isAcceptableOrUnknown(data['device_id']!, _deviceIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_deviceIdMeta);
+    }
+    if (data.containsKey('deleted')) {
+      context.handle(
+        _deletedMeta,
+        deleted.isAcceptableOrUnknown(data['deleted']!, _deletedMeta),
+      );
+    }
+    if (data.containsKey('unlocked_at')) {
+      context.handle(
+        _unlockedAtMeta,
+        unlockedAt.isAcceptableOrUnknown(data['unlocked_at']!, _unlockedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_unlockedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  Achievement map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return Achievement(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}updated_at'],
+      )!,
+      deviceId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}device_id'],
+      )!,
+      deleted: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}deleted'],
+      )!,
+      unlockedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}unlocked_at'],
+      )!,
+    );
+  }
+
+  @override
+  $AchievementsTable createAlias(String alias) {
+    return $AchievementsTable(attachedDatabase, alias);
+  }
+}
+
+class Achievement extends DataClass implements Insertable<Achievement> {
+  final String id;
+  final int updatedAt;
+  final String deviceId;
+  final bool deleted;
+  final int unlockedAt;
+  const Achievement({
+    required this.id,
+    required this.updatedAt,
+    required this.deviceId,
+    required this.deleted,
+    required this.unlockedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['updated_at'] = Variable<int>(updatedAt);
+    map['device_id'] = Variable<String>(deviceId);
+    map['deleted'] = Variable<bool>(deleted);
+    map['unlocked_at'] = Variable<int>(unlockedAt);
+    return map;
+  }
+
+  AchievementsCompanion toCompanion(bool nullToAbsent) {
+    return AchievementsCompanion(
+      id: Value(id),
+      updatedAt: Value(updatedAt),
+      deviceId: Value(deviceId),
+      deleted: Value(deleted),
+      unlockedAt: Value(unlockedAt),
+    );
+  }
+
+  factory Achievement.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return Achievement(
+      id: serializer.fromJson<String>(json['id']),
+      updatedAt: serializer.fromJson<int>(json['updatedAt']),
+      deviceId: serializer.fromJson<String>(json['deviceId']),
+      deleted: serializer.fromJson<bool>(json['deleted']),
+      unlockedAt: serializer.fromJson<int>(json['unlockedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'updatedAt': serializer.toJson<int>(updatedAt),
+      'deviceId': serializer.toJson<String>(deviceId),
+      'deleted': serializer.toJson<bool>(deleted),
+      'unlockedAt': serializer.toJson<int>(unlockedAt),
+    };
+  }
+
+  Achievement copyWith({
+    String? id,
+    int? updatedAt,
+    String? deviceId,
+    bool? deleted,
+    int? unlockedAt,
+  }) => Achievement(
+    id: id ?? this.id,
+    updatedAt: updatedAt ?? this.updatedAt,
+    deviceId: deviceId ?? this.deviceId,
+    deleted: deleted ?? this.deleted,
+    unlockedAt: unlockedAt ?? this.unlockedAt,
+  );
+  Achievement copyWithCompanion(AchievementsCompanion data) {
+    return Achievement(
+      id: data.id.present ? data.id.value : this.id,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deviceId: data.deviceId.present ? data.deviceId.value : this.deviceId,
+      deleted: data.deleted.present ? data.deleted.value : this.deleted,
+      unlockedAt: data.unlockedAt.present
+          ? data.unlockedAt.value
+          : this.unlockedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('Achievement(')
+          ..write('id: $id, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deviceId: $deviceId, ')
+          ..write('deleted: $deleted, ')
+          ..write('unlockedAt: $unlockedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, updatedAt, deviceId, deleted, unlockedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is Achievement &&
+          other.id == this.id &&
+          other.updatedAt == this.updatedAt &&
+          other.deviceId == this.deviceId &&
+          other.deleted == this.deleted &&
+          other.unlockedAt == this.unlockedAt);
+}
+
+class AchievementsCompanion extends UpdateCompanion<Achievement> {
+  final Value<String> id;
+  final Value<int> updatedAt;
+  final Value<String> deviceId;
+  final Value<bool> deleted;
+  final Value<int> unlockedAt;
+  final Value<int> rowid;
+  const AchievementsCompanion({
+    this.id = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deviceId = const Value.absent(),
+    this.deleted = const Value.absent(),
+    this.unlockedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  AchievementsCompanion.insert({
+    required String id,
+    required int updatedAt,
+    required String deviceId,
+    this.deleted = const Value.absent(),
+    required int unlockedAt,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       updatedAt = Value(updatedAt),
+       deviceId = Value(deviceId),
+       unlockedAt = Value(unlockedAt);
+  static Insertable<Achievement> custom({
+    Expression<String>? id,
+    Expression<int>? updatedAt,
+    Expression<String>? deviceId,
+    Expression<bool>? deleted,
+    Expression<int>? unlockedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deviceId != null) 'device_id': deviceId,
+      if (deleted != null) 'deleted': deleted,
+      if (unlockedAt != null) 'unlocked_at': unlockedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  AchievementsCompanion copyWith({
+    Value<String>? id,
+    Value<int>? updatedAt,
+    Value<String>? deviceId,
+    Value<bool>? deleted,
+    Value<int>? unlockedAt,
+    Value<int>? rowid,
+  }) {
+    return AchievementsCompanion(
+      id: id ?? this.id,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deviceId: deviceId ?? this.deviceId,
+      deleted: deleted ?? this.deleted,
+      unlockedAt: unlockedAt ?? this.unlockedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<int>(updatedAt.value);
+    }
+    if (deviceId.present) {
+      map['device_id'] = Variable<String>(deviceId.value);
+    }
+    if (deleted.present) {
+      map['deleted'] = Variable<bool>(deleted.value);
+    }
+    if (unlockedAt.present) {
+      map['unlocked_at'] = Variable<int>(unlockedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AchievementsCompanion(')
+          ..write('id: $id, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deviceId: $deviceId, ')
+          ..write('deleted: $deleted, ')
+          ..write('unlockedAt: $unlockedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$UserStore extends GeneratedDatabase {
   _$UserStore(QueryExecutor e) : super(e);
   $UserStoreManager get managers => $UserStoreManager(this);
   late final $HighlightsTable highlights = $HighlightsTable(this);
   late final $NotesTable notes = $NotesTable(this);
   late final $BookmarksTable bookmarks = $BookmarksTable(this);
+  late final $JournalsTable journals = $JournalsTable(this);
+  late final $PrayersTable prayers = $PrayersTable(this);
+  late final $ReadingProgressesTable readingProgresses =
+      $ReadingProgressesTable(this);
+  late final $TimeTrackersTable timeTrackers = $TimeTrackersTable(this);
+  late final $AchievementsTable achievements = $AchievementsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -1548,6 +3918,11 @@ abstract class _$UserStore extends GeneratedDatabase {
     highlights,
     notes,
     bookmarks,
+    journals,
+    prayers,
+    readingProgresses,
+    timeTrackers,
+    achievements,
   ];
 }
 
@@ -2302,6 +4677,1222 @@ typedef $$BookmarksTableProcessedTableManager =
       Bookmark,
       PrefetchHooks Function()
     >;
+typedef $$JournalsTableCreateCompanionBuilder =
+    JournalsCompanion Function({
+      required String id,
+      required int updatedAt,
+      required String deviceId,
+      Value<bool> deleted,
+      required String title,
+      required String content,
+      Value<String?> tags,
+      Value<int> rowid,
+    });
+typedef $$JournalsTableUpdateCompanionBuilder =
+    JournalsCompanion Function({
+      Value<String> id,
+      Value<int> updatedAt,
+      Value<String> deviceId,
+      Value<bool> deleted,
+      Value<String> title,
+      Value<String> content,
+      Value<String?> tags,
+      Value<int> rowid,
+    });
+
+class $$JournalsTableFilterComposer
+    extends Composer<_$UserStore, $JournalsTable> {
+  $$JournalsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get deviceId => $composableBuilder(
+    column: $table.deviceId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get deleted => $composableBuilder(
+    column: $table.deleted,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get content => $composableBuilder(
+    column: $table.content,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get tags => $composableBuilder(
+    column: $table.tags,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$JournalsTableOrderingComposer
+    extends Composer<_$UserStore, $JournalsTable> {
+  $$JournalsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get deviceId => $composableBuilder(
+    column: $table.deviceId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get deleted => $composableBuilder(
+    column: $table.deleted,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get content => $composableBuilder(
+    column: $table.content,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get tags => $composableBuilder(
+    column: $table.tags,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$JournalsTableAnnotationComposer
+    extends Composer<_$UserStore, $JournalsTable> {
+  $$JournalsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get deviceId =>
+      $composableBuilder(column: $table.deviceId, builder: (column) => column);
+
+  GeneratedColumn<bool> get deleted =>
+      $composableBuilder(column: $table.deleted, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get content =>
+      $composableBuilder(column: $table.content, builder: (column) => column);
+
+  GeneratedColumn<String> get tags =>
+      $composableBuilder(column: $table.tags, builder: (column) => column);
+}
+
+class $$JournalsTableTableManager
+    extends
+        RootTableManager<
+          _$UserStore,
+          $JournalsTable,
+          Journal,
+          $$JournalsTableFilterComposer,
+          $$JournalsTableOrderingComposer,
+          $$JournalsTableAnnotationComposer,
+          $$JournalsTableCreateCompanionBuilder,
+          $$JournalsTableUpdateCompanionBuilder,
+          (Journal, BaseReferences<_$UserStore, $JournalsTable, Journal>),
+          Journal,
+          PrefetchHooks Function()
+        > {
+  $$JournalsTableTableManager(_$UserStore db, $JournalsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$JournalsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$JournalsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$JournalsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<int> updatedAt = const Value.absent(),
+                Value<String> deviceId = const Value.absent(),
+                Value<bool> deleted = const Value.absent(),
+                Value<String> title = const Value.absent(),
+                Value<String> content = const Value.absent(),
+                Value<String?> tags = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => JournalsCompanion(
+                id: id,
+                updatedAt: updatedAt,
+                deviceId: deviceId,
+                deleted: deleted,
+                title: title,
+                content: content,
+                tags: tags,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required int updatedAt,
+                required String deviceId,
+                Value<bool> deleted = const Value.absent(),
+                required String title,
+                required String content,
+                Value<String?> tags = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => JournalsCompanion.insert(
+                id: id,
+                updatedAt: updatedAt,
+                deviceId: deviceId,
+                deleted: deleted,
+                title: title,
+                content: content,
+                tags: tags,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$JournalsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$UserStore,
+      $JournalsTable,
+      Journal,
+      $$JournalsTableFilterComposer,
+      $$JournalsTableOrderingComposer,
+      $$JournalsTableAnnotationComposer,
+      $$JournalsTableCreateCompanionBuilder,
+      $$JournalsTableUpdateCompanionBuilder,
+      (Journal, BaseReferences<_$UserStore, $JournalsTable, Journal>),
+      Journal,
+      PrefetchHooks Function()
+    >;
+typedef $$PrayersTableCreateCompanionBuilder =
+    PrayersCompanion Function({
+      required String id,
+      required int updatedAt,
+      required String deviceId,
+      Value<bool> deleted,
+      required String name,
+      required String description,
+      required int createdAt,
+      Value<int?> answeredAt,
+      Value<int> rowid,
+    });
+typedef $$PrayersTableUpdateCompanionBuilder =
+    PrayersCompanion Function({
+      Value<String> id,
+      Value<int> updatedAt,
+      Value<String> deviceId,
+      Value<bool> deleted,
+      Value<String> name,
+      Value<String> description,
+      Value<int> createdAt,
+      Value<int?> answeredAt,
+      Value<int> rowid,
+    });
+
+class $$PrayersTableFilterComposer
+    extends Composer<_$UserStore, $PrayersTable> {
+  $$PrayersTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get deviceId => $composableBuilder(
+    column: $table.deviceId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get deleted => $composableBuilder(
+    column: $table.deleted,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get answeredAt => $composableBuilder(
+    column: $table.answeredAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$PrayersTableOrderingComposer
+    extends Composer<_$UserStore, $PrayersTable> {
+  $$PrayersTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get deviceId => $composableBuilder(
+    column: $table.deviceId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get deleted => $composableBuilder(
+    column: $table.deleted,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get answeredAt => $composableBuilder(
+    column: $table.answeredAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$PrayersTableAnnotationComposer
+    extends Composer<_$UserStore, $PrayersTable> {
+  $$PrayersTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get deviceId =>
+      $composableBuilder(column: $table.deviceId, builder: (column) => column);
+
+  GeneratedColumn<bool> get deleted =>
+      $composableBuilder(column: $table.deleted, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<int> get answeredAt => $composableBuilder(
+    column: $table.answeredAt,
+    builder: (column) => column,
+  );
+}
+
+class $$PrayersTableTableManager
+    extends
+        RootTableManager<
+          _$UserStore,
+          $PrayersTable,
+          Prayer,
+          $$PrayersTableFilterComposer,
+          $$PrayersTableOrderingComposer,
+          $$PrayersTableAnnotationComposer,
+          $$PrayersTableCreateCompanionBuilder,
+          $$PrayersTableUpdateCompanionBuilder,
+          (Prayer, BaseReferences<_$UserStore, $PrayersTable, Prayer>),
+          Prayer,
+          PrefetchHooks Function()
+        > {
+  $$PrayersTableTableManager(_$UserStore db, $PrayersTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$PrayersTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$PrayersTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$PrayersTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<int> updatedAt = const Value.absent(),
+                Value<String> deviceId = const Value.absent(),
+                Value<bool> deleted = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<String> description = const Value.absent(),
+                Value<int> createdAt = const Value.absent(),
+                Value<int?> answeredAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => PrayersCompanion(
+                id: id,
+                updatedAt: updatedAt,
+                deviceId: deviceId,
+                deleted: deleted,
+                name: name,
+                description: description,
+                createdAt: createdAt,
+                answeredAt: answeredAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required int updatedAt,
+                required String deviceId,
+                Value<bool> deleted = const Value.absent(),
+                required String name,
+                required String description,
+                required int createdAt,
+                Value<int?> answeredAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => PrayersCompanion.insert(
+                id: id,
+                updatedAt: updatedAt,
+                deviceId: deviceId,
+                deleted: deleted,
+                name: name,
+                description: description,
+                createdAt: createdAt,
+                answeredAt: answeredAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$PrayersTableProcessedTableManager =
+    ProcessedTableManager<
+      _$UserStore,
+      $PrayersTable,
+      Prayer,
+      $$PrayersTableFilterComposer,
+      $$PrayersTableOrderingComposer,
+      $$PrayersTableAnnotationComposer,
+      $$PrayersTableCreateCompanionBuilder,
+      $$PrayersTableUpdateCompanionBuilder,
+      (Prayer, BaseReferences<_$UserStore, $PrayersTable, Prayer>),
+      Prayer,
+      PrefetchHooks Function()
+    >;
+typedef $$ReadingProgressesTableCreateCompanionBuilder =
+    ReadingProgressesCompanion Function({
+      required String id,
+      required int updatedAt,
+      required String deviceId,
+      Value<bool> deleted,
+      required String bookName,
+      required int chapter,
+      required int readAt,
+      Value<int> iteration,
+      Value<int> rowid,
+    });
+typedef $$ReadingProgressesTableUpdateCompanionBuilder =
+    ReadingProgressesCompanion Function({
+      Value<String> id,
+      Value<int> updatedAt,
+      Value<String> deviceId,
+      Value<bool> deleted,
+      Value<String> bookName,
+      Value<int> chapter,
+      Value<int> readAt,
+      Value<int> iteration,
+      Value<int> rowid,
+    });
+
+class $$ReadingProgressesTableFilterComposer
+    extends Composer<_$UserStore, $ReadingProgressesTable> {
+  $$ReadingProgressesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get deviceId => $composableBuilder(
+    column: $table.deviceId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get deleted => $composableBuilder(
+    column: $table.deleted,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get bookName => $composableBuilder(
+    column: $table.bookName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get chapter => $composableBuilder(
+    column: $table.chapter,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get readAt => $composableBuilder(
+    column: $table.readAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get iteration => $composableBuilder(
+    column: $table.iteration,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$ReadingProgressesTableOrderingComposer
+    extends Composer<_$UserStore, $ReadingProgressesTable> {
+  $$ReadingProgressesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get deviceId => $composableBuilder(
+    column: $table.deviceId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get deleted => $composableBuilder(
+    column: $table.deleted,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get bookName => $composableBuilder(
+    column: $table.bookName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get chapter => $composableBuilder(
+    column: $table.chapter,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get readAt => $composableBuilder(
+    column: $table.readAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get iteration => $composableBuilder(
+    column: $table.iteration,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$ReadingProgressesTableAnnotationComposer
+    extends Composer<_$UserStore, $ReadingProgressesTable> {
+  $$ReadingProgressesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get deviceId =>
+      $composableBuilder(column: $table.deviceId, builder: (column) => column);
+
+  GeneratedColumn<bool> get deleted =>
+      $composableBuilder(column: $table.deleted, builder: (column) => column);
+
+  GeneratedColumn<String> get bookName =>
+      $composableBuilder(column: $table.bookName, builder: (column) => column);
+
+  GeneratedColumn<int> get chapter =>
+      $composableBuilder(column: $table.chapter, builder: (column) => column);
+
+  GeneratedColumn<int> get readAt =>
+      $composableBuilder(column: $table.readAt, builder: (column) => column);
+
+  GeneratedColumn<int> get iteration =>
+      $composableBuilder(column: $table.iteration, builder: (column) => column);
+}
+
+class $$ReadingProgressesTableTableManager
+    extends
+        RootTableManager<
+          _$UserStore,
+          $ReadingProgressesTable,
+          ReadingProgress,
+          $$ReadingProgressesTableFilterComposer,
+          $$ReadingProgressesTableOrderingComposer,
+          $$ReadingProgressesTableAnnotationComposer,
+          $$ReadingProgressesTableCreateCompanionBuilder,
+          $$ReadingProgressesTableUpdateCompanionBuilder,
+          (
+            ReadingProgress,
+            BaseReferences<
+              _$UserStore,
+              $ReadingProgressesTable,
+              ReadingProgress
+            >,
+          ),
+          ReadingProgress,
+          PrefetchHooks Function()
+        > {
+  $$ReadingProgressesTableTableManager(
+    _$UserStore db,
+    $ReadingProgressesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ReadingProgressesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ReadingProgressesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ReadingProgressesTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<int> updatedAt = const Value.absent(),
+                Value<String> deviceId = const Value.absent(),
+                Value<bool> deleted = const Value.absent(),
+                Value<String> bookName = const Value.absent(),
+                Value<int> chapter = const Value.absent(),
+                Value<int> readAt = const Value.absent(),
+                Value<int> iteration = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ReadingProgressesCompanion(
+                id: id,
+                updatedAt: updatedAt,
+                deviceId: deviceId,
+                deleted: deleted,
+                bookName: bookName,
+                chapter: chapter,
+                readAt: readAt,
+                iteration: iteration,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required int updatedAt,
+                required String deviceId,
+                Value<bool> deleted = const Value.absent(),
+                required String bookName,
+                required int chapter,
+                required int readAt,
+                Value<int> iteration = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ReadingProgressesCompanion.insert(
+                id: id,
+                updatedAt: updatedAt,
+                deviceId: deviceId,
+                deleted: deleted,
+                bookName: bookName,
+                chapter: chapter,
+                readAt: readAt,
+                iteration: iteration,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$ReadingProgressesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$UserStore,
+      $ReadingProgressesTable,
+      ReadingProgress,
+      $$ReadingProgressesTableFilterComposer,
+      $$ReadingProgressesTableOrderingComposer,
+      $$ReadingProgressesTableAnnotationComposer,
+      $$ReadingProgressesTableCreateCompanionBuilder,
+      $$ReadingProgressesTableUpdateCompanionBuilder,
+      (
+        ReadingProgress,
+        BaseReferences<_$UserStore, $ReadingProgressesTable, ReadingProgress>,
+      ),
+      ReadingProgress,
+      PrefetchHooks Function()
+    >;
+typedef $$TimeTrackersTableCreateCompanionBuilder =
+    TimeTrackersCompanion Function({
+      required String id,
+      required int updatedAt,
+      required String deviceId,
+      Value<bool> deleted,
+      required int startTime,
+      required int endTime,
+      required int durationMs,
+      required String activityType,
+      Value<int> rowid,
+    });
+typedef $$TimeTrackersTableUpdateCompanionBuilder =
+    TimeTrackersCompanion Function({
+      Value<String> id,
+      Value<int> updatedAt,
+      Value<String> deviceId,
+      Value<bool> deleted,
+      Value<int> startTime,
+      Value<int> endTime,
+      Value<int> durationMs,
+      Value<String> activityType,
+      Value<int> rowid,
+    });
+
+class $$TimeTrackersTableFilterComposer
+    extends Composer<_$UserStore, $TimeTrackersTable> {
+  $$TimeTrackersTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get deviceId => $composableBuilder(
+    column: $table.deviceId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get deleted => $composableBuilder(
+    column: $table.deleted,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get startTime => $composableBuilder(
+    column: $table.startTime,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get endTime => $composableBuilder(
+    column: $table.endTime,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get durationMs => $composableBuilder(
+    column: $table.durationMs,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get activityType => $composableBuilder(
+    column: $table.activityType,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$TimeTrackersTableOrderingComposer
+    extends Composer<_$UserStore, $TimeTrackersTable> {
+  $$TimeTrackersTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get deviceId => $composableBuilder(
+    column: $table.deviceId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get deleted => $composableBuilder(
+    column: $table.deleted,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get startTime => $composableBuilder(
+    column: $table.startTime,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get endTime => $composableBuilder(
+    column: $table.endTime,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get durationMs => $composableBuilder(
+    column: $table.durationMs,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get activityType => $composableBuilder(
+    column: $table.activityType,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$TimeTrackersTableAnnotationComposer
+    extends Composer<_$UserStore, $TimeTrackersTable> {
+  $$TimeTrackersTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get deviceId =>
+      $composableBuilder(column: $table.deviceId, builder: (column) => column);
+
+  GeneratedColumn<bool> get deleted =>
+      $composableBuilder(column: $table.deleted, builder: (column) => column);
+
+  GeneratedColumn<int> get startTime =>
+      $composableBuilder(column: $table.startTime, builder: (column) => column);
+
+  GeneratedColumn<int> get endTime =>
+      $composableBuilder(column: $table.endTime, builder: (column) => column);
+
+  GeneratedColumn<int> get durationMs => $composableBuilder(
+    column: $table.durationMs,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get activityType => $composableBuilder(
+    column: $table.activityType,
+    builder: (column) => column,
+  );
+}
+
+class $$TimeTrackersTableTableManager
+    extends
+        RootTableManager<
+          _$UserStore,
+          $TimeTrackersTable,
+          TimeTracker,
+          $$TimeTrackersTableFilterComposer,
+          $$TimeTrackersTableOrderingComposer,
+          $$TimeTrackersTableAnnotationComposer,
+          $$TimeTrackersTableCreateCompanionBuilder,
+          $$TimeTrackersTableUpdateCompanionBuilder,
+          (
+            TimeTracker,
+            BaseReferences<_$UserStore, $TimeTrackersTable, TimeTracker>,
+          ),
+          TimeTracker,
+          PrefetchHooks Function()
+        > {
+  $$TimeTrackersTableTableManager(_$UserStore db, $TimeTrackersTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$TimeTrackersTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$TimeTrackersTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$TimeTrackersTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<int> updatedAt = const Value.absent(),
+                Value<String> deviceId = const Value.absent(),
+                Value<bool> deleted = const Value.absent(),
+                Value<int> startTime = const Value.absent(),
+                Value<int> endTime = const Value.absent(),
+                Value<int> durationMs = const Value.absent(),
+                Value<String> activityType = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => TimeTrackersCompanion(
+                id: id,
+                updatedAt: updatedAt,
+                deviceId: deviceId,
+                deleted: deleted,
+                startTime: startTime,
+                endTime: endTime,
+                durationMs: durationMs,
+                activityType: activityType,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required int updatedAt,
+                required String deviceId,
+                Value<bool> deleted = const Value.absent(),
+                required int startTime,
+                required int endTime,
+                required int durationMs,
+                required String activityType,
+                Value<int> rowid = const Value.absent(),
+              }) => TimeTrackersCompanion.insert(
+                id: id,
+                updatedAt: updatedAt,
+                deviceId: deviceId,
+                deleted: deleted,
+                startTime: startTime,
+                endTime: endTime,
+                durationMs: durationMs,
+                activityType: activityType,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$TimeTrackersTableProcessedTableManager =
+    ProcessedTableManager<
+      _$UserStore,
+      $TimeTrackersTable,
+      TimeTracker,
+      $$TimeTrackersTableFilterComposer,
+      $$TimeTrackersTableOrderingComposer,
+      $$TimeTrackersTableAnnotationComposer,
+      $$TimeTrackersTableCreateCompanionBuilder,
+      $$TimeTrackersTableUpdateCompanionBuilder,
+      (
+        TimeTracker,
+        BaseReferences<_$UserStore, $TimeTrackersTable, TimeTracker>,
+      ),
+      TimeTracker,
+      PrefetchHooks Function()
+    >;
+typedef $$AchievementsTableCreateCompanionBuilder =
+    AchievementsCompanion Function({
+      required String id,
+      required int updatedAt,
+      required String deviceId,
+      Value<bool> deleted,
+      required int unlockedAt,
+      Value<int> rowid,
+    });
+typedef $$AchievementsTableUpdateCompanionBuilder =
+    AchievementsCompanion Function({
+      Value<String> id,
+      Value<int> updatedAt,
+      Value<String> deviceId,
+      Value<bool> deleted,
+      Value<int> unlockedAt,
+      Value<int> rowid,
+    });
+
+class $$AchievementsTableFilterComposer
+    extends Composer<_$UserStore, $AchievementsTable> {
+  $$AchievementsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get deviceId => $composableBuilder(
+    column: $table.deviceId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get deleted => $composableBuilder(
+    column: $table.deleted,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get unlockedAt => $composableBuilder(
+    column: $table.unlockedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$AchievementsTableOrderingComposer
+    extends Composer<_$UserStore, $AchievementsTable> {
+  $$AchievementsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get deviceId => $composableBuilder(
+    column: $table.deviceId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get deleted => $composableBuilder(
+    column: $table.deleted,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get unlockedAt => $composableBuilder(
+    column: $table.unlockedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$AchievementsTableAnnotationComposer
+    extends Composer<_$UserStore, $AchievementsTable> {
+  $$AchievementsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get deviceId =>
+      $composableBuilder(column: $table.deviceId, builder: (column) => column);
+
+  GeneratedColumn<bool> get deleted =>
+      $composableBuilder(column: $table.deleted, builder: (column) => column);
+
+  GeneratedColumn<int> get unlockedAt => $composableBuilder(
+    column: $table.unlockedAt,
+    builder: (column) => column,
+  );
+}
+
+class $$AchievementsTableTableManager
+    extends
+        RootTableManager<
+          _$UserStore,
+          $AchievementsTable,
+          Achievement,
+          $$AchievementsTableFilterComposer,
+          $$AchievementsTableOrderingComposer,
+          $$AchievementsTableAnnotationComposer,
+          $$AchievementsTableCreateCompanionBuilder,
+          $$AchievementsTableUpdateCompanionBuilder,
+          (
+            Achievement,
+            BaseReferences<_$UserStore, $AchievementsTable, Achievement>,
+          ),
+          Achievement,
+          PrefetchHooks Function()
+        > {
+  $$AchievementsTableTableManager(_$UserStore db, $AchievementsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$AchievementsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$AchievementsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$AchievementsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<int> updatedAt = const Value.absent(),
+                Value<String> deviceId = const Value.absent(),
+                Value<bool> deleted = const Value.absent(),
+                Value<int> unlockedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => AchievementsCompanion(
+                id: id,
+                updatedAt: updatedAt,
+                deviceId: deviceId,
+                deleted: deleted,
+                unlockedAt: unlockedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required int updatedAt,
+                required String deviceId,
+                Value<bool> deleted = const Value.absent(),
+                required int unlockedAt,
+                Value<int> rowid = const Value.absent(),
+              }) => AchievementsCompanion.insert(
+                id: id,
+                updatedAt: updatedAt,
+                deviceId: deviceId,
+                deleted: deleted,
+                unlockedAt: unlockedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$AchievementsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$UserStore,
+      $AchievementsTable,
+      Achievement,
+      $$AchievementsTableFilterComposer,
+      $$AchievementsTableOrderingComposer,
+      $$AchievementsTableAnnotationComposer,
+      $$AchievementsTableCreateCompanionBuilder,
+      $$AchievementsTableUpdateCompanionBuilder,
+      (
+        Achievement,
+        BaseReferences<_$UserStore, $AchievementsTable, Achievement>,
+      ),
+      Achievement,
+      PrefetchHooks Function()
+    >;
 
 class $UserStoreManager {
   final _$UserStore _db;
@@ -2312,4 +5903,14 @@ class $UserStoreManager {
       $$NotesTableTableManager(_db, _db.notes);
   $$BookmarksTableTableManager get bookmarks =>
       $$BookmarksTableTableManager(_db, _db.bookmarks);
+  $$JournalsTableTableManager get journals =>
+      $$JournalsTableTableManager(_db, _db.journals);
+  $$PrayersTableTableManager get prayers =>
+      $$PrayersTableTableManager(_db, _db.prayers);
+  $$ReadingProgressesTableTableManager get readingProgresses =>
+      $$ReadingProgressesTableTableManager(_db, _db.readingProgresses);
+  $$TimeTrackersTableTableManager get timeTrackers =>
+      $$TimeTrackersTableTableManager(_db, _db.timeTrackers);
+  $$AchievementsTableTableManager get achievements =>
+      $$AchievementsTableTableManager(_db, _db.achievements);
 }

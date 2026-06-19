@@ -14,7 +14,7 @@ class CrossReferencePanel extends ConsumerWidget {
     final bookName = ref.watch(selectedBookNameProvider);
     final chapter = ref.watch(selectedChapterProvider);
 
-    return Container(
+    return Material(
       color: Theme.of(context).colorScheme.surface,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,

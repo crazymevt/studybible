@@ -5,6 +5,7 @@ import '../../app/user_providers.dart';
 import '../../app/app_state.dart';
 import 'note_editor.dart';
 import 'cross_reference_panel.dart';
+import 'commentary_panel.dart';
 
 class VerseActionBar extends ConsumerWidget {
   const VerseActionBar({super.key});
@@ -19,11 +20,13 @@ class VerseActionBar extends ConsumerWidget {
       color: const Color(0xFF2D2B3B),
       borderRadius: BorderRadius.circular(32),
       clipBehavior: Clip.antiAlias,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
             const _ColorSwatch(color: Color(0xFFFBE083), hex: '#FBE083'),
             const SizedBox(width: 8),
             const _ColorSwatch(color: Color(0xFF98E2C6), hex: '#98E2C6'),
@@ -74,6 +77,31 @@ class VerseActionBar extends ConsumerWidget {
             ),
             const SizedBox(width: 12),
             _ActionIcon(
+              icon: Icons.menu_book,
+              label: 'Commentary',
+              onTap: () {
+                if (MediaQuery.sizeOf(context).width > 800) {
+                  ref.read(activeToolProvider.notifier).setTool(ActiveTool.commentaries);
+                } else {
+                  showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    backgroundColor: Colors.transparent,
+                    builder: (_) => Container(
+                      height: MediaQuery.sizeOf(context).height * 0.8,
+                      clipBehavior: Clip.antiAlias,
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.surface,
+                        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                      ),
+                      child: const CommentaryPanel(),
+                    ),
+                  );
+                }
+              },
+            ),
+            const SizedBox(width: 12),
+            _ActionIcon(
               icon: Icons.copy,
               label: 'Copy',
               onTap: () {
@@ -88,6 +116,7 @@ class VerseActionBar extends ConsumerWidget {
             ),
           ],
         ),
+      ),
       ),
     );
   }

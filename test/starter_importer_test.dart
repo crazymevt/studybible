@@ -169,6 +169,94 @@ void main() {
       )
     );
 
+    // Insert Commentaries
+    final commentaryId = await db.into(db.commentaries).insert(
+      CommentariesCompanion.insert(
+        abbreviation: 'MHC',
+        name: "Matthew Henry's Concise Commentary",
+      )
+    );
+
+    await db.into(db.commentaryEntries).insert(
+      CommentaryEntriesCompanion.insert(
+        commentaryId: commentaryId,
+        bookName: 'John',
+        chapter: const Value(1),
+        verse: const Value(1),
+        textContent: "<h3>John 1:1</h3><p>The plainest reason why the Son of God is called the Word, seems to be, that as our words explain our minds to others, so was the Son of God sent in order to reveal his Father's mind to the world.</p>",
+      )
+    );
+    
+    await db.into(db.commentaryEntries).insert(
+      CommentaryEntriesCompanion.insert(
+        commentaryId: commentaryId,
+        bookName: 'John',
+        chapter: const Value(1),
+        verse: const Value(2),
+        textContent: "<h3>John 1:2</h3><p>What the evangelist says of Christ proves that he is God. He asserts, His existence in the beginning; His coexistence with the Father.</p>",
+      )
+    );
+
+    // Chapter level overview
+    await db.into(db.commentaryEntries).insert(
+      CommentaryEntriesCompanion.insert(
+        commentaryId: commentaryId,
+        bookName: 'John',
+        chapter: const Value(1),
+        verse: const Value(null),
+        textContent: "<h2>Overview of John 1</h2><p>This chapter contains the foundational truth of the gospel: the deity and incarnation of Jesus Christ, the Word made flesh.</p>",
+      )
+    );
+
+    // Book level overview
+    await db.into(db.commentaryEntries).insert(
+      CommentaryEntriesCompanion.insert(
+        commentaryId: commentaryId,
+        bookName: 'John',
+        chapter: const Value(null),
+        verse: const Value(null),
+        textContent: "<h1>The Gospel According to John</h1><p>John's Gospel is distinct from the synoptic gospels. Its main focus is on the deity of Christ.</p>",
+      )
+    );
+
+    // Seed Dictionaries
+    final eastonId = await db.into(db.dictionaries).insert(
+      DictionariesCompanion.insert(
+        abbreviation: 'Easton',
+        name: "Easton's Bible Dictionary",
+      )
+    );
+
+    await db.into(db.dictionaryEntries).insert(
+      DictionaryEntriesCompanion.insert(
+        dictionaryId: eastonId,
+        word: 'Grace',
+        definition: "<h3>Grace</h3><p>Favours received. The free and unmerited favour of God as manifested in the salvation of sinners and the bestowal of blessings.</p>",
+      )
+    );
+
+    await db.into(db.dictionaryEntries).insert(
+      DictionaryEntriesCompanion.insert(
+        dictionaryId: eastonId,
+        word: 'Word',
+        definition: "<h3>Word</h3><p>(Gr. Logos) A title of Jesus Christ (John 1:1, 14; 1 John 1:1; Rev. 19:13). In the beginning was the Word.</p>",
+      )
+    );
+
+    // Setup FTS5 for Content Search
+    await db.customStatement('''
+      CREATE VIRTUAL TABLE content_search USING fts5(type UNINDEXED, reference_id UNINDEXED, text_content);
+    ''');
+    await db.customStatement('''
+      INSERT INTO content_search(type, reference_id, text_content) SELECT 'verse', id, text_content FROM verses;
+    ''');
+    await db.customStatement('''
+      INSERT INTO content_search(type, reference_id, text_content) SELECT 'commentary', id, text_content FROM commentary_entries;
+    ''');
+    await db.customStatement('''
+      INSERT INTO content_search(type, reference_id, text_content) SELECT 'dictionary', id, word FROM dictionary_entries;
+    ''');
+
     await db.close();
     print("✅ Generated sample assets/content.db");
   });
