@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app/content_providers.dart';
 import '../../app/reader_state.dart';
 import '../../app/user_providers.dart';
+import '../../app/tag_providers.dart';
 import '../../app/sync_service.dart';
 import 'verse_list_view.dart';
 import 'flowing_paragraph_view.dart';
@@ -141,6 +142,12 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
     final savedHighlightsAsync = ref.watch(chapterHighlightsProvider);
     final savedHighlights = savedHighlightsAsync.value ?? <int, String>{};
     final selectedVerses = ref.watch(selectedVersesProvider);
+    
+    final versesWithNotesAsync = ref.watch(chapterVersesWithNotesProvider);
+    final versesWithNotes = versesWithNotesAsync.value ?? <int>{};
+    
+    final versesWithTagsAsync = ref.watch(chapterVersesWithTagsProvider);
+    final versesWithTags = versesWithTagsAsync.value ?? <int>{};
 
     // Auto-tracking logic
     ref.listen<String>(selectedBookNameProvider, (prev, next) {
@@ -286,6 +293,8 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
                     verses: verses,
                     selectedVerses: selectedVerses,
                     savedHighlights: savedHighlights,
+                    versesWithNotes: versesWithNotes,
+                    versesWithTags: versesWithTags,
                     onVerseTap: (verseId) => ref
                         .read(selectedVersesProvider.notifier)
                         .toggle(verseId),
@@ -295,6 +304,8 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
                     verses: verses,
                     selectedVerses: selectedVerses,
                     savedHighlights: savedHighlights,
+                    versesWithNotes: versesWithNotes,
+                    versesWithTags: versesWithTags,
                     onVerseTap: (verseId) => ref
                         .read(selectedVersesProvider.notifier)
                         .toggle(verseId),
@@ -306,6 +317,8 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
               isFlowing: _isFlowing,
               selectedVerses: selectedVerses,
               savedHighlights: savedHighlights,
+              versesWithNotes: versesWithNotes,
+              versesWithTags: versesWithTags,
               onVerseTap: (verseId) =>
                   ref.read(selectedVersesProvider.notifier).toggle(verseId),
               onFootnoteTap: (verseId) => _openCommentaryPanel(),

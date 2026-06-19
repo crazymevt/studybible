@@ -104,6 +104,21 @@ final chapterNotesProvider = StreamProvider<List<Note>>((ref) {
       .watch();
 });
 
+final chapterVersesWithNotesProvider = Provider<AsyncValue<Set<int>>>((ref) {
+  final notesAsync = ref.watch(chapterNotesProvider);
+  return notesAsync.whenData((notes) {
+    final set = <int>{};
+    for (final n in notes) {
+      if (n.verse != null) set.add(n.verse!);
+      if (n.selectedVerses != null) {
+        final verses = n.selectedVerses!.split(',').map((e) => int.tryParse(e.trim())).whereType<int>();
+        set.addAll(verses);
+      }
+    }
+    return set;
+  });
+});
+
 final noteActionProvider = Provider((ref) => NoteAction(ref));
 
 class NoteAction {

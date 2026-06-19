@@ -31,7 +31,7 @@ class UserStore extends _$UserStore {
   UserStore([QueryExecutor? e]) : super(e ?? _openConnection());
 
   @override
-  int get schemaVersion => 10;
+  int get schemaVersion => 11;
 
   @override
   MigrationStrategy get migration {
@@ -98,6 +98,7 @@ class UserStore extends _$UserStore {
               DELETE FROM user_search WHERE type = 'note' AND reference_id = old.id;
             END;
           ''');
+          // Note: tags triggers are added in <10 and <11 blocks, so we don't need to add them here since the migration path will just run those blocks next.
         }
         if (from < 3) {
           await m.createTable(journals);
@@ -160,6 +161,27 @@ class UserStore extends _$UserStore {
             CREATE TRIGGER IF NOT EXISTS tags_ad AFTER DELETE ON entity_tags BEGIN
               DELETE FROM user_search WHERE text_content = (SELECT '#' || name FROM tags WHERE id = old.tag_id) AND reference_id = old.entity_id AND type = old.entity_type;
             END;
+          ''');
+        }
+        if (from < 11) {
+          // Add AFTER UPDATE trigger to handle soft deletes
+          await customStatement('''
+            CREATE TRIGGER IF NOT EXISTS tags_au AFTER UPDATE ON entity_tags 
+            WHEN new.deleted = 1 AND old.deleted = 0
+            BEGIN
+              DELETE FROM user_search WHERE text_content = (SELECT '#' || name FROM tags WHERE id = old.tag_id) AND reference_id = old.entity_id AND type = old.entity_type;
+            END;
+          ''');
+          
+          // Cleanup any orphaned tags from user_search that were soft-deleted before this trigger existed
+          await customStatement('''
+            DELETE FROM user_search 
+            WHERE rowid IN (
+              SELECT us.rowid FROM user_search us
+              JOIN entity_tags et ON us.reference_id = et.entity_id AND us.type = et.entity_type
+              JOIN tags t ON et.tag_id = t.id
+              WHERE et.deleted = 1 AND us.text_content = '#' || t.name
+            );
           ''');
         }
       },

@@ -9,6 +9,8 @@ class FlowingParagraphView extends StatefulWidget {
   final List<Verse> verses;
   final Set<int> selectedVerses;
   final Map<int, String> savedHighlights;
+  final Set<int> versesWithNotes;
+  final Set<int> versesWithTags;
   final ValueChanged<int> onVerseTap;
   final ValueChanged<int>? onFootnoteTap;
   final bool showFooter;
@@ -18,6 +20,8 @@ class FlowingParagraphView extends StatefulWidget {
     required this.verses,
     required this.selectedVerses,
     required this.savedHighlights,
+    this.versesWithNotes = const {},
+    this.versesWithTags = const {},
     required this.onVerseTap,
     this.onFootnoteTap,
     this.showFooter = true,

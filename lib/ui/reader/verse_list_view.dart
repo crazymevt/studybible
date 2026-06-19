@@ -13,6 +13,8 @@ class VerseListView extends ConsumerStatefulWidget {
   final List<Verse> verses;
   final Set<int> selectedVerses;
   final Map<int, String> savedHighlights;
+  final Set<int> versesWithNotes;
+  final Set<int> versesWithTags;
   final Function(int) onVerseTap;
   final ValueChanged<int>? onFootnoteTap;
   final ItemScrollController? externalScrollController;
@@ -24,6 +26,8 @@ class VerseListView extends ConsumerStatefulWidget {
     required this.verses,
     required this.selectedVerses,
     required this.savedHighlights,
+    this.versesWithNotes = const {},
+    this.versesWithTags = const {},
     required this.onVerseTap,
     this.onFootnoteTap,
     this.externalScrollController,
@@ -191,6 +195,22 @@ class _VerseListViewState extends ConsumerState<VerseListView> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
+                  if (widget.versesWithNotes.contains(verse.verse))
+                    WidgetSpan(
+                      alignment: PlaceholderAlignment.middle,
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: 4.0),
+                        child: Icon(Icons.edit_note, size: 14, color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.8)),
+                      ),
+                    ),
+                  if (widget.versesWithTags.contains(verse.verse))
+                    WidgetSpan(
+                      alignment: PlaceholderAlignment.middle,
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: 4.0),
+                        child: Icon(Icons.label, size: 12, color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.8)),
+                      ),
+                    ),
                   ..._buildVerseSpans(context, verse),
                 ],
               ),

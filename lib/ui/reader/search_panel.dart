@@ -125,6 +125,8 @@ class _SearchPanelState extends ConsumerState<SearchPanel> {
                 final verses = results.where((r) => r.type == 'verse').toList();
                 final notes = results.where((r) => r.type == 'note').toList();
                 final sermons = results.where((r) => r.type == 'sermon').toList();
+                final journals = results.where((r) => r.type == 'journal').toList();
+                final prayers = results.where((r) => r.type == 'prayer').toList();
                 final commentaries = results
                     .where((r) => r.type == 'commentary')
                     .toList();
@@ -133,7 +135,7 @@ class _SearchPanelState extends ConsumerState<SearchPanel> {
                     .toList();
 
                 return DefaultTabController(
-                  length: 5,
+                  length: 7,
                   child: Column(
                     children: [
                       TabBar(
@@ -142,6 +144,8 @@ class _SearchPanelState extends ConsumerState<SearchPanel> {
                           Tab(text: 'Verses (${verses.length})'),
                           Tab(text: 'Notes (${notes.length})'),
                           Tab(text: 'Sermons (${sermons.length})'),
+                          Tab(text: 'Journals (${journals.length})'),
+                          Tab(text: 'Prayers (${prayers.length})'),
                           Tab(text: 'Comm. (${commentaries.length})'),
                           Tab(text: 'Dict. (${dictionaries.length})'),
                         ],
@@ -152,6 +156,8 @@ class _SearchPanelState extends ConsumerState<SearchPanel> {
                             SearchResultsList(results: verses),
                             SearchResultsList(results: notes),
                             SearchResultsList(results: sermons),
+                            SearchResultsList(results: journals),
+                            SearchResultsList(results: prayers),
                             GroupedSearchResultsList(results: commentaries),
                             GroupedSearchResultsList(results: dictionaries),
                           ],

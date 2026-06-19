@@ -1,3 +1,4 @@
+import 'reader_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:drift/drift.dart';
 import 'package:uuid/uuid.dart';
@@ -265,4 +266,29 @@ final entitiesForTagProvider = FutureProvider.family<List<SearchResult>, String>
   }
   
   return results;
+});
+
+// 4. Fetch verses with tags in current chapter
+final chapterVersesWithTagsProvider = StreamProvider<Set<int>>((ref) {
+  final db = ref.watch(userStoreProvider);
+  final bookName = ref.watch(selectedBookNameProvider);
+  final chapter = ref.watch(selectedChapterProvider);
+  
+  final prefix = 'Verse:$bookName|$chapter|%';
+  
+  return (db.select(db.entityTags)
+    ..where((et) => et.entityType.equals('verse'))
+    ..where((et) => et.entityId.like(prefix))
+    ..where((et) => et.deleted.equals(false))
+  ).watch().map((links) {
+     final set = <int>{};
+     for (final link in links) {
+       final parts = link.entityId.split('|');
+       if (parts.length >= 3) {
+         final v = int.tryParse(parts[2]);
+         if (v != null) set.add(v);
+       }
+     }
+     return set;
+  });
 });
