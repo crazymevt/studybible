@@ -77,10 +77,10 @@ final globalSearchResultsProvider = FutureProvider<List<SearchResult>>((ref) asy
     final text = row.read<String>('text_content');
     
     if (type == 'verse') {
-      final bName = row.read<String>('verse_book');
-      final cNum = row.read<int>('verse_chapter');
-      final vNum = row.read<int>('verse_num');
-      final bOrder = row.read<int>('verse_book_order');
+      final bName = row.readNullable<String>('verse_book') ?? 'Unknown Book';
+      final cNum = row.readNullable<int>('verse_chapter') ?? 1;
+      final vNum = row.readNullable<int>('verse_num') ?? 1;
+      final bOrder = row.readNullable<int>('verse_book_order') ?? 0;
       results.add(SearchResult(
         type: type,
         referenceId: refId,
@@ -92,9 +92,9 @@ final globalSearchResultsProvider = FutureProvider<List<SearchResult>>((ref) asy
         bookOrder: bOrder,
       ));
     } else if (type == 'commentary') {
-      final cName = row.read<String>('comm_name');
-      final cBook = row.read<String?>('comm_book') ?? 'General';
-      final cChapter = row.read<int?>('comm_chapter');
+      final cName = row.readNullable<String>('comm_name') ?? 'Unknown Commentary';
+      final cBook = row.readNullable<String>('comm_book') ?? 'General';
+      final cChapter = row.readNullable<int>('comm_chapter');
       results.add(SearchResult(
         type: type,
         referenceId: refId,
@@ -105,9 +105,9 @@ final globalSearchResultsProvider = FutureProvider<List<SearchResult>>((ref) asy
         sourceName: cName,
       ));
     } else if (type == 'dictionary') {
-      final word = row.read<String>('dict_word');
-      final def = row.read<String>('dict_def');
-      final dName = row.read<String>('dict_name');
+      final word = row.readNullable<String>('dict_word') ?? 'Unknown Word';
+      final def = row.readNullable<String>('dict_def') ?? '';
+      final dName = row.readNullable<String>('dict_name') ?? 'Unknown Dictionary';
       results.add(SearchResult(
         type: type,
         referenceId: refId,
@@ -135,13 +135,14 @@ final globalSearchResultsProvider = FutureProvider<List<SearchResult>>((ref) asy
   try {
     final userRows = await userStore.customSelect(userQuery, variables: [Variable.withString(searchPattern)]).get();
     for (final row in userRows) {
-      final type = row.read<String>('type');
-      final refId = row.read<int>('reference_id');
-      final text = row.read<String>('text_content');
+      final type = row.readNullable<String>('type');
+      if (type == null) continue;
+      final refId = row.readNullable<int>('reference_id') ?? 0;
+      final text = row.readNullable<String>('text_content') ?? '';
       
       if (type == 'note') {
-        final bName = row.read<String>('note_book');
-        final cNum = row.read<int>('note_chapter');
+        final bName = row.readNullable<String>('note_book') ?? 'Unknown Book';
+        final cNum = row.readNullable<int>('note_chapter') ?? 1;
         final vNum = row.readNullable<int>('note_verse');
         final target = vNum != null ? '$bName $cNum:$vNum' : '$bName $cNum';
         results.add(SearchResult(

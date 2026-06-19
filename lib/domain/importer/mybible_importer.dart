@@ -96,6 +96,15 @@ class MyBibleImporter {
         }
       });
       
+      // Update FTS5 index for this version
+      await store.customStatement('''
+        INSERT INTO content_search(type, reference_id, text_content) 
+        SELECT 'verse', v.id, v.text_content 
+        FROM verses v 
+        JOIN books b ON v.book_id = b.id 
+        WHERE b.version_id = ?
+      ''', [versionId]);
+      
     } finally {
       db.dispose();
     }
@@ -110,13 +119,7 @@ class MyBibleImporter {
         name: module.title,
       ));
 
-      final booksQuery = db.select('SELECT book_number FROM books');
-      final Set<int> availableBooks = {};
-      for (final row in booksQuery) {
-        if (row['book_number'] != null) {
-          availableBooks.add(num.parse(row['book_number'].toString()).toInt());
-        }
-      }
+
 
       final entriesQuery = db.select('SELECT book_number, chapter_number_from, verse_number_from, text FROM commentaries ORDER BY book_number, chapter_number_from, verse_number_from');
       
@@ -137,6 +140,15 @@ class MyBibleImporter {
           ));
         }
       });
+
+      // Update FTS5 index for this commentary
+      await store.customStatement('''
+        INSERT INTO content_search(type, reference_id, text_content)
+        SELECT 'commentary', id, text_content
+        FROM commentary_entries
+        WHERE commentary_id = ?
+      ''', [commentaryId]);
+
     } finally {
       db.dispose();
     }
@@ -165,6 +177,15 @@ class MyBibleImporter {
           ));
         }
       });
+
+      // Update FTS5 index for this dictionary
+      await store.customStatement('''
+        INSERT INTO content_search(type, reference_id, text_content)
+        SELECT 'dictionary', id, word
+        FROM dictionary_entries
+        WHERE dictionary_id = ?
+      ''', [dictionaryId]);
+
     } finally {
       db.dispose();
     }
