@@ -168,7 +168,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.sync),
-            tooltip: 'Sync Highlights',
+            tooltip: 'Sync Data',
             onPressed: () async {
               try {
                 await ref.read(syncServiceProvider).sync();

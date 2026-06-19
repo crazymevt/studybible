@@ -6,6 +6,7 @@ import 'package:path/path.dart' as p;
 import '../data/content_manager_api.dart';
 import '../domain/importer/archive_extractor.dart';
 import '../domain/importer/mybible_importer.dart';
+import '../domain/importer/osis_importer.dart';
 import 'content_providers.dart'; // To get contentStoreProvider
 
 final contentManagerApiProvider = Provider((ref) => ContentManagerApi());
@@ -90,6 +91,47 @@ class ContentManagerController extends Notifier<Map<String, DownloadProgress>> {
 
       state = {...state, stateKey: DownloadProgress(1.0, 'Done')};
       
+      // Refresh installed versions
+      ref.invalidate(versionsProvider);
+
+    } catch (e) {
+      state = {...state, stateKey: DownloadProgress(0, 'Error: $e')};
+    }
+  }
+
+  Future<void> downloadAndImportOsis(OsisTranslation translation, String langCode) async {
+    final stateKey = 'osis_${translation.basename}';
+    state = {...state, stateKey: DownloadProgress(0, 'Downloading...')};
+
+    try {
+      final api = ref.read(contentManagerApiProvider);
+      final tempDir = await getTemporaryDirectory();
+
+      final dlFile = File(p.join(tempDir.path, translation.name));
+
+      await api.downloadFile(translation.downloadUrl, dlFile.path, onReceiveProgress: (received, total) {
+        if (total != -1) {
+          state = {...state, stateKey: DownloadProgress(received / total, 'Downloading...')};
+        }
+      });
+
+      state = {...state, stateKey: DownloadProgress(1.0, 'Importing...')};
+
+      final store = ref.read(contentStoreProvider);
+      final importer = OsisImporter(store);
+
+      await importer.importOsisFile(
+        dlFile,
+        translation.basename.toUpperCase(),
+        translation.title,
+        langCode,
+      );
+
+      // Cleanup
+      await dlFile.delete();
+
+      state = {...state, stateKey: DownloadProgress(1.0, 'Done')};
+
       // Refresh installed versions
       ref.invalidate(versionsProvider);
 

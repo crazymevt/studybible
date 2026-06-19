@@ -184,6 +184,7 @@ class _ContentManagerScreenState extends ConsumerState<ContentManagerScreen> wit
 
   Widget _buildOsisTab() {
     final languagesAsync = ref.watch(osisLanguagesProvider);
+    final downloadStates = ref.watch(contentManagerControllerProvider);
 
     return Column(
       children: [
@@ -234,16 +235,49 @@ class _ContentManagerScreenState extends ConsumerState<ContentManagerScreen> wit
                               data: (translations) {
                                 if (translations.isEmpty) return const Padding(padding: EdgeInsets.all(16.0), child: Text('No translations found.'));
                                 return Column(
-                                  children: translations.map((t) => ListTile(
-                                    title: Text(t.title),
-                                    subtitle: Text('${(t.size / 1024 / 1024).toStringAsFixed(1)} MB'),
-                                    trailing: IconButton(
-                                      icon: const Icon(Icons.download),
-                                      onPressed: () {
-                                        // TODO: Implement OSIS download
-                                      },
-                                    ),
-                                  )).toList(),
+                                  children: translations.map((t) {
+                                    final stateKey = 'osis_${t.basename}';
+                                    final dlState = downloadStates[stateKey];
+
+                                    Widget trailing;
+                                    if (dlState != null) {
+                                      if (dlState.status == 'Done') {
+                                        trailing = const Icon(Icons.check, color: Colors.green);
+                                      } else if (dlState.status.startsWith('Error')) {
+                                        trailing = IconButton(
+                                          icon: const Icon(Icons.error, color: Colors.red),
+                                          tooltip: dlState.status,
+                                          onPressed: () {},
+                                        );
+                                      } else {
+                                        trailing = SizedBox(
+                                          width: 100,
+                                          child: Column(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              LinearProgressIndicator(value: dlState.percent),
+                                              const SizedBox(height: 4),
+                                              Text(dlState.status, style: const TextStyle(fontSize: 10)),
+                                            ],
+                                          ),
+                                        );
+                                      }
+                                    } else {
+                                      trailing = IconButton(
+                                        icon: const Icon(Icons.download),
+                                        onPressed: () {
+                                          ref.read(contentManagerControllerProvider.notifier)
+                                              .downloadAndImportOsis(t, l.code);
+                                        },
+                                      );
+                                    }
+
+                                    return ListTile(
+                                      title: Text(t.title),
+                                      subtitle: Text('${(t.size / 1024 / 1024).toStringAsFixed(1)} MB'),
+                                      trailing: trailing,
+                                    );
+                                  }).toList(),
                                 );
                               },
                             );
