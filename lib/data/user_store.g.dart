@@ -4412,6 +4412,1707 @@ class NavigationHistoriesCompanion extends UpdateCompanion<NavigationHistory> {
   }
 }
 
+class $ReadingPlansTable extends ReadingPlans
+    with TableInfo<$ReadingPlansTable, ReadingPlan> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ReadingPlansTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<int> updatedAt = GeneratedColumn<int>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _deviceIdMeta = const VerificationMeta(
+    'deviceId',
+  );
+  @override
+  late final GeneratedColumn<String> deviceId = GeneratedColumn<String>(
+    'device_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _deletedMeta = const VerificationMeta(
+    'deleted',
+  );
+  @override
+  late final GeneratedColumn<bool> deleted = GeneratedColumn<bool>(
+    'deleted',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("deleted" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+    'title',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _descriptionMeta = const VerificationMeta(
+    'description',
+  );
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+    'description',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _startDateMeta = const VerificationMeta(
+    'startDate',
+  );
+  @override
+  late final GeneratedColumn<int> startDate = GeneratedColumn<int>(
+    'start_date',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _targetEndDateMeta = const VerificationMeta(
+    'targetEndDate',
+  );
+  @override
+  late final GeneratedColumn<int> targetEndDate = GeneratedColumn<int>(
+    'target_end_date',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    updatedAt,
+    deviceId,
+    deleted,
+    title,
+    description,
+    startDate,
+    targetEndDate,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'reading_plans';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ReadingPlan> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('device_id')) {
+      context.handle(
+        _deviceIdMeta,
+        deviceId.isAcceptableOrUnknown(data['device_id']!, _deviceIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_deviceIdMeta);
+    }
+    if (data.containsKey('deleted')) {
+      context.handle(
+        _deletedMeta,
+        deleted.isAcceptableOrUnknown(data['deleted']!, _deletedMeta),
+      );
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+        _titleMeta,
+        title.isAcceptableOrUnknown(data['title']!, _titleMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('description')) {
+      context.handle(
+        _descriptionMeta,
+        description.isAcceptableOrUnknown(
+          data['description']!,
+          _descriptionMeta,
+        ),
+      );
+    }
+    if (data.containsKey('start_date')) {
+      context.handle(
+        _startDateMeta,
+        startDate.isAcceptableOrUnknown(data['start_date']!, _startDateMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_startDateMeta);
+    }
+    if (data.containsKey('target_end_date')) {
+      context.handle(
+        _targetEndDateMeta,
+        targetEndDate.isAcceptableOrUnknown(
+          data['target_end_date']!,
+          _targetEndDateMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ReadingPlan map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ReadingPlan(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}updated_at'],
+      )!,
+      deviceId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}device_id'],
+      )!,
+      deleted: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}deleted'],
+      )!,
+      title: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}title'],
+      )!,
+      description: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}description'],
+      ),
+      startDate: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}start_date'],
+      )!,
+      targetEndDate: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}target_end_date'],
+      ),
+    );
+  }
+
+  @override
+  $ReadingPlansTable createAlias(String alias) {
+    return $ReadingPlansTable(attachedDatabase, alias);
+  }
+}
+
+class ReadingPlan extends DataClass implements Insertable<ReadingPlan> {
+  final String id;
+  final int updatedAt;
+  final String deviceId;
+  final bool deleted;
+  final String title;
+  final String? description;
+  final int startDate;
+  final int? targetEndDate;
+  const ReadingPlan({
+    required this.id,
+    required this.updatedAt,
+    required this.deviceId,
+    required this.deleted,
+    required this.title,
+    this.description,
+    required this.startDate,
+    this.targetEndDate,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['updated_at'] = Variable<int>(updatedAt);
+    map['device_id'] = Variable<String>(deviceId);
+    map['deleted'] = Variable<bool>(deleted);
+    map['title'] = Variable<String>(title);
+    if (!nullToAbsent || description != null) {
+      map['description'] = Variable<String>(description);
+    }
+    map['start_date'] = Variable<int>(startDate);
+    if (!nullToAbsent || targetEndDate != null) {
+      map['target_end_date'] = Variable<int>(targetEndDate);
+    }
+    return map;
+  }
+
+  ReadingPlansCompanion toCompanion(bool nullToAbsent) {
+    return ReadingPlansCompanion(
+      id: Value(id),
+      updatedAt: Value(updatedAt),
+      deviceId: Value(deviceId),
+      deleted: Value(deleted),
+      title: Value(title),
+      description: description == null && nullToAbsent
+          ? const Value.absent()
+          : Value(description),
+      startDate: Value(startDate),
+      targetEndDate: targetEndDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(targetEndDate),
+    );
+  }
+
+  factory ReadingPlan.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ReadingPlan(
+      id: serializer.fromJson<String>(json['id']),
+      updatedAt: serializer.fromJson<int>(json['updatedAt']),
+      deviceId: serializer.fromJson<String>(json['deviceId']),
+      deleted: serializer.fromJson<bool>(json['deleted']),
+      title: serializer.fromJson<String>(json['title']),
+      description: serializer.fromJson<String?>(json['description']),
+      startDate: serializer.fromJson<int>(json['startDate']),
+      targetEndDate: serializer.fromJson<int?>(json['targetEndDate']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'updatedAt': serializer.toJson<int>(updatedAt),
+      'deviceId': serializer.toJson<String>(deviceId),
+      'deleted': serializer.toJson<bool>(deleted),
+      'title': serializer.toJson<String>(title),
+      'description': serializer.toJson<String?>(description),
+      'startDate': serializer.toJson<int>(startDate),
+      'targetEndDate': serializer.toJson<int?>(targetEndDate),
+    };
+  }
+
+  ReadingPlan copyWith({
+    String? id,
+    int? updatedAt,
+    String? deviceId,
+    bool? deleted,
+    String? title,
+    Value<String?> description = const Value.absent(),
+    int? startDate,
+    Value<int?> targetEndDate = const Value.absent(),
+  }) => ReadingPlan(
+    id: id ?? this.id,
+    updatedAt: updatedAt ?? this.updatedAt,
+    deviceId: deviceId ?? this.deviceId,
+    deleted: deleted ?? this.deleted,
+    title: title ?? this.title,
+    description: description.present ? description.value : this.description,
+    startDate: startDate ?? this.startDate,
+    targetEndDate: targetEndDate.present
+        ? targetEndDate.value
+        : this.targetEndDate,
+  );
+  ReadingPlan copyWithCompanion(ReadingPlansCompanion data) {
+    return ReadingPlan(
+      id: data.id.present ? data.id.value : this.id,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deviceId: data.deviceId.present ? data.deviceId.value : this.deviceId,
+      deleted: data.deleted.present ? data.deleted.value : this.deleted,
+      title: data.title.present ? data.title.value : this.title,
+      description: data.description.present
+          ? data.description.value
+          : this.description,
+      startDate: data.startDate.present ? data.startDate.value : this.startDate,
+      targetEndDate: data.targetEndDate.present
+          ? data.targetEndDate.value
+          : this.targetEndDate,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ReadingPlan(')
+          ..write('id: $id, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deviceId: $deviceId, ')
+          ..write('deleted: $deleted, ')
+          ..write('title: $title, ')
+          ..write('description: $description, ')
+          ..write('startDate: $startDate, ')
+          ..write('targetEndDate: $targetEndDate')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    updatedAt,
+    deviceId,
+    deleted,
+    title,
+    description,
+    startDate,
+    targetEndDate,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ReadingPlan &&
+          other.id == this.id &&
+          other.updatedAt == this.updatedAt &&
+          other.deviceId == this.deviceId &&
+          other.deleted == this.deleted &&
+          other.title == this.title &&
+          other.description == this.description &&
+          other.startDate == this.startDate &&
+          other.targetEndDate == this.targetEndDate);
+}
+
+class ReadingPlansCompanion extends UpdateCompanion<ReadingPlan> {
+  final Value<String> id;
+  final Value<int> updatedAt;
+  final Value<String> deviceId;
+  final Value<bool> deleted;
+  final Value<String> title;
+  final Value<String?> description;
+  final Value<int> startDate;
+  final Value<int?> targetEndDate;
+  final Value<int> rowid;
+  const ReadingPlansCompanion({
+    this.id = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deviceId = const Value.absent(),
+    this.deleted = const Value.absent(),
+    this.title = const Value.absent(),
+    this.description = const Value.absent(),
+    this.startDate = const Value.absent(),
+    this.targetEndDate = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ReadingPlansCompanion.insert({
+    required String id,
+    required int updatedAt,
+    required String deviceId,
+    this.deleted = const Value.absent(),
+    required String title,
+    this.description = const Value.absent(),
+    required int startDate,
+    this.targetEndDate = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       updatedAt = Value(updatedAt),
+       deviceId = Value(deviceId),
+       title = Value(title),
+       startDate = Value(startDate);
+  static Insertable<ReadingPlan> custom({
+    Expression<String>? id,
+    Expression<int>? updatedAt,
+    Expression<String>? deviceId,
+    Expression<bool>? deleted,
+    Expression<String>? title,
+    Expression<String>? description,
+    Expression<int>? startDate,
+    Expression<int>? targetEndDate,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deviceId != null) 'device_id': deviceId,
+      if (deleted != null) 'deleted': deleted,
+      if (title != null) 'title': title,
+      if (description != null) 'description': description,
+      if (startDate != null) 'start_date': startDate,
+      if (targetEndDate != null) 'target_end_date': targetEndDate,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ReadingPlansCompanion copyWith({
+    Value<String>? id,
+    Value<int>? updatedAt,
+    Value<String>? deviceId,
+    Value<bool>? deleted,
+    Value<String>? title,
+    Value<String?>? description,
+    Value<int>? startDate,
+    Value<int?>? targetEndDate,
+    Value<int>? rowid,
+  }) {
+    return ReadingPlansCompanion(
+      id: id ?? this.id,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deviceId: deviceId ?? this.deviceId,
+      deleted: deleted ?? this.deleted,
+      title: title ?? this.title,
+      description: description ?? this.description,
+      startDate: startDate ?? this.startDate,
+      targetEndDate: targetEndDate ?? this.targetEndDate,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<int>(updatedAt.value);
+    }
+    if (deviceId.present) {
+      map['device_id'] = Variable<String>(deviceId.value);
+    }
+    if (deleted.present) {
+      map['deleted'] = Variable<bool>(deleted.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (startDate.present) {
+      map['start_date'] = Variable<int>(startDate.value);
+    }
+    if (targetEndDate.present) {
+      map['target_end_date'] = Variable<int>(targetEndDate.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ReadingPlansCompanion(')
+          ..write('id: $id, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deviceId: $deviceId, ')
+          ..write('deleted: $deleted, ')
+          ..write('title: $title, ')
+          ..write('description: $description, ')
+          ..write('startDate: $startDate, ')
+          ..write('targetEndDate: $targetEndDate, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $ReadingPlanDaysTable extends ReadingPlanDays
+    with TableInfo<$ReadingPlanDaysTable, ReadingPlanDay> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ReadingPlanDaysTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<int> updatedAt = GeneratedColumn<int>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _deviceIdMeta = const VerificationMeta(
+    'deviceId',
+  );
+  @override
+  late final GeneratedColumn<String> deviceId = GeneratedColumn<String>(
+    'device_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _deletedMeta = const VerificationMeta(
+    'deleted',
+  );
+  @override
+  late final GeneratedColumn<bool> deleted = GeneratedColumn<bool>(
+    'deleted',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("deleted" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _planIdMeta = const VerificationMeta('planId');
+  @override
+  late final GeneratedColumn<String> planId = GeneratedColumn<String>(
+    'plan_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _dayNumberMeta = const VerificationMeta(
+    'dayNumber',
+  );
+  @override
+  late final GeneratedColumn<int> dayNumber = GeneratedColumn<int>(
+    'day_number',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _dateMeta = const VerificationMeta('date');
+  @override
+  late final GeneratedColumn<int> date = GeneratedColumn<int>(
+    'date',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _completedMeta = const VerificationMeta(
+    'completed',
+  );
+  @override
+  late final GeneratedColumn<bool> completed = GeneratedColumn<bool>(
+    'completed',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("completed" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    updatedAt,
+    deviceId,
+    deleted,
+    planId,
+    dayNumber,
+    date,
+    completed,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'reading_plan_days';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ReadingPlanDay> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('device_id')) {
+      context.handle(
+        _deviceIdMeta,
+        deviceId.isAcceptableOrUnknown(data['device_id']!, _deviceIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_deviceIdMeta);
+    }
+    if (data.containsKey('deleted')) {
+      context.handle(
+        _deletedMeta,
+        deleted.isAcceptableOrUnknown(data['deleted']!, _deletedMeta),
+      );
+    }
+    if (data.containsKey('plan_id')) {
+      context.handle(
+        _planIdMeta,
+        planId.isAcceptableOrUnknown(data['plan_id']!, _planIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_planIdMeta);
+    }
+    if (data.containsKey('day_number')) {
+      context.handle(
+        _dayNumberMeta,
+        dayNumber.isAcceptableOrUnknown(data['day_number']!, _dayNumberMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_dayNumberMeta);
+    }
+    if (data.containsKey('date')) {
+      context.handle(
+        _dateMeta,
+        date.isAcceptableOrUnknown(data['date']!, _dateMeta),
+      );
+    }
+    if (data.containsKey('completed')) {
+      context.handle(
+        _completedMeta,
+        completed.isAcceptableOrUnknown(data['completed']!, _completedMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ReadingPlanDay map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ReadingPlanDay(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}updated_at'],
+      )!,
+      deviceId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}device_id'],
+      )!,
+      deleted: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}deleted'],
+      )!,
+      planId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}plan_id'],
+      )!,
+      dayNumber: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}day_number'],
+      )!,
+      date: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}date'],
+      ),
+      completed: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}completed'],
+      )!,
+    );
+  }
+
+  @override
+  $ReadingPlanDaysTable createAlias(String alias) {
+    return $ReadingPlanDaysTable(attachedDatabase, alias);
+  }
+}
+
+class ReadingPlanDay extends DataClass implements Insertable<ReadingPlanDay> {
+  final String id;
+  final int updatedAt;
+  final String deviceId;
+  final bool deleted;
+  final String planId;
+  final int dayNumber;
+  final int? date;
+  final bool completed;
+  const ReadingPlanDay({
+    required this.id,
+    required this.updatedAt,
+    required this.deviceId,
+    required this.deleted,
+    required this.planId,
+    required this.dayNumber,
+    this.date,
+    required this.completed,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['updated_at'] = Variable<int>(updatedAt);
+    map['device_id'] = Variable<String>(deviceId);
+    map['deleted'] = Variable<bool>(deleted);
+    map['plan_id'] = Variable<String>(planId);
+    map['day_number'] = Variable<int>(dayNumber);
+    if (!nullToAbsent || date != null) {
+      map['date'] = Variable<int>(date);
+    }
+    map['completed'] = Variable<bool>(completed);
+    return map;
+  }
+
+  ReadingPlanDaysCompanion toCompanion(bool nullToAbsent) {
+    return ReadingPlanDaysCompanion(
+      id: Value(id),
+      updatedAt: Value(updatedAt),
+      deviceId: Value(deviceId),
+      deleted: Value(deleted),
+      planId: Value(planId),
+      dayNumber: Value(dayNumber),
+      date: date == null && nullToAbsent ? const Value.absent() : Value(date),
+      completed: Value(completed),
+    );
+  }
+
+  factory ReadingPlanDay.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ReadingPlanDay(
+      id: serializer.fromJson<String>(json['id']),
+      updatedAt: serializer.fromJson<int>(json['updatedAt']),
+      deviceId: serializer.fromJson<String>(json['deviceId']),
+      deleted: serializer.fromJson<bool>(json['deleted']),
+      planId: serializer.fromJson<String>(json['planId']),
+      dayNumber: serializer.fromJson<int>(json['dayNumber']),
+      date: serializer.fromJson<int?>(json['date']),
+      completed: serializer.fromJson<bool>(json['completed']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'updatedAt': serializer.toJson<int>(updatedAt),
+      'deviceId': serializer.toJson<String>(deviceId),
+      'deleted': serializer.toJson<bool>(deleted),
+      'planId': serializer.toJson<String>(planId),
+      'dayNumber': serializer.toJson<int>(dayNumber),
+      'date': serializer.toJson<int?>(date),
+      'completed': serializer.toJson<bool>(completed),
+    };
+  }
+
+  ReadingPlanDay copyWith({
+    String? id,
+    int? updatedAt,
+    String? deviceId,
+    bool? deleted,
+    String? planId,
+    int? dayNumber,
+    Value<int?> date = const Value.absent(),
+    bool? completed,
+  }) => ReadingPlanDay(
+    id: id ?? this.id,
+    updatedAt: updatedAt ?? this.updatedAt,
+    deviceId: deviceId ?? this.deviceId,
+    deleted: deleted ?? this.deleted,
+    planId: planId ?? this.planId,
+    dayNumber: dayNumber ?? this.dayNumber,
+    date: date.present ? date.value : this.date,
+    completed: completed ?? this.completed,
+  );
+  ReadingPlanDay copyWithCompanion(ReadingPlanDaysCompanion data) {
+    return ReadingPlanDay(
+      id: data.id.present ? data.id.value : this.id,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deviceId: data.deviceId.present ? data.deviceId.value : this.deviceId,
+      deleted: data.deleted.present ? data.deleted.value : this.deleted,
+      planId: data.planId.present ? data.planId.value : this.planId,
+      dayNumber: data.dayNumber.present ? data.dayNumber.value : this.dayNumber,
+      date: data.date.present ? data.date.value : this.date,
+      completed: data.completed.present ? data.completed.value : this.completed,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ReadingPlanDay(')
+          ..write('id: $id, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deviceId: $deviceId, ')
+          ..write('deleted: $deleted, ')
+          ..write('planId: $planId, ')
+          ..write('dayNumber: $dayNumber, ')
+          ..write('date: $date, ')
+          ..write('completed: $completed')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    updatedAt,
+    deviceId,
+    deleted,
+    planId,
+    dayNumber,
+    date,
+    completed,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ReadingPlanDay &&
+          other.id == this.id &&
+          other.updatedAt == this.updatedAt &&
+          other.deviceId == this.deviceId &&
+          other.deleted == this.deleted &&
+          other.planId == this.planId &&
+          other.dayNumber == this.dayNumber &&
+          other.date == this.date &&
+          other.completed == this.completed);
+}
+
+class ReadingPlanDaysCompanion extends UpdateCompanion<ReadingPlanDay> {
+  final Value<String> id;
+  final Value<int> updatedAt;
+  final Value<String> deviceId;
+  final Value<bool> deleted;
+  final Value<String> planId;
+  final Value<int> dayNumber;
+  final Value<int?> date;
+  final Value<bool> completed;
+  final Value<int> rowid;
+  const ReadingPlanDaysCompanion({
+    this.id = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deviceId = const Value.absent(),
+    this.deleted = const Value.absent(),
+    this.planId = const Value.absent(),
+    this.dayNumber = const Value.absent(),
+    this.date = const Value.absent(),
+    this.completed = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ReadingPlanDaysCompanion.insert({
+    required String id,
+    required int updatedAt,
+    required String deviceId,
+    this.deleted = const Value.absent(),
+    required String planId,
+    required int dayNumber,
+    this.date = const Value.absent(),
+    this.completed = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       updatedAt = Value(updatedAt),
+       deviceId = Value(deviceId),
+       planId = Value(planId),
+       dayNumber = Value(dayNumber);
+  static Insertable<ReadingPlanDay> custom({
+    Expression<String>? id,
+    Expression<int>? updatedAt,
+    Expression<String>? deviceId,
+    Expression<bool>? deleted,
+    Expression<String>? planId,
+    Expression<int>? dayNumber,
+    Expression<int>? date,
+    Expression<bool>? completed,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deviceId != null) 'device_id': deviceId,
+      if (deleted != null) 'deleted': deleted,
+      if (planId != null) 'plan_id': planId,
+      if (dayNumber != null) 'day_number': dayNumber,
+      if (date != null) 'date': date,
+      if (completed != null) 'completed': completed,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ReadingPlanDaysCompanion copyWith({
+    Value<String>? id,
+    Value<int>? updatedAt,
+    Value<String>? deviceId,
+    Value<bool>? deleted,
+    Value<String>? planId,
+    Value<int>? dayNumber,
+    Value<int?>? date,
+    Value<bool>? completed,
+    Value<int>? rowid,
+  }) {
+    return ReadingPlanDaysCompanion(
+      id: id ?? this.id,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deviceId: deviceId ?? this.deviceId,
+      deleted: deleted ?? this.deleted,
+      planId: planId ?? this.planId,
+      dayNumber: dayNumber ?? this.dayNumber,
+      date: date ?? this.date,
+      completed: completed ?? this.completed,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<int>(updatedAt.value);
+    }
+    if (deviceId.present) {
+      map['device_id'] = Variable<String>(deviceId.value);
+    }
+    if (deleted.present) {
+      map['deleted'] = Variable<bool>(deleted.value);
+    }
+    if (planId.present) {
+      map['plan_id'] = Variable<String>(planId.value);
+    }
+    if (dayNumber.present) {
+      map['day_number'] = Variable<int>(dayNumber.value);
+    }
+    if (date.present) {
+      map['date'] = Variable<int>(date.value);
+    }
+    if (completed.present) {
+      map['completed'] = Variable<bool>(completed.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ReadingPlanDaysCompanion(')
+          ..write('id: $id, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deviceId: $deviceId, ')
+          ..write('deleted: $deleted, ')
+          ..write('planId: $planId, ')
+          ..write('dayNumber: $dayNumber, ')
+          ..write('date: $date, ')
+          ..write('completed: $completed, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $ReadingPlanItemsTable extends ReadingPlanItems
+    with TableInfo<$ReadingPlanItemsTable, ReadingPlanItem> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ReadingPlanItemsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<int> updatedAt = GeneratedColumn<int>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _deviceIdMeta = const VerificationMeta(
+    'deviceId',
+  );
+  @override
+  late final GeneratedColumn<String> deviceId = GeneratedColumn<String>(
+    'device_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _deletedMeta = const VerificationMeta(
+    'deleted',
+  );
+  @override
+  late final GeneratedColumn<bool> deleted = GeneratedColumn<bool>(
+    'deleted',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("deleted" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _dayIdMeta = const VerificationMeta('dayId');
+  @override
+  late final GeneratedColumn<String> dayId = GeneratedColumn<String>(
+    'day_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _bookNameMeta = const VerificationMeta(
+    'bookName',
+  );
+  @override
+  late final GeneratedColumn<String> bookName = GeneratedColumn<String>(
+    'book_name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _startChapterMeta = const VerificationMeta(
+    'startChapter',
+  );
+  @override
+  late final GeneratedColumn<int> startChapter = GeneratedColumn<int>(
+    'start_chapter',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _endChapterMeta = const VerificationMeta(
+    'endChapter',
+  );
+  @override
+  late final GeneratedColumn<int> endChapter = GeneratedColumn<int>(
+    'end_chapter',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _startVerseMeta = const VerificationMeta(
+    'startVerse',
+  );
+  @override
+  late final GeneratedColumn<int> startVerse = GeneratedColumn<int>(
+    'start_verse',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _endVerseMeta = const VerificationMeta(
+    'endVerse',
+  );
+  @override
+  late final GeneratedColumn<int> endVerse = GeneratedColumn<int>(
+    'end_verse',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _completedMeta = const VerificationMeta(
+    'completed',
+  );
+  @override
+  late final GeneratedColumn<bool> completed = GeneratedColumn<bool>(
+    'completed',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("completed" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    updatedAt,
+    deviceId,
+    deleted,
+    dayId,
+    bookName,
+    startChapter,
+    endChapter,
+    startVerse,
+    endVerse,
+    completed,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'reading_plan_items';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ReadingPlanItem> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('device_id')) {
+      context.handle(
+        _deviceIdMeta,
+        deviceId.isAcceptableOrUnknown(data['device_id']!, _deviceIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_deviceIdMeta);
+    }
+    if (data.containsKey('deleted')) {
+      context.handle(
+        _deletedMeta,
+        deleted.isAcceptableOrUnknown(data['deleted']!, _deletedMeta),
+      );
+    }
+    if (data.containsKey('day_id')) {
+      context.handle(
+        _dayIdMeta,
+        dayId.isAcceptableOrUnknown(data['day_id']!, _dayIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_dayIdMeta);
+    }
+    if (data.containsKey('book_name')) {
+      context.handle(
+        _bookNameMeta,
+        bookName.isAcceptableOrUnknown(data['book_name']!, _bookNameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_bookNameMeta);
+    }
+    if (data.containsKey('start_chapter')) {
+      context.handle(
+        _startChapterMeta,
+        startChapter.isAcceptableOrUnknown(
+          data['start_chapter']!,
+          _startChapterMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_startChapterMeta);
+    }
+    if (data.containsKey('end_chapter')) {
+      context.handle(
+        _endChapterMeta,
+        endChapter.isAcceptableOrUnknown(data['end_chapter']!, _endChapterMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_endChapterMeta);
+    }
+    if (data.containsKey('start_verse')) {
+      context.handle(
+        _startVerseMeta,
+        startVerse.isAcceptableOrUnknown(data['start_verse']!, _startVerseMeta),
+      );
+    }
+    if (data.containsKey('end_verse')) {
+      context.handle(
+        _endVerseMeta,
+        endVerse.isAcceptableOrUnknown(data['end_verse']!, _endVerseMeta),
+      );
+    }
+    if (data.containsKey('completed')) {
+      context.handle(
+        _completedMeta,
+        completed.isAcceptableOrUnknown(data['completed']!, _completedMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ReadingPlanItem map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ReadingPlanItem(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}updated_at'],
+      )!,
+      deviceId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}device_id'],
+      )!,
+      deleted: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}deleted'],
+      )!,
+      dayId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}day_id'],
+      )!,
+      bookName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}book_name'],
+      )!,
+      startChapter: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}start_chapter'],
+      )!,
+      endChapter: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}end_chapter'],
+      )!,
+      startVerse: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}start_verse'],
+      ),
+      endVerse: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}end_verse'],
+      ),
+      completed: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}completed'],
+      )!,
+    );
+  }
+
+  @override
+  $ReadingPlanItemsTable createAlias(String alias) {
+    return $ReadingPlanItemsTable(attachedDatabase, alias);
+  }
+}
+
+class ReadingPlanItem extends DataClass implements Insertable<ReadingPlanItem> {
+  final String id;
+  final int updatedAt;
+  final String deviceId;
+  final bool deleted;
+  final String dayId;
+  final String bookName;
+  final int startChapter;
+  final int endChapter;
+  final int? startVerse;
+  final int? endVerse;
+  final bool completed;
+  const ReadingPlanItem({
+    required this.id,
+    required this.updatedAt,
+    required this.deviceId,
+    required this.deleted,
+    required this.dayId,
+    required this.bookName,
+    required this.startChapter,
+    required this.endChapter,
+    this.startVerse,
+    this.endVerse,
+    required this.completed,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['updated_at'] = Variable<int>(updatedAt);
+    map['device_id'] = Variable<String>(deviceId);
+    map['deleted'] = Variable<bool>(deleted);
+    map['day_id'] = Variable<String>(dayId);
+    map['book_name'] = Variable<String>(bookName);
+    map['start_chapter'] = Variable<int>(startChapter);
+    map['end_chapter'] = Variable<int>(endChapter);
+    if (!nullToAbsent || startVerse != null) {
+      map['start_verse'] = Variable<int>(startVerse);
+    }
+    if (!nullToAbsent || endVerse != null) {
+      map['end_verse'] = Variable<int>(endVerse);
+    }
+    map['completed'] = Variable<bool>(completed);
+    return map;
+  }
+
+  ReadingPlanItemsCompanion toCompanion(bool nullToAbsent) {
+    return ReadingPlanItemsCompanion(
+      id: Value(id),
+      updatedAt: Value(updatedAt),
+      deviceId: Value(deviceId),
+      deleted: Value(deleted),
+      dayId: Value(dayId),
+      bookName: Value(bookName),
+      startChapter: Value(startChapter),
+      endChapter: Value(endChapter),
+      startVerse: startVerse == null && nullToAbsent
+          ? const Value.absent()
+          : Value(startVerse),
+      endVerse: endVerse == null && nullToAbsent
+          ? const Value.absent()
+          : Value(endVerse),
+      completed: Value(completed),
+    );
+  }
+
+  factory ReadingPlanItem.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ReadingPlanItem(
+      id: serializer.fromJson<String>(json['id']),
+      updatedAt: serializer.fromJson<int>(json['updatedAt']),
+      deviceId: serializer.fromJson<String>(json['deviceId']),
+      deleted: serializer.fromJson<bool>(json['deleted']),
+      dayId: serializer.fromJson<String>(json['dayId']),
+      bookName: serializer.fromJson<String>(json['bookName']),
+      startChapter: serializer.fromJson<int>(json['startChapter']),
+      endChapter: serializer.fromJson<int>(json['endChapter']),
+      startVerse: serializer.fromJson<int?>(json['startVerse']),
+      endVerse: serializer.fromJson<int?>(json['endVerse']),
+      completed: serializer.fromJson<bool>(json['completed']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'updatedAt': serializer.toJson<int>(updatedAt),
+      'deviceId': serializer.toJson<String>(deviceId),
+      'deleted': serializer.toJson<bool>(deleted),
+      'dayId': serializer.toJson<String>(dayId),
+      'bookName': serializer.toJson<String>(bookName),
+      'startChapter': serializer.toJson<int>(startChapter),
+      'endChapter': serializer.toJson<int>(endChapter),
+      'startVerse': serializer.toJson<int?>(startVerse),
+      'endVerse': serializer.toJson<int?>(endVerse),
+      'completed': serializer.toJson<bool>(completed),
+    };
+  }
+
+  ReadingPlanItem copyWith({
+    String? id,
+    int? updatedAt,
+    String? deviceId,
+    bool? deleted,
+    String? dayId,
+    String? bookName,
+    int? startChapter,
+    int? endChapter,
+    Value<int?> startVerse = const Value.absent(),
+    Value<int?> endVerse = const Value.absent(),
+    bool? completed,
+  }) => ReadingPlanItem(
+    id: id ?? this.id,
+    updatedAt: updatedAt ?? this.updatedAt,
+    deviceId: deviceId ?? this.deviceId,
+    deleted: deleted ?? this.deleted,
+    dayId: dayId ?? this.dayId,
+    bookName: bookName ?? this.bookName,
+    startChapter: startChapter ?? this.startChapter,
+    endChapter: endChapter ?? this.endChapter,
+    startVerse: startVerse.present ? startVerse.value : this.startVerse,
+    endVerse: endVerse.present ? endVerse.value : this.endVerse,
+    completed: completed ?? this.completed,
+  );
+  ReadingPlanItem copyWithCompanion(ReadingPlanItemsCompanion data) {
+    return ReadingPlanItem(
+      id: data.id.present ? data.id.value : this.id,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deviceId: data.deviceId.present ? data.deviceId.value : this.deviceId,
+      deleted: data.deleted.present ? data.deleted.value : this.deleted,
+      dayId: data.dayId.present ? data.dayId.value : this.dayId,
+      bookName: data.bookName.present ? data.bookName.value : this.bookName,
+      startChapter: data.startChapter.present
+          ? data.startChapter.value
+          : this.startChapter,
+      endChapter: data.endChapter.present
+          ? data.endChapter.value
+          : this.endChapter,
+      startVerse: data.startVerse.present
+          ? data.startVerse.value
+          : this.startVerse,
+      endVerse: data.endVerse.present ? data.endVerse.value : this.endVerse,
+      completed: data.completed.present ? data.completed.value : this.completed,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ReadingPlanItem(')
+          ..write('id: $id, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deviceId: $deviceId, ')
+          ..write('deleted: $deleted, ')
+          ..write('dayId: $dayId, ')
+          ..write('bookName: $bookName, ')
+          ..write('startChapter: $startChapter, ')
+          ..write('endChapter: $endChapter, ')
+          ..write('startVerse: $startVerse, ')
+          ..write('endVerse: $endVerse, ')
+          ..write('completed: $completed')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    updatedAt,
+    deviceId,
+    deleted,
+    dayId,
+    bookName,
+    startChapter,
+    endChapter,
+    startVerse,
+    endVerse,
+    completed,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ReadingPlanItem &&
+          other.id == this.id &&
+          other.updatedAt == this.updatedAt &&
+          other.deviceId == this.deviceId &&
+          other.deleted == this.deleted &&
+          other.dayId == this.dayId &&
+          other.bookName == this.bookName &&
+          other.startChapter == this.startChapter &&
+          other.endChapter == this.endChapter &&
+          other.startVerse == this.startVerse &&
+          other.endVerse == this.endVerse &&
+          other.completed == this.completed);
+}
+
+class ReadingPlanItemsCompanion extends UpdateCompanion<ReadingPlanItem> {
+  final Value<String> id;
+  final Value<int> updatedAt;
+  final Value<String> deviceId;
+  final Value<bool> deleted;
+  final Value<String> dayId;
+  final Value<String> bookName;
+  final Value<int> startChapter;
+  final Value<int> endChapter;
+  final Value<int?> startVerse;
+  final Value<int?> endVerse;
+  final Value<bool> completed;
+  final Value<int> rowid;
+  const ReadingPlanItemsCompanion({
+    this.id = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deviceId = const Value.absent(),
+    this.deleted = const Value.absent(),
+    this.dayId = const Value.absent(),
+    this.bookName = const Value.absent(),
+    this.startChapter = const Value.absent(),
+    this.endChapter = const Value.absent(),
+    this.startVerse = const Value.absent(),
+    this.endVerse = const Value.absent(),
+    this.completed = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ReadingPlanItemsCompanion.insert({
+    required String id,
+    required int updatedAt,
+    required String deviceId,
+    this.deleted = const Value.absent(),
+    required String dayId,
+    required String bookName,
+    required int startChapter,
+    required int endChapter,
+    this.startVerse = const Value.absent(),
+    this.endVerse = const Value.absent(),
+    this.completed = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       updatedAt = Value(updatedAt),
+       deviceId = Value(deviceId),
+       dayId = Value(dayId),
+       bookName = Value(bookName),
+       startChapter = Value(startChapter),
+       endChapter = Value(endChapter);
+  static Insertable<ReadingPlanItem> custom({
+    Expression<String>? id,
+    Expression<int>? updatedAt,
+    Expression<String>? deviceId,
+    Expression<bool>? deleted,
+    Expression<String>? dayId,
+    Expression<String>? bookName,
+    Expression<int>? startChapter,
+    Expression<int>? endChapter,
+    Expression<int>? startVerse,
+    Expression<int>? endVerse,
+    Expression<bool>? completed,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deviceId != null) 'device_id': deviceId,
+      if (deleted != null) 'deleted': deleted,
+      if (dayId != null) 'day_id': dayId,
+      if (bookName != null) 'book_name': bookName,
+      if (startChapter != null) 'start_chapter': startChapter,
+      if (endChapter != null) 'end_chapter': endChapter,
+      if (startVerse != null) 'start_verse': startVerse,
+      if (endVerse != null) 'end_verse': endVerse,
+      if (completed != null) 'completed': completed,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ReadingPlanItemsCompanion copyWith({
+    Value<String>? id,
+    Value<int>? updatedAt,
+    Value<String>? deviceId,
+    Value<bool>? deleted,
+    Value<String>? dayId,
+    Value<String>? bookName,
+    Value<int>? startChapter,
+    Value<int>? endChapter,
+    Value<int?>? startVerse,
+    Value<int?>? endVerse,
+    Value<bool>? completed,
+    Value<int>? rowid,
+  }) {
+    return ReadingPlanItemsCompanion(
+      id: id ?? this.id,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deviceId: deviceId ?? this.deviceId,
+      deleted: deleted ?? this.deleted,
+      dayId: dayId ?? this.dayId,
+      bookName: bookName ?? this.bookName,
+      startChapter: startChapter ?? this.startChapter,
+      endChapter: endChapter ?? this.endChapter,
+      startVerse: startVerse ?? this.startVerse,
+      endVerse: endVerse ?? this.endVerse,
+      completed: completed ?? this.completed,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<int>(updatedAt.value);
+    }
+    if (deviceId.present) {
+      map['device_id'] = Variable<String>(deviceId.value);
+    }
+    if (deleted.present) {
+      map['deleted'] = Variable<bool>(deleted.value);
+    }
+    if (dayId.present) {
+      map['day_id'] = Variable<String>(dayId.value);
+    }
+    if (bookName.present) {
+      map['book_name'] = Variable<String>(bookName.value);
+    }
+    if (startChapter.present) {
+      map['start_chapter'] = Variable<int>(startChapter.value);
+    }
+    if (endChapter.present) {
+      map['end_chapter'] = Variable<int>(endChapter.value);
+    }
+    if (startVerse.present) {
+      map['start_verse'] = Variable<int>(startVerse.value);
+    }
+    if (endVerse.present) {
+      map['end_verse'] = Variable<int>(endVerse.value);
+    }
+    if (completed.present) {
+      map['completed'] = Variable<bool>(completed.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ReadingPlanItemsCompanion(')
+          ..write('id: $id, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deviceId: $deviceId, ')
+          ..write('deleted: $deleted, ')
+          ..write('dayId: $dayId, ')
+          ..write('bookName: $bookName, ')
+          ..write('startChapter: $startChapter, ')
+          ..write('endChapter: $endChapter, ')
+          ..write('startVerse: $startVerse, ')
+          ..write('endVerse: $endVerse, ')
+          ..write('completed: $completed, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$UserStore extends GeneratedDatabase {
   _$UserStore(QueryExecutor e) : super(e);
   $UserStoreManager get managers => $UserStoreManager(this);
@@ -4426,6 +6127,13 @@ abstract class _$UserStore extends GeneratedDatabase {
   late final $AchievementsTable achievements = $AchievementsTable(this);
   late final $NavigationHistoriesTable navigationHistories =
       $NavigationHistoriesTable(this);
+  late final $ReadingPlansTable readingPlans = $ReadingPlansTable(this);
+  late final $ReadingPlanDaysTable readingPlanDays = $ReadingPlanDaysTable(
+    this,
+  );
+  late final $ReadingPlanItemsTable readingPlanItems = $ReadingPlanItemsTable(
+    this,
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -4440,6 +6148,9 @@ abstract class _$UserStore extends GeneratedDatabase {
     timeTrackers,
     achievements,
     navigationHistories,
+    readingPlans,
+    readingPlanDays,
+    readingPlanItems,
   ];
 }
 
@@ -6683,6 +8394,852 @@ typedef $$NavigationHistoriesTableProcessedTableManager =
       NavigationHistory,
       PrefetchHooks Function()
     >;
+typedef $$ReadingPlansTableCreateCompanionBuilder =
+    ReadingPlansCompanion Function({
+      required String id,
+      required int updatedAt,
+      required String deviceId,
+      Value<bool> deleted,
+      required String title,
+      Value<String?> description,
+      required int startDate,
+      Value<int?> targetEndDate,
+      Value<int> rowid,
+    });
+typedef $$ReadingPlansTableUpdateCompanionBuilder =
+    ReadingPlansCompanion Function({
+      Value<String> id,
+      Value<int> updatedAt,
+      Value<String> deviceId,
+      Value<bool> deleted,
+      Value<String> title,
+      Value<String?> description,
+      Value<int> startDate,
+      Value<int?> targetEndDate,
+      Value<int> rowid,
+    });
+
+class $$ReadingPlansTableFilterComposer
+    extends Composer<_$UserStore, $ReadingPlansTable> {
+  $$ReadingPlansTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get deviceId => $composableBuilder(
+    column: $table.deviceId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get deleted => $composableBuilder(
+    column: $table.deleted,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get startDate => $composableBuilder(
+    column: $table.startDate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get targetEndDate => $composableBuilder(
+    column: $table.targetEndDate,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$ReadingPlansTableOrderingComposer
+    extends Composer<_$UserStore, $ReadingPlansTable> {
+  $$ReadingPlansTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get deviceId => $composableBuilder(
+    column: $table.deviceId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get deleted => $composableBuilder(
+    column: $table.deleted,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get startDate => $composableBuilder(
+    column: $table.startDate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get targetEndDate => $composableBuilder(
+    column: $table.targetEndDate,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$ReadingPlansTableAnnotationComposer
+    extends Composer<_$UserStore, $ReadingPlansTable> {
+  $$ReadingPlansTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get deviceId =>
+      $composableBuilder(column: $table.deviceId, builder: (column) => column);
+
+  GeneratedColumn<bool> get deleted =>
+      $composableBuilder(column: $table.deleted, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get startDate =>
+      $composableBuilder(column: $table.startDate, builder: (column) => column);
+
+  GeneratedColumn<int> get targetEndDate => $composableBuilder(
+    column: $table.targetEndDate,
+    builder: (column) => column,
+  );
+}
+
+class $$ReadingPlansTableTableManager
+    extends
+        RootTableManager<
+          _$UserStore,
+          $ReadingPlansTable,
+          ReadingPlan,
+          $$ReadingPlansTableFilterComposer,
+          $$ReadingPlansTableOrderingComposer,
+          $$ReadingPlansTableAnnotationComposer,
+          $$ReadingPlansTableCreateCompanionBuilder,
+          $$ReadingPlansTableUpdateCompanionBuilder,
+          (
+            ReadingPlan,
+            BaseReferences<_$UserStore, $ReadingPlansTable, ReadingPlan>,
+          ),
+          ReadingPlan,
+          PrefetchHooks Function()
+        > {
+  $$ReadingPlansTableTableManager(_$UserStore db, $ReadingPlansTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ReadingPlansTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ReadingPlansTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ReadingPlansTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<int> updatedAt = const Value.absent(),
+                Value<String> deviceId = const Value.absent(),
+                Value<bool> deleted = const Value.absent(),
+                Value<String> title = const Value.absent(),
+                Value<String?> description = const Value.absent(),
+                Value<int> startDate = const Value.absent(),
+                Value<int?> targetEndDate = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ReadingPlansCompanion(
+                id: id,
+                updatedAt: updatedAt,
+                deviceId: deviceId,
+                deleted: deleted,
+                title: title,
+                description: description,
+                startDate: startDate,
+                targetEndDate: targetEndDate,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required int updatedAt,
+                required String deviceId,
+                Value<bool> deleted = const Value.absent(),
+                required String title,
+                Value<String?> description = const Value.absent(),
+                required int startDate,
+                Value<int?> targetEndDate = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ReadingPlansCompanion.insert(
+                id: id,
+                updatedAt: updatedAt,
+                deviceId: deviceId,
+                deleted: deleted,
+                title: title,
+                description: description,
+                startDate: startDate,
+                targetEndDate: targetEndDate,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$ReadingPlansTableProcessedTableManager =
+    ProcessedTableManager<
+      _$UserStore,
+      $ReadingPlansTable,
+      ReadingPlan,
+      $$ReadingPlansTableFilterComposer,
+      $$ReadingPlansTableOrderingComposer,
+      $$ReadingPlansTableAnnotationComposer,
+      $$ReadingPlansTableCreateCompanionBuilder,
+      $$ReadingPlansTableUpdateCompanionBuilder,
+      (
+        ReadingPlan,
+        BaseReferences<_$UserStore, $ReadingPlansTable, ReadingPlan>,
+      ),
+      ReadingPlan,
+      PrefetchHooks Function()
+    >;
+typedef $$ReadingPlanDaysTableCreateCompanionBuilder =
+    ReadingPlanDaysCompanion Function({
+      required String id,
+      required int updatedAt,
+      required String deviceId,
+      Value<bool> deleted,
+      required String planId,
+      required int dayNumber,
+      Value<int?> date,
+      Value<bool> completed,
+      Value<int> rowid,
+    });
+typedef $$ReadingPlanDaysTableUpdateCompanionBuilder =
+    ReadingPlanDaysCompanion Function({
+      Value<String> id,
+      Value<int> updatedAt,
+      Value<String> deviceId,
+      Value<bool> deleted,
+      Value<String> planId,
+      Value<int> dayNumber,
+      Value<int?> date,
+      Value<bool> completed,
+      Value<int> rowid,
+    });
+
+class $$ReadingPlanDaysTableFilterComposer
+    extends Composer<_$UserStore, $ReadingPlanDaysTable> {
+  $$ReadingPlanDaysTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get deviceId => $composableBuilder(
+    column: $table.deviceId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get deleted => $composableBuilder(
+    column: $table.deleted,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get planId => $composableBuilder(
+    column: $table.planId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get dayNumber => $composableBuilder(
+    column: $table.dayNumber,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get date => $composableBuilder(
+    column: $table.date,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get completed => $composableBuilder(
+    column: $table.completed,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$ReadingPlanDaysTableOrderingComposer
+    extends Composer<_$UserStore, $ReadingPlanDaysTable> {
+  $$ReadingPlanDaysTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get deviceId => $composableBuilder(
+    column: $table.deviceId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get deleted => $composableBuilder(
+    column: $table.deleted,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get planId => $composableBuilder(
+    column: $table.planId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get dayNumber => $composableBuilder(
+    column: $table.dayNumber,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get date => $composableBuilder(
+    column: $table.date,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get completed => $composableBuilder(
+    column: $table.completed,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$ReadingPlanDaysTableAnnotationComposer
+    extends Composer<_$UserStore, $ReadingPlanDaysTable> {
+  $$ReadingPlanDaysTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get deviceId =>
+      $composableBuilder(column: $table.deviceId, builder: (column) => column);
+
+  GeneratedColumn<bool> get deleted =>
+      $composableBuilder(column: $table.deleted, builder: (column) => column);
+
+  GeneratedColumn<String> get planId =>
+      $composableBuilder(column: $table.planId, builder: (column) => column);
+
+  GeneratedColumn<int> get dayNumber =>
+      $composableBuilder(column: $table.dayNumber, builder: (column) => column);
+
+  GeneratedColumn<int> get date =>
+      $composableBuilder(column: $table.date, builder: (column) => column);
+
+  GeneratedColumn<bool> get completed =>
+      $composableBuilder(column: $table.completed, builder: (column) => column);
+}
+
+class $$ReadingPlanDaysTableTableManager
+    extends
+        RootTableManager<
+          _$UserStore,
+          $ReadingPlanDaysTable,
+          ReadingPlanDay,
+          $$ReadingPlanDaysTableFilterComposer,
+          $$ReadingPlanDaysTableOrderingComposer,
+          $$ReadingPlanDaysTableAnnotationComposer,
+          $$ReadingPlanDaysTableCreateCompanionBuilder,
+          $$ReadingPlanDaysTableUpdateCompanionBuilder,
+          (
+            ReadingPlanDay,
+            BaseReferences<_$UserStore, $ReadingPlanDaysTable, ReadingPlanDay>,
+          ),
+          ReadingPlanDay,
+          PrefetchHooks Function()
+        > {
+  $$ReadingPlanDaysTableTableManager(
+    _$UserStore db,
+    $ReadingPlanDaysTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ReadingPlanDaysTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ReadingPlanDaysTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ReadingPlanDaysTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<int> updatedAt = const Value.absent(),
+                Value<String> deviceId = const Value.absent(),
+                Value<bool> deleted = const Value.absent(),
+                Value<String> planId = const Value.absent(),
+                Value<int> dayNumber = const Value.absent(),
+                Value<int?> date = const Value.absent(),
+                Value<bool> completed = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ReadingPlanDaysCompanion(
+                id: id,
+                updatedAt: updatedAt,
+                deviceId: deviceId,
+                deleted: deleted,
+                planId: planId,
+                dayNumber: dayNumber,
+                date: date,
+                completed: completed,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required int updatedAt,
+                required String deviceId,
+                Value<bool> deleted = const Value.absent(),
+                required String planId,
+                required int dayNumber,
+                Value<int?> date = const Value.absent(),
+                Value<bool> completed = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ReadingPlanDaysCompanion.insert(
+                id: id,
+                updatedAt: updatedAt,
+                deviceId: deviceId,
+                deleted: deleted,
+                planId: planId,
+                dayNumber: dayNumber,
+                date: date,
+                completed: completed,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$ReadingPlanDaysTableProcessedTableManager =
+    ProcessedTableManager<
+      _$UserStore,
+      $ReadingPlanDaysTable,
+      ReadingPlanDay,
+      $$ReadingPlanDaysTableFilterComposer,
+      $$ReadingPlanDaysTableOrderingComposer,
+      $$ReadingPlanDaysTableAnnotationComposer,
+      $$ReadingPlanDaysTableCreateCompanionBuilder,
+      $$ReadingPlanDaysTableUpdateCompanionBuilder,
+      (
+        ReadingPlanDay,
+        BaseReferences<_$UserStore, $ReadingPlanDaysTable, ReadingPlanDay>,
+      ),
+      ReadingPlanDay,
+      PrefetchHooks Function()
+    >;
+typedef $$ReadingPlanItemsTableCreateCompanionBuilder =
+    ReadingPlanItemsCompanion Function({
+      required String id,
+      required int updatedAt,
+      required String deviceId,
+      Value<bool> deleted,
+      required String dayId,
+      required String bookName,
+      required int startChapter,
+      required int endChapter,
+      Value<int?> startVerse,
+      Value<int?> endVerse,
+      Value<bool> completed,
+      Value<int> rowid,
+    });
+typedef $$ReadingPlanItemsTableUpdateCompanionBuilder =
+    ReadingPlanItemsCompanion Function({
+      Value<String> id,
+      Value<int> updatedAt,
+      Value<String> deviceId,
+      Value<bool> deleted,
+      Value<String> dayId,
+      Value<String> bookName,
+      Value<int> startChapter,
+      Value<int> endChapter,
+      Value<int?> startVerse,
+      Value<int?> endVerse,
+      Value<bool> completed,
+      Value<int> rowid,
+    });
+
+class $$ReadingPlanItemsTableFilterComposer
+    extends Composer<_$UserStore, $ReadingPlanItemsTable> {
+  $$ReadingPlanItemsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get deviceId => $composableBuilder(
+    column: $table.deviceId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get deleted => $composableBuilder(
+    column: $table.deleted,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get dayId => $composableBuilder(
+    column: $table.dayId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get bookName => $composableBuilder(
+    column: $table.bookName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get startChapter => $composableBuilder(
+    column: $table.startChapter,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get endChapter => $composableBuilder(
+    column: $table.endChapter,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get startVerse => $composableBuilder(
+    column: $table.startVerse,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get endVerse => $composableBuilder(
+    column: $table.endVerse,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get completed => $composableBuilder(
+    column: $table.completed,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$ReadingPlanItemsTableOrderingComposer
+    extends Composer<_$UserStore, $ReadingPlanItemsTable> {
+  $$ReadingPlanItemsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get deviceId => $composableBuilder(
+    column: $table.deviceId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get deleted => $composableBuilder(
+    column: $table.deleted,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get dayId => $composableBuilder(
+    column: $table.dayId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get bookName => $composableBuilder(
+    column: $table.bookName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get startChapter => $composableBuilder(
+    column: $table.startChapter,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get endChapter => $composableBuilder(
+    column: $table.endChapter,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get startVerse => $composableBuilder(
+    column: $table.startVerse,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get endVerse => $composableBuilder(
+    column: $table.endVerse,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get completed => $composableBuilder(
+    column: $table.completed,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$ReadingPlanItemsTableAnnotationComposer
+    extends Composer<_$UserStore, $ReadingPlanItemsTable> {
+  $$ReadingPlanItemsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get deviceId =>
+      $composableBuilder(column: $table.deviceId, builder: (column) => column);
+
+  GeneratedColumn<bool> get deleted =>
+      $composableBuilder(column: $table.deleted, builder: (column) => column);
+
+  GeneratedColumn<String> get dayId =>
+      $composableBuilder(column: $table.dayId, builder: (column) => column);
+
+  GeneratedColumn<String> get bookName =>
+      $composableBuilder(column: $table.bookName, builder: (column) => column);
+
+  GeneratedColumn<int> get startChapter => $composableBuilder(
+    column: $table.startChapter,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get endChapter => $composableBuilder(
+    column: $table.endChapter,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get startVerse => $composableBuilder(
+    column: $table.startVerse,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get endVerse =>
+      $composableBuilder(column: $table.endVerse, builder: (column) => column);
+
+  GeneratedColumn<bool> get completed =>
+      $composableBuilder(column: $table.completed, builder: (column) => column);
+}
+
+class $$ReadingPlanItemsTableTableManager
+    extends
+        RootTableManager<
+          _$UserStore,
+          $ReadingPlanItemsTable,
+          ReadingPlanItem,
+          $$ReadingPlanItemsTableFilterComposer,
+          $$ReadingPlanItemsTableOrderingComposer,
+          $$ReadingPlanItemsTableAnnotationComposer,
+          $$ReadingPlanItemsTableCreateCompanionBuilder,
+          $$ReadingPlanItemsTableUpdateCompanionBuilder,
+          (
+            ReadingPlanItem,
+            BaseReferences<
+              _$UserStore,
+              $ReadingPlanItemsTable,
+              ReadingPlanItem
+            >,
+          ),
+          ReadingPlanItem,
+          PrefetchHooks Function()
+        > {
+  $$ReadingPlanItemsTableTableManager(
+    _$UserStore db,
+    $ReadingPlanItemsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ReadingPlanItemsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ReadingPlanItemsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ReadingPlanItemsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<int> updatedAt = const Value.absent(),
+                Value<String> deviceId = const Value.absent(),
+                Value<bool> deleted = const Value.absent(),
+                Value<String> dayId = const Value.absent(),
+                Value<String> bookName = const Value.absent(),
+                Value<int> startChapter = const Value.absent(),
+                Value<int> endChapter = const Value.absent(),
+                Value<int?> startVerse = const Value.absent(),
+                Value<int?> endVerse = const Value.absent(),
+                Value<bool> completed = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ReadingPlanItemsCompanion(
+                id: id,
+                updatedAt: updatedAt,
+                deviceId: deviceId,
+                deleted: deleted,
+                dayId: dayId,
+                bookName: bookName,
+                startChapter: startChapter,
+                endChapter: endChapter,
+                startVerse: startVerse,
+                endVerse: endVerse,
+                completed: completed,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required int updatedAt,
+                required String deviceId,
+                Value<bool> deleted = const Value.absent(),
+                required String dayId,
+                required String bookName,
+                required int startChapter,
+                required int endChapter,
+                Value<int?> startVerse = const Value.absent(),
+                Value<int?> endVerse = const Value.absent(),
+                Value<bool> completed = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ReadingPlanItemsCompanion.insert(
+                id: id,
+                updatedAt: updatedAt,
+                deviceId: deviceId,
+                deleted: deleted,
+                dayId: dayId,
+                bookName: bookName,
+                startChapter: startChapter,
+                endChapter: endChapter,
+                startVerse: startVerse,
+                endVerse: endVerse,
+                completed: completed,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$ReadingPlanItemsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$UserStore,
+      $ReadingPlanItemsTable,
+      ReadingPlanItem,
+      $$ReadingPlanItemsTableFilterComposer,
+      $$ReadingPlanItemsTableOrderingComposer,
+      $$ReadingPlanItemsTableAnnotationComposer,
+      $$ReadingPlanItemsTableCreateCompanionBuilder,
+      $$ReadingPlanItemsTableUpdateCompanionBuilder,
+      (
+        ReadingPlanItem,
+        BaseReferences<_$UserStore, $ReadingPlanItemsTable, ReadingPlanItem>,
+      ),
+      ReadingPlanItem,
+      PrefetchHooks Function()
+    >;
 
 class $UserStoreManager {
   final _$UserStore _db;
@@ -6705,4 +9262,10 @@ class $UserStoreManager {
       $$AchievementsTableTableManager(_db, _db.achievements);
   $$NavigationHistoriesTableTableManager get navigationHistories =>
       $$NavigationHistoriesTableTableManager(_db, _db.navigationHistories);
+  $$ReadingPlansTableTableManager get readingPlans =>
+      $$ReadingPlansTableTableManager(_db, _db.readingPlans);
+  $$ReadingPlanDaysTableTableManager get readingPlanDays =>
+      $$ReadingPlanDaysTableTableManager(_db, _db.readingPlanDays);
+  $$ReadingPlanItemsTableTableManager get readingPlanItems =>
+      $$ReadingPlanItemsTableTableManager(_db, _db.readingPlanItems);
 }

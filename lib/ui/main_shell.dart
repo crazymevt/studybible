@@ -14,6 +14,7 @@ import 'journals/journals_prayers_screen.dart';
 import 'dashboard/dashboard_screen.dart';
 import 'content_manager/content_manager_screen.dart';
 import 'settings/backup_restore_screen.dart';
+import 'reading_plans/reading_plans_screen.dart';
 
 class MainShell extends ConsumerWidget {
   const MainShell({super.key});
@@ -29,6 +30,8 @@ class MainShell extends ConsumerWidget {
       return const ContentManagerScreen();
     } else if (currentModule == AppModule.backupRestore) {
       return const BackupRestoreScreen();
+    } else if (currentModule == AppModule.readingPlans) {
+      return const ReadingPlansScreen();
     }
 
     return LayoutBuilder(

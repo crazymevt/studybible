@@ -37,6 +37,7 @@ enum AppModule {
   dashboard,
   contentManager,
   backupRestore,
+  readingPlans,
 }
 
 class AppModuleNotifier extends Notifier<AppModule> {

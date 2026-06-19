@@ -139,3 +139,54 @@ class NavigationHistories extends Table {
   @override
   Set<Column> get primaryKey => {id};
 }
+
+@DataClassName('ReadingPlan')
+class ReadingPlans extends Table {
+  TextColumn get id => text()(); // UUID
+  IntColumn get updatedAt => integer()(); // epoch ms
+  TextColumn get deviceId => text()();
+  BoolColumn get deleted => boolean().withDefault(const Constant(false))();
+
+  TextColumn get title => text()();
+  TextColumn get description => text().nullable()();
+  IntColumn get startDate => integer()(); // epoch ms
+  IntColumn get targetEndDate => integer().nullable()(); // epoch ms
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+@DataClassName('ReadingPlanDay')
+class ReadingPlanDays extends Table {
+  TextColumn get id => text()(); // UUID
+  IntColumn get updatedAt => integer()(); // epoch ms
+  TextColumn get deviceId => text()();
+  BoolColumn get deleted => boolean().withDefault(const Constant(false))();
+
+  TextColumn get planId => text()();
+  IntColumn get dayNumber => integer()();
+  IntColumn get date => integer().nullable()(); // epoch ms, for absolute tracking
+  BoolColumn get completed => boolean().withDefault(const Constant(false))();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+@DataClassName('ReadingPlanItem')
+class ReadingPlanItems extends Table {
+  TextColumn get id => text()(); // UUID
+  IntColumn get updatedAt => integer()(); // epoch ms
+  TextColumn get deviceId => text()();
+  BoolColumn get deleted => boolean().withDefault(const Constant(false))();
+
+  TextColumn get dayId => text()();
+  TextColumn get bookName => text()();
+  IntColumn get startChapter => integer()();
+  IntColumn get endChapter => integer()();
+  IntColumn get startVerse => integer().nullable()();
+  IntColumn get endVerse => integer().nullable()();
+  BoolColumn get completed => boolean().withDefault(const Constant(false))();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}

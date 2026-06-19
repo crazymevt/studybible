@@ -238,6 +238,12 @@ class NavigationController {
     await userStore.into(userStore.navigationHistories).insert(newEntry);
   }
 
+  void navigateTo({required String bookName, required int chapter}) {
+    ref.read(selectedBookNameProvider.notifier).set(bookName);
+    ref.read(selectedChapterProvider.notifier).set(chapter);
+    recordHistory();
+  }
+
   Future<void> nextChapter() async {
     final activeVersions = ref.read(activeVersionsProvider);
     if (activeVersions.isEmpty) return;

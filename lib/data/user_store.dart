@@ -8,12 +8,16 @@ import 'tables/user_tables.dart';
 
 part 'user_store.g.dart';
 
-@DriftDatabase(tables: [Highlights, Notes, Bookmarks, Journals, Prayers, ReadingProgresses, TimeTrackers, Achievements, NavigationHistories])
+@DriftDatabase(tables: [
+  Highlights, Notes, Bookmarks, Journals, Prayers, 
+  ReadingProgresses, TimeTrackers, Achievements, NavigationHistories,
+  ReadingPlans, ReadingPlanDays, ReadingPlanItems
+])
 class UserStore extends _$UserStore {
   UserStore([QueryExecutor? e]) : super(e ?? _openConnection());
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration {
@@ -77,6 +81,11 @@ class UserStore extends _$UserStore {
         }
         if (from < 5) {
           await m.createTable(navigationHistories);
+        }
+        if (from < 6) {
+          await m.createTable(readingPlans);
+          await m.createTable(readingPlanDays);
+          await m.createTable(readingPlanItems);
         }
       },
     );
