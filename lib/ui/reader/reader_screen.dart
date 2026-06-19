@@ -139,26 +139,31 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
     return Scaffold(
       drawer: const AppDrawer(),
       appBar: AppBar(
-        title: InkWell(
-          borderRadius: BorderRadius.circular(8),
-          onTap: () {
-            showModalBottomSheet(
-              context: context,
-              isScrollControlled: true,
-              backgroundColor: Colors.transparent,
-              builder: (_) => const BookChooserSheet(),
-            );
-          },
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text('$bookName $chapter'),
-                const Icon(Icons.arrow_drop_down),
-              ],
+        title: Row(
+          children: [
+            InkWell(
+              borderRadius: BorderRadius.circular(8),
+              onTap: () {
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  backgroundColor: Colors.transparent,
+                  builder: (_) => const BookChooserSheet(),
+                );
+              },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text('$bookName $chapter'),
+                    const Icon(Icons.arrow_drop_down),
+                  ],
+                ),
+              ),
             ),
-          ),
+            const Expanded(child: AudioPlayerWidget()),
+          ],
         ),
         actions: [
           IconButton(
@@ -294,18 +299,12 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
             children: [
               Positioned.fill(child: content),
               if (selectedVerses.isNotEmpty)
-              const Positioned(
-                bottom: 32,
-                left: 0,
-                right: 0,
-                child: Center(child: VerseActionBar()),
-              ),
-            Positioned(
-              bottom: 16,
-              left: 0,
-              right: 0,
-              child: const AudioPlayerWidget(),
-            ),
+                const Positioned(
+                  bottom: 32,
+                  left: 0,
+                  right: 0,
+                  child: Center(child: VerseActionBar()),
+                ),
             ],
           );
         },

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/models/audio_bible.dart';
 import 'reader_state.dart';
 import 'content_providers.dart';
+import 'shared_prefs.dart';
 
 // 1. Load all available audio bibles
 final audioBiblesProvider = FutureProvider<List<AudioBible>>((ref) async {
@@ -75,10 +76,14 @@ final activeAudioBibleProvider = Provider<AsyncValue<AudioBible?>>((ref) {
 // 3. User selected voice actor
 class SelectedVoiceNotifier extends Notifier<String?> {
   @override
-  String? build() => null;
+  String? build() {
+    final prefs = ref.watch(sharedPreferencesProvider);
+    return prefs.getString('selectedVoice');
+  }
 
   void setVoice(String voice) {
     state = voice;
+    ref.read(sharedPreferencesProvider).setString('selectedVoice', voice);
   }
 }
 
