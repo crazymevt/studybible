@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/app_state.dart';
+import '../../app/content_providers.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -142,6 +143,38 @@ class SettingsScreen extends ConsumerWidget {
                       child: Text(value),
                     );
                   }).toList(),
+            ),
+          ),
+          ListTile(
+            title: const Text('Subheadings Source'),
+            subtitle: const Text('Select which module to use for inline subheadings'),
+            trailing: ref.watch(subheadingSourcesProvider).when(
+              data: (versions) {
+                final source = ref.watch(subheadingsSourceProvider);
+                final isValidSource = versions.any((v) => v.id == source);
+                final dropdownValue = isValidSource ? source : null;
+                
+                return DropdownButton<String?>(
+                  value: dropdownValue,
+                  onChanged: (String? newValue) {
+                    ref.read(subheadingsSourceProvider.notifier).setSource(newValue);
+                  },
+                  items: [
+                    const DropdownMenuItem<String?>(
+                      value: null,
+                      child: Text('None (Off)'),
+                    ),
+                    ...versions.map<DropdownMenuItem<String?>>((v) {
+                      return DropdownMenuItem<String?>(
+                        value: v.id,
+                        child: Text(v.abbreviation),
+                      );
+                    }),
+                  ],
+                );
+              },
+              loading: () => const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2)),
+              error: (error, stack) => const Icon(Icons.error),
             ),
           ),
           ListTile(

@@ -18,6 +18,7 @@ class ParallelView extends ConsumerStatefulWidget {
   final Function(int) onVerseTap;
   final ValueChanged<int>? onFootnoteTap;
   final bool isFlowing;
+  final Map<int, List<String>> subheadings;
   final ItemScrollController? externalScrollController;
   final ItemPositionsListener? externalPositionsListener;
 
@@ -31,6 +32,7 @@ class ParallelView extends ConsumerStatefulWidget {
     required this.onVerseTap,
     this.onFootnoteTap,
     this.isFlowing = false,
+    this.subheadings = const {},
     this.externalScrollController,
     this.externalPositionsListener,
   });
@@ -196,6 +198,7 @@ class _ParallelViewState extends ConsumerState<ParallelView> {
                     verses: verses,
                     selectedVerses: widget.selectedVerses,
                     savedHighlights: widget.savedHighlights,
+                    subheadings: widget.subheadings,
                     onVerseTap: widget.onVerseTap,
                   ),
                 ),
@@ -247,12 +250,34 @@ class _ParallelViewState extends ConsumerState<ParallelView> {
                   : highlightColor?.withValues(alpha: 0.2);
 
               final verseSpacing = ref.watch(appVerseSpacingProvider);
+              final verseSubheadings = widget.subheadings[verseNum] ?? [];
 
               return Padding(
                 padding: EdgeInsets.symmetric(vertical: verseSpacing / 2),
-                child: Container(
-                  color: bgColor,
-                  child: IntrinsicHeight(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    if (verseSubheadings.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 4.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: verseSubheadings
+                              .map((sh) => Text(
+                                    sh,
+                                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                          fontWeight: FontWeight.bold,
+                                          fontStyle: FontStyle.italic,
+                                          color: Theme.of(context).colorScheme.primary,
+                                        ),
+                                    textAlign: TextAlign.center,
+                                  ))
+                              .toList(),
+                        ),
+                      ),
+                    Container(
+                      color: bgColor,
+                      child: IntrinsicHeight(
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: keys.map((versionId) {
@@ -278,33 +303,35 @@ class _ParallelViewState extends ConsumerState<ParallelView> {
                                 horizontal: 16.0,
                                 vertical: 8.0,
                               ),
-                              child: verse.id == -1
-                                  ? const SizedBox.shrink() // empty cell if verse is missing in this translation
-                                  : Text.rich(
-                                      TextSpan(
-                                        children: [
+                                  child: verse.id == -1
+                                      ? const SizedBox.shrink() // empty cell if verse is missing in this translation
+                                      : Text.rich(
                                           TextSpan(
-                                            text: '${verse.verse} ',
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .labelSmall
-                                                ?.copyWith(
-                                                  color: Theme.of(
-                                                    context,
-                                                  ).colorScheme.primary,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
+                                            children: [
+                                              TextSpan(
+                                                text: '${verse.verse} ',
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .labelSmall
+                                                    ?.copyWith(
+                                                      color: Theme.of(
+                                                        context,
+                                                      ).colorScheme.primary,
+                                                      fontWeight: FontWeight.bold,
+                                                    ),
+                                              ),
+                                              ..._buildVerseSpans(context, verse),
+                                            ],
                                           ),
-                                          ..._buildVerseSpans(context, verse),
-                                        ],
-                                      ),
-                                    ),
-                            ),
-                          ),
-                        );
-                      }).toList(),
+                                        ),
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ),
                     ),
-                  ),
+                  ],
                 ),
               );
             },

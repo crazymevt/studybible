@@ -88,7 +88,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
   }
 
   void _showVersionPicker() async {
-    final availableVersions = await ref.read(versionsProvider.future);
+    final availableVersions = await ref.read(bibleVersionsProvider.future);
 
     if (!mounted) return;
     showModalBottomSheet(
@@ -148,6 +148,9 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
     
     final versesWithTagsAsync = ref.watch(chapterVersesWithTagsProvider);
     final versesWithTags = versesWithTagsAsync.value ?? <int>{};
+
+    final subheadingsAsync = ref.watch(chapterSubheadingsProvider((bookName: bookName, chapter: chapter)));
+    final subheadings = subheadingsAsync.value ?? <int, List<String>>{};
 
     // Auto-tracking logic
     ref.listen<String>(selectedBookNameProvider, (prev, next) {
@@ -310,6 +313,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
                     savedHighlights: savedHighlights,
                     versesWithNotes: versesWithNotes,
                     versesWithTags: versesWithTags,
+                    subheadings: subheadings,
                     onVerseTap: (verseId) => ref
                         .read(selectedVersesProvider.notifier)
                         .toggle(verseId),
@@ -321,6 +325,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
                     savedHighlights: savedHighlights,
                     versesWithNotes: versesWithNotes,
                     versesWithTags: versesWithTags,
+                    subheadings: subheadings,
                     onVerseTap: (verseId) => ref
                         .read(selectedVersesProvider.notifier)
                         .toggle(verseId),
@@ -334,6 +339,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
               savedHighlights: savedHighlights,
               versesWithNotes: versesWithNotes,
               versesWithTags: versesWithTags,
+              subheadings: subheadings,
               onVerseTap: (verseId) =>
                   ref.read(selectedVersesProvider.notifier).toggle(verseId),
               onFootnoteTap: (verseId) => _openCommentaryPanel(),

@@ -73,3 +73,14 @@ class DictionaryEntries extends Table {
   TextColumn get word => text()();
   TextColumn get definition => text()();
 }
+
+@DataClassName('Subheading')
+class Subheadings extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get versionId => text().references(Versions, #id)();
+  IntColumn get bookOrder => integer()();
+  IntColumn get chapter => integer()();
+  IntColumn get verse => integer()();
+  IntColumn get orderIfSeveral => integer().withDefault(const Constant(0))();
+  TextColumn get textContent => text()();
+}

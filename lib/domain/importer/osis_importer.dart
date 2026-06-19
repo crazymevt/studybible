@@ -115,6 +115,9 @@ class OsisImporter {
     }
 
     // Insert version record
+    final vid = versionId.toUpperCase();
+    await store.deleteVersion(vid);
+
     await store
         .into(store.versions)
         .insert(
@@ -126,8 +129,6 @@ class OsisImporter {
           ),
           mode: InsertMode.insertOrReplace,
         );
-
-    final vid = versionId.toUpperCase();
 
     // Find all book divs
     final bookDivs = document

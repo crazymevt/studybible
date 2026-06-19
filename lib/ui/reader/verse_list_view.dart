@@ -20,6 +20,7 @@ class VerseListView extends ConsumerStatefulWidget {
   final ItemScrollController? externalScrollController;
   final ItemPositionsListener? externalPositionsListener;
   final bool showFooter;
+  final Map<int, List<String>> subheadings;
 
   const VerseListView({
     super.key,
@@ -33,6 +34,7 @@ class VerseListView extends ConsumerStatefulWidget {
     this.externalScrollController,
     this.externalPositionsListener,
     this.showFooter = true,
+    this.subheadings = const {},
   });
 
   @override
@@ -179,43 +181,66 @@ class _VerseListViewState extends ConsumerState<VerseListView> {
             : highlightColor?.withValues(alpha: 0.2);
 
         final verseSpacing = ref.watch(appVerseSpacingProvider);
+        final verseSubheadings = widget.subheadings[verse.verse] ?? [];
 
         return Padding(
           padding: EdgeInsets.symmetric(vertical: verseSpacing / 2),
-          child: ListTile(
-            tileColor: bgColor,
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16.0),
-            title: Text.rich(
-              TextSpan(
-                children: [
-                  TextSpan(
-                    text: '${verse.verse} ',
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: Theme.of(context).colorScheme.primary,
-                      fontWeight: FontWeight.bold,
-                    ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (verseSubheadings.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 4.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: verseSubheadings
+                        .map((sh) => Text(
+                              sh,
+                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    fontStyle: FontStyle.italic,
+                                    color: Theme.of(context).colorScheme.primary,
+                                  ),
+                            ))
+                        .toList(),
                   ),
-                  if (widget.versesWithNotes.contains(verse.verse))
-                    WidgetSpan(
-                      alignment: PlaceholderAlignment.middle,
-                      child: Padding(
-                        padding: const EdgeInsets.only(right: 4.0),
-                        child: Icon(Icons.edit_note, size: 14, color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.8)),
+                ),
+              ListTile(
+                tileColor: bgColor,
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16.0),
+                title: Text.rich(
+                  TextSpan(
+                    children: [
+                      TextSpan(
+                        text: '${verse.verse} ',
+                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          color: Theme.of(context).colorScheme.primary,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                  if (widget.versesWithTags.contains(verse.verse))
-                    WidgetSpan(
-                      alignment: PlaceholderAlignment.middle,
-                      child: Padding(
-                        padding: const EdgeInsets.only(right: 4.0),
-                        child: Icon(Icons.label, size: 12, color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.8)),
-                      ),
-                    ),
-                  ..._buildVerseSpans(context, verse),
-                ],
+                      if (widget.versesWithNotes.contains(verse.verse))
+                        WidgetSpan(
+                          alignment: PlaceholderAlignment.middle,
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 4.0),
+                            child: Icon(Icons.edit_note, size: 14, color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.8)),
+                          ),
+                        ),
+                      if (widget.versesWithTags.contains(verse.verse))
+                        WidgetSpan(
+                          alignment: PlaceholderAlignment.middle,
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 4.0),
+                            child: Icon(Icons.label, size: 12, color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.8)),
+                          ),
+                        ),
+                      ..._buildVerseSpans(context, verse),
+                    ],
+                  ),
+                ),
+                onTap: () => widget.onVerseTap(verse.verse),
               ),
-            ),
-            onTap: () => widget.onVerseTap(verse.verse),
+            ],
           ),
         );
       },

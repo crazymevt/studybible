@@ -21,6 +21,9 @@ class MyBibleImporter {
       case ModuleType.bible:
         await _importBible(sqliteFile, module);
         break;
+      case ModuleType.subheadings:
+        await _importSubheadings(sqliteFile, module);
+        break;
       case ModuleType.commentary:
         await _importCommentary(sqliteFile, module);
         break;
@@ -54,6 +57,8 @@ class MyBibleImporter {
       }
 
       final versionId = module.abbr.toUpperCase();
+      await store.deleteVersion(versionId);
+
       await store
           .into(store.versions)
           .insert(
@@ -129,6 +134,49 @@ class MyBibleImporter {
         }
       });
 
+      // Import subheadings if available
+      final hasStories = db
+          .select(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name='stories'",
+          )
+          .isNotEmpty;
+
+      if (hasStories) {
+        final storiesQuery = db.select(
+          'SELECT book_number, chapter, verse, order_if_several, title FROM stories ORDER BY book_number, chapter, verse, order_if_several',
+        );
+
+        await store.batch((batch) {
+          for (final row in storiesQuery) {
+            if (row['book_number'] == null ||
+                row['chapter'] == null ||
+                row['verse'] == null) continue;
+
+            final bookNumber = num.parse(row['book_number'].toString()).toInt();
+            final chapter = num.parse(row['chapter'].toString()).toInt();
+            final verse = num.parse(row['verse'].toString()).toInt();
+            final orderIfSeveral = row['order_if_several'] != null
+                ? num.parse(row['order_if_several'].toString()).toInt()
+                : 0;
+            final title = row['title']?.toString() ?? '';
+
+            if (title.isNotEmpty) {
+              batch.insert(
+                store.subheadings,
+                SubheadingsCompanion.insert(
+                  versionId: versionId,
+                  bookOrder: bookNumber,
+                  chapter: chapter,
+                  verse: verse,
+                  orderIfSeveral: Value(orderIfSeveral),
+                  textContent: title,
+                ),
+              );
+            }
+          }
+        });
+      }
+
       // Update FTS5 index for this version
       await store.customStatement(
         '''
@@ -145,10 +193,117 @@ class MyBibleImporter {
     }
   }
 
+  Future<void> _importSubheadings(File sqliteFile, Ph4Module module) async {
+    final db = sqlite3.open(sqliteFile.path);
+
+    try {
+      final versionId = module.abbr.toUpperCase();
+      await store.deleteVersion(versionId);
+
+      await store
+          .into(store.versions)
+          .insert(
+            VersionsCompanion.insert(
+              id: versionId,
+              abbreviation: module.abbr,
+              name: module.title,
+              language: const Value('en'),
+            ),
+            mode: InsertMode.insertOrReplace,
+          );
+
+      final hasStories = db
+          .select(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name='stories'",
+          )
+          .isNotEmpty;
+
+      final hasSubheadings = db
+          .select(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name='subheadings'",
+          )
+          .isNotEmpty;
+
+      if (hasStories) {
+        final storiesQuery = db.select(
+          'SELECT book_number, chapter, verse, order_if_several, title FROM stories ORDER BY book_number, chapter, verse, order_if_several',
+        );
+
+        await store.batch((batch) {
+          for (final row in storiesQuery) {
+            if (row['book_number'] == null ||
+                row['chapter'] == null ||
+                row['verse'] == null) continue;
+
+            final bookNumber = num.parse(row['book_number'].toString()).toInt();
+            final chapter = num.parse(row['chapter'].toString()).toInt();
+            final verse = num.parse(row['verse'].toString()).toInt();
+            final orderIfSeveral = row['order_if_several'] != null
+                ? num.parse(row['order_if_several'].toString()).toInt()
+                : 0;
+            final title = row['title']?.toString() ?? '';
+
+            if (title.isNotEmpty) {
+              batch.insert(
+                store.subheadings,
+                SubheadingsCompanion.insert(
+                  versionId: versionId,
+                  bookOrder: bookNumber,
+                  chapter: chapter,
+                  verse: verse,
+                  orderIfSeveral: Value(orderIfSeveral),
+                  textContent: title,
+                ),
+              );
+            }
+          }
+        });
+      } else if (hasSubheadings) {
+        final subheadingsQuery = db.select(
+          'SELECT book_number, chapter, verse, subheading FROM subheadings ORDER BY book_number, chapter, verse',
+        );
+
+        await store.batch((batch) {
+          for (final row in subheadingsQuery) {
+            if (row['book_number'] == null ||
+                row['chapter'] == null ||
+                row['verse'] == null) continue;
+
+            final bookNumber = num.parse(row['book_number'].toString()).toInt();
+            final chapter = num.parse(row['chapter'].toString()).toInt();
+            final verse = num.parse(row['verse'].toString()).toInt();
+            final title = row['subheading']?.toString() ?? '';
+
+            if (title.isNotEmpty) {
+              batch.insert(
+                store.subheadings,
+                SubheadingsCompanion.insert(
+                  versionId: versionId,
+                  bookOrder: bookNumber,
+                  chapter: chapter,
+                  verse: verse,
+                  orderIfSeveral: const Value(0),
+                  textContent: title,
+                ),
+              );
+            }
+          }
+        });
+      }
+    } finally {
+      db.dispose();
+    }
+  }
+
   Future<void> _importCommentary(File sqliteFile, Ph4Module module) async {
     final db = sqlite3.open(sqliteFile.path);
 
     try {
+      final existing = await (store.select(store.commentaries)..where((c) => c.abbreviation.equals(module.abbr))).get();
+      for (final e in existing) {
+        await store.deleteCommentary(e.id);
+      }
+
       final commentaryId = await store
           .into(store.commentaries)
           .insert(
@@ -206,6 +361,11 @@ class MyBibleImporter {
     final db = sqlite3.open(sqliteFile.path);
 
     try {
+      final existing = await (store.select(store.dictionaries)..where((d) => d.abbreviation.equals(module.abbr))).get();
+      for (final e in existing) {
+        await store.deleteDictionary(e.id);
+      }
+
       final dictionaryId = await store
           .into(store.dictionaries)
           .insert(

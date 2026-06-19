@@ -3,6 +3,7 @@ import 'package:drift/drift.dart';
 import 'package:uuid/uuid.dart';
 import 'package:study_bible/data/content_store.dart';
 import '../data/user_store.dart';
+import 'app_state.dart';
 import 'reader_state.dart';
 import 'user_providers.dart';
 import 'sync_service.dart';
@@ -16,6 +17,24 @@ final contentStoreProvider = Provider<ContentStore>((ref) {
 final versionsProvider = FutureProvider<List<Version>>((ref) {
   final store = ref.watch(contentStoreProvider);
   return store.select(store.versions).get();
+});
+
+final bibleVersionsProvider = FutureProvider<List<Version>>((ref) async {
+  final store = ref.watch(contentStoreProvider);
+  final allVersions = await store.select(store.versions).get();
+  final bookVersions = await store.customSelect('SELECT DISTINCT version_id FROM books').get();
+  final bookVersionIds = bookVersions.map((row) => row.read<String>('version_id')).toSet();
+  
+  return allVersions.where((v) => bookVersionIds.contains(v.id)).toList();
+});
+
+final subheadingSourcesProvider = FutureProvider<List<Version>>((ref) async {
+  final store = ref.watch(contentStoreProvider);
+  final allVersions = await store.select(store.versions).get();
+  final shVersions = await store.customSelect('SELECT DISTINCT version_id FROM subheadings').get();
+  final shVersionIds = shVersions.map((row) => row.read<String>('version_id')).toSet();
+  
+  return allVersions.where((v) => shVersionIds.contains(v.id)).toList();
 });
 
 final booksForVersionProvider = FutureProvider.family<List<Book>, String>((
@@ -73,6 +92,35 @@ final bookByNameProvider =
         return false;
       }).firstOrNull;
     });
+
+final chapterSubheadingsProvider = FutureProvider.family<Map<int, List<String>>, ({String bookName, int chapter})>((ref, args) async {
+  final sourceVersionId = ref.watch(subheadingsSourceProvider);
+  if (sourceVersionId == null || sourceVersionId.isEmpty) {
+    return {};
+  }
+  
+  final activeVersions = ref.watch(activeVersionsProvider);
+  if (activeVersions.isEmpty) return {};
+  
+  final primaryBibleId = activeVersions.first;
+  final book = await ref.watch(bookByNameProvider((versionId: primaryBibleId, name: args.bookName)).future);
+  if (book == null) return {};
+  
+  final store = ref.watch(contentStoreProvider);
+  final query = store.select(store.subheadings)
+    ..where((s) => s.versionId.equals(sourceVersionId))
+    ..where((s) => s.bookOrder.equals(book.bookOrder))
+    ..where((s) => s.chapter.equals(args.chapter))
+    ..orderBy([(s) => OrderingTerm(expression: s.verse), (s) => OrderingTerm(expression: s.orderIfSeveral)]);
+    
+  final results = await query.get();
+  
+  final map = <int, List<String>>{};
+  for (final row in results) {
+    map.putIfAbsent(row.verse, () => []).add(row.textContent);
+  }
+  return map;
+});
 
 final validActiveVersionsProvider = FutureProvider<List<String>>((ref) async {
   final activeVersions = ref.watch(activeVersionsProvider);

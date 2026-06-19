@@ -18,13 +18,14 @@ part 'content_store.g.dart';
     CommentaryEntries,
     Dictionaries,
     DictionaryEntries,
+    Subheadings,
   ],
 )
 class ContentStore extends _$ContentStore {
   ContentStore([QueryExecutor? e]) : super(e ?? _openConnection());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration {
@@ -37,7 +38,16 @@ class ContentStore extends _$ContentStore {
       },
       onUpgrade: (Migrator m, int from, int to) async {
         if (from < 2) {
-          // Future upgrades
+          await m.createTable(subheadings);
+        }
+        if (from < 3) {
+          await customStatement('DELETE FROM books WHERE id NOT IN (SELECT MAX(id) FROM books GROUP BY version_id, book_order)');
+          await customStatement('DELETE FROM verses WHERE book_id NOT IN (SELECT id FROM books)');
+          await customStatement('DELETE FROM subheadings WHERE rowid NOT IN (SELECT MAX(rowid) FROM subheadings GROUP BY version_id, book_order, chapter, verse, order_if_several, text_content)');
+          await customStatement('DELETE FROM commentaries WHERE id NOT IN (SELECT MAX(id) FROM commentaries GROUP BY abbreviation)');
+          await customStatement('DELETE FROM commentary_entries WHERE commentary_id NOT IN (SELECT id FROM commentaries)');
+          await customStatement('DELETE FROM dictionaries WHERE id NOT IN (SELECT MAX(id) FROM dictionaries GROUP BY abbreviation)');
+          await customStatement('DELETE FROM dictionary_entries WHERE dictionary_id NOT IN (SELECT id FROM dictionaries)');
         }
       },
     );
@@ -57,6 +67,7 @@ class ContentStore extends _$ContentStore {
         await (delete(verses)..where((v) => v.bookId.isIn(bookIds))).go();
         await (delete(books)..where((b) => b.id.isIn(bookIds))).go();
       }
+      await (delete(subheadings)..where((s) => s.versionId.equals(versionId))).go();
       await (delete(versions)..where((v) => v.id.equals(versionId))).go();
     });
   }

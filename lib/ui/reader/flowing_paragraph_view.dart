@@ -14,6 +14,7 @@ class FlowingParagraphView extends StatefulWidget {
   final ValueChanged<int> onVerseTap;
   final ValueChanged<int>? onFootnoteTap;
   final bool showFooter;
+  final Map<int, List<String>> subheadings;
 
   const FlowingParagraphView({
     super.key,
@@ -25,6 +26,7 @@ class FlowingParagraphView extends StatefulWidget {
     required this.onVerseTap,
     this.onFootnoteTap,
     this.showFooter = true,
+    this.subheadings = const {},
   });
 
   @override
@@ -84,6 +86,23 @@ class _FlowingParagraphViewState extends State<FlowingParagraphView> {
             ).colorScheme.primaryContainer.withValues(alpha: 0.6)
           : highlightColor?.withValues(alpha: 0.4);
       final recognizer = _recognizers[index];
+      
+      final verseSubheadings = widget.subheadings[verse.verse] ?? [];
+      List<InlineSpan> subheadingSpans = [];
+      for (final sh in verseSubheadings) {
+        subheadingSpans.add(const TextSpan(text: '\n\n'));
+        subheadingSpans.add(
+          TextSpan(
+            text: sh,
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+              fontStyle: FontStyle.italic,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+          ),
+        );
+        subheadingSpans.add(const TextSpan(text: '\n'));
+      }
 
       List<InlineSpan> leadingBreaks = [];
       List<InlineSpan> verseSpans;
@@ -184,6 +203,7 @@ class _FlowingParagraphViewState extends State<FlowingParagraphView> {
 
       return TextSpan(
         children: [
+          ...subheadingSpans,
           ...leadingBreaks,
           TextSpan(
             text: '${verse.verse} ',

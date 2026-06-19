@@ -2781,6 +2781,469 @@ class DictionaryEntriesCompanion extends UpdateCompanion<DictionaryEntry> {
   }
 }
 
+class $SubheadingsTable extends Subheadings
+    with TableInfo<$SubheadingsTable, Subheading> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $SubheadingsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _versionIdMeta = const VerificationMeta(
+    'versionId',
+  );
+  @override
+  late final GeneratedColumn<String> versionId = GeneratedColumn<String>(
+    'version_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES versions (id)',
+    ),
+  );
+  static const VerificationMeta _bookOrderMeta = const VerificationMeta(
+    'bookOrder',
+  );
+  @override
+  late final GeneratedColumn<int> bookOrder = GeneratedColumn<int>(
+    'book_order',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _chapterMeta = const VerificationMeta(
+    'chapter',
+  );
+  @override
+  late final GeneratedColumn<int> chapter = GeneratedColumn<int>(
+    'chapter',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _verseMeta = const VerificationMeta('verse');
+  @override
+  late final GeneratedColumn<int> verse = GeneratedColumn<int>(
+    'verse',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _orderIfSeveralMeta = const VerificationMeta(
+    'orderIfSeveral',
+  );
+  @override
+  late final GeneratedColumn<int> orderIfSeveral = GeneratedColumn<int>(
+    'order_if_several',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _textContentMeta = const VerificationMeta(
+    'textContent',
+  );
+  @override
+  late final GeneratedColumn<String> textContent = GeneratedColumn<String>(
+    'text_content',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    versionId,
+    bookOrder,
+    chapter,
+    verse,
+    orderIfSeveral,
+    textContent,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'subheadings';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<Subheading> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('version_id')) {
+      context.handle(
+        _versionIdMeta,
+        versionId.isAcceptableOrUnknown(data['version_id']!, _versionIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_versionIdMeta);
+    }
+    if (data.containsKey('book_order')) {
+      context.handle(
+        _bookOrderMeta,
+        bookOrder.isAcceptableOrUnknown(data['book_order']!, _bookOrderMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_bookOrderMeta);
+    }
+    if (data.containsKey('chapter')) {
+      context.handle(
+        _chapterMeta,
+        chapter.isAcceptableOrUnknown(data['chapter']!, _chapterMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_chapterMeta);
+    }
+    if (data.containsKey('verse')) {
+      context.handle(
+        _verseMeta,
+        verse.isAcceptableOrUnknown(data['verse']!, _verseMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_verseMeta);
+    }
+    if (data.containsKey('order_if_several')) {
+      context.handle(
+        _orderIfSeveralMeta,
+        orderIfSeveral.isAcceptableOrUnknown(
+          data['order_if_several']!,
+          _orderIfSeveralMeta,
+        ),
+      );
+    }
+    if (data.containsKey('text_content')) {
+      context.handle(
+        _textContentMeta,
+        textContent.isAcceptableOrUnknown(
+          data['text_content']!,
+          _textContentMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_textContentMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  Subheading map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return Subheading(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      versionId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}version_id'],
+      )!,
+      bookOrder: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}book_order'],
+      )!,
+      chapter: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}chapter'],
+      )!,
+      verse: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}verse'],
+      )!,
+      orderIfSeveral: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}order_if_several'],
+      )!,
+      textContent: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}text_content'],
+      )!,
+    );
+  }
+
+  @override
+  $SubheadingsTable createAlias(String alias) {
+    return $SubheadingsTable(attachedDatabase, alias);
+  }
+}
+
+class Subheading extends DataClass implements Insertable<Subheading> {
+  final int id;
+  final String versionId;
+  final int bookOrder;
+  final int chapter;
+  final int verse;
+  final int orderIfSeveral;
+  final String textContent;
+  const Subheading({
+    required this.id,
+    required this.versionId,
+    required this.bookOrder,
+    required this.chapter,
+    required this.verse,
+    required this.orderIfSeveral,
+    required this.textContent,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['version_id'] = Variable<String>(versionId);
+    map['book_order'] = Variable<int>(bookOrder);
+    map['chapter'] = Variable<int>(chapter);
+    map['verse'] = Variable<int>(verse);
+    map['order_if_several'] = Variable<int>(orderIfSeveral);
+    map['text_content'] = Variable<String>(textContent);
+    return map;
+  }
+
+  SubheadingsCompanion toCompanion(bool nullToAbsent) {
+    return SubheadingsCompanion(
+      id: Value(id),
+      versionId: Value(versionId),
+      bookOrder: Value(bookOrder),
+      chapter: Value(chapter),
+      verse: Value(verse),
+      orderIfSeveral: Value(orderIfSeveral),
+      textContent: Value(textContent),
+    );
+  }
+
+  factory Subheading.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return Subheading(
+      id: serializer.fromJson<int>(json['id']),
+      versionId: serializer.fromJson<String>(json['versionId']),
+      bookOrder: serializer.fromJson<int>(json['bookOrder']),
+      chapter: serializer.fromJson<int>(json['chapter']),
+      verse: serializer.fromJson<int>(json['verse']),
+      orderIfSeveral: serializer.fromJson<int>(json['orderIfSeveral']),
+      textContent: serializer.fromJson<String>(json['textContent']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'versionId': serializer.toJson<String>(versionId),
+      'bookOrder': serializer.toJson<int>(bookOrder),
+      'chapter': serializer.toJson<int>(chapter),
+      'verse': serializer.toJson<int>(verse),
+      'orderIfSeveral': serializer.toJson<int>(orderIfSeveral),
+      'textContent': serializer.toJson<String>(textContent),
+    };
+  }
+
+  Subheading copyWith({
+    int? id,
+    String? versionId,
+    int? bookOrder,
+    int? chapter,
+    int? verse,
+    int? orderIfSeveral,
+    String? textContent,
+  }) => Subheading(
+    id: id ?? this.id,
+    versionId: versionId ?? this.versionId,
+    bookOrder: bookOrder ?? this.bookOrder,
+    chapter: chapter ?? this.chapter,
+    verse: verse ?? this.verse,
+    orderIfSeveral: orderIfSeveral ?? this.orderIfSeveral,
+    textContent: textContent ?? this.textContent,
+  );
+  Subheading copyWithCompanion(SubheadingsCompanion data) {
+    return Subheading(
+      id: data.id.present ? data.id.value : this.id,
+      versionId: data.versionId.present ? data.versionId.value : this.versionId,
+      bookOrder: data.bookOrder.present ? data.bookOrder.value : this.bookOrder,
+      chapter: data.chapter.present ? data.chapter.value : this.chapter,
+      verse: data.verse.present ? data.verse.value : this.verse,
+      orderIfSeveral: data.orderIfSeveral.present
+          ? data.orderIfSeveral.value
+          : this.orderIfSeveral,
+      textContent: data.textContent.present
+          ? data.textContent.value
+          : this.textContent,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('Subheading(')
+          ..write('id: $id, ')
+          ..write('versionId: $versionId, ')
+          ..write('bookOrder: $bookOrder, ')
+          ..write('chapter: $chapter, ')
+          ..write('verse: $verse, ')
+          ..write('orderIfSeveral: $orderIfSeveral, ')
+          ..write('textContent: $textContent')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    versionId,
+    bookOrder,
+    chapter,
+    verse,
+    orderIfSeveral,
+    textContent,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is Subheading &&
+          other.id == this.id &&
+          other.versionId == this.versionId &&
+          other.bookOrder == this.bookOrder &&
+          other.chapter == this.chapter &&
+          other.verse == this.verse &&
+          other.orderIfSeveral == this.orderIfSeveral &&
+          other.textContent == this.textContent);
+}
+
+class SubheadingsCompanion extends UpdateCompanion<Subheading> {
+  final Value<int> id;
+  final Value<String> versionId;
+  final Value<int> bookOrder;
+  final Value<int> chapter;
+  final Value<int> verse;
+  final Value<int> orderIfSeveral;
+  final Value<String> textContent;
+  const SubheadingsCompanion({
+    this.id = const Value.absent(),
+    this.versionId = const Value.absent(),
+    this.bookOrder = const Value.absent(),
+    this.chapter = const Value.absent(),
+    this.verse = const Value.absent(),
+    this.orderIfSeveral = const Value.absent(),
+    this.textContent = const Value.absent(),
+  });
+  SubheadingsCompanion.insert({
+    this.id = const Value.absent(),
+    required String versionId,
+    required int bookOrder,
+    required int chapter,
+    required int verse,
+    this.orderIfSeveral = const Value.absent(),
+    required String textContent,
+  }) : versionId = Value(versionId),
+       bookOrder = Value(bookOrder),
+       chapter = Value(chapter),
+       verse = Value(verse),
+       textContent = Value(textContent);
+  static Insertable<Subheading> custom({
+    Expression<int>? id,
+    Expression<String>? versionId,
+    Expression<int>? bookOrder,
+    Expression<int>? chapter,
+    Expression<int>? verse,
+    Expression<int>? orderIfSeveral,
+    Expression<String>? textContent,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (versionId != null) 'version_id': versionId,
+      if (bookOrder != null) 'book_order': bookOrder,
+      if (chapter != null) 'chapter': chapter,
+      if (verse != null) 'verse': verse,
+      if (orderIfSeveral != null) 'order_if_several': orderIfSeveral,
+      if (textContent != null) 'text_content': textContent,
+    });
+  }
+
+  SubheadingsCompanion copyWith({
+    Value<int>? id,
+    Value<String>? versionId,
+    Value<int>? bookOrder,
+    Value<int>? chapter,
+    Value<int>? verse,
+    Value<int>? orderIfSeveral,
+    Value<String>? textContent,
+  }) {
+    return SubheadingsCompanion(
+      id: id ?? this.id,
+      versionId: versionId ?? this.versionId,
+      bookOrder: bookOrder ?? this.bookOrder,
+      chapter: chapter ?? this.chapter,
+      verse: verse ?? this.verse,
+      orderIfSeveral: orderIfSeveral ?? this.orderIfSeveral,
+      textContent: textContent ?? this.textContent,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (versionId.present) {
+      map['version_id'] = Variable<String>(versionId.value);
+    }
+    if (bookOrder.present) {
+      map['book_order'] = Variable<int>(bookOrder.value);
+    }
+    if (chapter.present) {
+      map['chapter'] = Variable<int>(chapter.value);
+    }
+    if (verse.present) {
+      map['verse'] = Variable<int>(verse.value);
+    }
+    if (orderIfSeveral.present) {
+      map['order_if_several'] = Variable<int>(orderIfSeveral.value);
+    }
+    if (textContent.present) {
+      map['text_content'] = Variable<String>(textContent.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SubheadingsCompanion(')
+          ..write('id: $id, ')
+          ..write('versionId: $versionId, ')
+          ..write('bookOrder: $bookOrder, ')
+          ..write('chapter: $chapter, ')
+          ..write('verse: $verse, ')
+          ..write('orderIfSeveral: $orderIfSeveral, ')
+          ..write('textContent: $textContent')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$ContentStore extends GeneratedDatabase {
   _$ContentStore(QueryExecutor e) : super(e);
   $ContentStoreManager get managers => $ContentStoreManager(this);
@@ -2796,6 +3259,7 @@ abstract class _$ContentStore extends GeneratedDatabase {
   late final $DictionariesTable dictionaries = $DictionariesTable(this);
   late final $DictionaryEntriesTable dictionaryEntries =
       $DictionaryEntriesTable(this);
+  late final $SubheadingsTable subheadings = $SubheadingsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -2809,6 +3273,7 @@ abstract class _$ContentStore extends GeneratedDatabase {
     commentaryEntries,
     dictionaries,
     dictionaryEntries,
+    subheadings,
   ];
 }
 
@@ -2847,6 +3312,24 @@ final class $$VersionsTableReferences
     ).filter((f) => f.versionId.id.sqlEquals($_itemColumn<String>('id')!));
 
     final cache = $_typedResult.readTableOrNull(_booksRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$SubheadingsTable, List<Subheading>>
+  _subheadingsRefsTable(_$ContentStore db) => MultiTypedResultKey.fromTable(
+    db.subheadings,
+    aliasName: 'versions__id__subheadings__version_id',
+  );
+
+  $$SubheadingsTableProcessedTableManager get subheadingsRefs {
+    final manager = $$SubheadingsTableTableManager(
+      $_db,
+      $_db.subheadings,
+    ).filter((f) => f.versionId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_subheadingsRefsTable($_db));
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
     );
@@ -2898,6 +3381,31 @@ class $$VersionsTableFilterComposer
           }) => $$BooksTableFilterComposer(
             $db: $db,
             $table: $db.books,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> subheadingsRefs(
+    Expression<bool> Function($$SubheadingsTableFilterComposer f) f,
+  ) {
+    final $$SubheadingsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.subheadings,
+      getReferencedColumn: (t) => t.versionId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$SubheadingsTableFilterComposer(
+            $db: $db,
+            $table: $db.subheadings,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -2985,6 +3493,31 @@ class $$VersionsTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> subheadingsRefs<T extends Object>(
+    Expression<T> Function($$SubheadingsTableAnnotationComposer a) f,
+  ) {
+    final $$SubheadingsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.subheadings,
+      getReferencedColumn: (t) => t.versionId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$SubheadingsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.subheadings,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$VersionsTableTableManager
@@ -3000,7 +3533,7 @@ class $$VersionsTableTableManager
           $$VersionsTableUpdateCompanionBuilder,
           (Version, $$VersionsTableReferences),
           Version,
-          PrefetchHooks Function({bool booksRefs})
+          PrefetchHooks Function({bool booksRefs, bool subheadingsRefs})
         > {
   $$VersionsTableTableManager(_$ContentStore db, $VersionsTable table)
     : super(
@@ -3049,28 +3582,63 @@ class $$VersionsTableTableManager
                 ),
               )
               .toList(),
-          prefetchHooksCallback: ({booksRefs = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [if (booksRefs) db.books],
-              addJoins: null,
-              getPrefetchedDataCallback: (items) async {
-                return [
-                  if (booksRefs)
-                    await $_getPrefetchedData<Version, $VersionsTable, Book>(
-                      currentTable: table,
-                      referencedTable: $$VersionsTableReferences
-                          ._booksRefsTable(db),
-                      managerFromTypedResult: (p0) =>
-                          $$VersionsTableReferences(db, table, p0).booksRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where((e) => e.versionId == item.id),
-                      typedResults: items,
-                    ),
-                ];
+          prefetchHooksCallback:
+              ({booksRefs = false, subheadingsRefs = false}) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (booksRefs) db.books,
+                    if (subheadingsRefs) db.subheadings,
+                  ],
+                  addJoins: null,
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (booksRefs)
+                        await $_getPrefetchedData<
+                          Version,
+                          $VersionsTable,
+                          Book
+                        >(
+                          currentTable: table,
+                          referencedTable: $$VersionsTableReferences
+                              ._booksRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$VersionsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).booksRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.versionId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (subheadingsRefs)
+                        await $_getPrefetchedData<
+                          Version,
+                          $VersionsTable,
+                          Subheading
+                        >(
+                          currentTable: table,
+                          referencedTable: $$VersionsTableReferences
+                              ._subheadingsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$VersionsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).subheadingsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.versionId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
               },
-            );
-          },
         ),
       );
 }
@@ -3087,7 +3655,7 @@ typedef $$VersionsTableProcessedTableManager =
       $$VersionsTableUpdateCompanionBuilder,
       (Version, $$VersionsTableReferences),
       Version,
-      PrefetchHooks Function({bool booksRefs})
+      PrefetchHooks Function({bool booksRefs, bool subheadingsRefs})
     >;
 typedef $$BooksTableCreateCompanionBuilder =
     BooksCompanion Function({
@@ -5253,6 +5821,359 @@ typedef $$DictionaryEntriesTableProcessedTableManager =
       DictionaryEntry,
       PrefetchHooks Function({bool dictionaryId})
     >;
+typedef $$SubheadingsTableCreateCompanionBuilder =
+    SubheadingsCompanion Function({
+      Value<int> id,
+      required String versionId,
+      required int bookOrder,
+      required int chapter,
+      required int verse,
+      Value<int> orderIfSeveral,
+      required String textContent,
+    });
+typedef $$SubheadingsTableUpdateCompanionBuilder =
+    SubheadingsCompanion Function({
+      Value<int> id,
+      Value<String> versionId,
+      Value<int> bookOrder,
+      Value<int> chapter,
+      Value<int> verse,
+      Value<int> orderIfSeveral,
+      Value<String> textContent,
+    });
+
+final class $$SubheadingsTableReferences
+    extends BaseReferences<_$ContentStore, $SubheadingsTable, Subheading> {
+  $$SubheadingsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $VersionsTable _versionIdTable(_$ContentStore db) =>
+      db.versions.createAlias('subheadings__version_id__versions__id');
+
+  $$VersionsTableProcessedTableManager get versionId {
+    final $_column = $_itemColumn<String>('version_id')!;
+
+    final manager = $$VersionsTableTableManager(
+      $_db,
+      $_db.versions,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_versionIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$SubheadingsTableFilterComposer
+    extends Composer<_$ContentStore, $SubheadingsTable> {
+  $$SubheadingsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get bookOrder => $composableBuilder(
+    column: $table.bookOrder,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get chapter => $composableBuilder(
+    column: $table.chapter,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get verse => $composableBuilder(
+    column: $table.verse,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get orderIfSeveral => $composableBuilder(
+    column: $table.orderIfSeveral,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get textContent => $composableBuilder(
+    column: $table.textContent,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$VersionsTableFilterComposer get versionId {
+    final $$VersionsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.versionId,
+      referencedTable: $db.versions,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$VersionsTableFilterComposer(
+            $db: $db,
+            $table: $db.versions,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$SubheadingsTableOrderingComposer
+    extends Composer<_$ContentStore, $SubheadingsTable> {
+  $$SubheadingsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get bookOrder => $composableBuilder(
+    column: $table.bookOrder,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get chapter => $composableBuilder(
+    column: $table.chapter,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get verse => $composableBuilder(
+    column: $table.verse,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get orderIfSeveral => $composableBuilder(
+    column: $table.orderIfSeveral,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get textContent => $composableBuilder(
+    column: $table.textContent,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$VersionsTableOrderingComposer get versionId {
+    final $$VersionsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.versionId,
+      referencedTable: $db.versions,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$VersionsTableOrderingComposer(
+            $db: $db,
+            $table: $db.versions,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$SubheadingsTableAnnotationComposer
+    extends Composer<_$ContentStore, $SubheadingsTable> {
+  $$SubheadingsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get bookOrder =>
+      $composableBuilder(column: $table.bookOrder, builder: (column) => column);
+
+  GeneratedColumn<int> get chapter =>
+      $composableBuilder(column: $table.chapter, builder: (column) => column);
+
+  GeneratedColumn<int> get verse =>
+      $composableBuilder(column: $table.verse, builder: (column) => column);
+
+  GeneratedColumn<int> get orderIfSeveral => $composableBuilder(
+    column: $table.orderIfSeveral,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get textContent => $composableBuilder(
+    column: $table.textContent,
+    builder: (column) => column,
+  );
+
+  $$VersionsTableAnnotationComposer get versionId {
+    final $$VersionsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.versionId,
+      referencedTable: $db.versions,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$VersionsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.versions,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$SubheadingsTableTableManager
+    extends
+        RootTableManager<
+          _$ContentStore,
+          $SubheadingsTable,
+          Subheading,
+          $$SubheadingsTableFilterComposer,
+          $$SubheadingsTableOrderingComposer,
+          $$SubheadingsTableAnnotationComposer,
+          $$SubheadingsTableCreateCompanionBuilder,
+          $$SubheadingsTableUpdateCompanionBuilder,
+          (Subheading, $$SubheadingsTableReferences),
+          Subheading,
+          PrefetchHooks Function({bool versionId})
+        > {
+  $$SubheadingsTableTableManager(_$ContentStore db, $SubheadingsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$SubheadingsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$SubheadingsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$SubheadingsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> versionId = const Value.absent(),
+                Value<int> bookOrder = const Value.absent(),
+                Value<int> chapter = const Value.absent(),
+                Value<int> verse = const Value.absent(),
+                Value<int> orderIfSeveral = const Value.absent(),
+                Value<String> textContent = const Value.absent(),
+              }) => SubheadingsCompanion(
+                id: id,
+                versionId: versionId,
+                bookOrder: bookOrder,
+                chapter: chapter,
+                verse: verse,
+                orderIfSeveral: orderIfSeveral,
+                textContent: textContent,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String versionId,
+                required int bookOrder,
+                required int chapter,
+                required int verse,
+                Value<int> orderIfSeveral = const Value.absent(),
+                required String textContent,
+              }) => SubheadingsCompanion.insert(
+                id: id,
+                versionId: versionId,
+                bookOrder: bookOrder,
+                chapter: chapter,
+                verse: verse,
+                orderIfSeveral: orderIfSeveral,
+                textContent: textContent,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$SubheadingsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({versionId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (versionId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.versionId,
+                                referencedTable: $$SubheadingsTableReferences
+                                    ._versionIdTable(db),
+                                referencedColumn: $$SubheadingsTableReferences
+                                    ._versionIdTable(db)
+                                    .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$SubheadingsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$ContentStore,
+      $SubheadingsTable,
+      Subheading,
+      $$SubheadingsTableFilterComposer,
+      $$SubheadingsTableOrderingComposer,
+      $$SubheadingsTableAnnotationComposer,
+      $$SubheadingsTableCreateCompanionBuilder,
+      $$SubheadingsTableUpdateCompanionBuilder,
+      (Subheading, $$SubheadingsTableReferences),
+      Subheading,
+      PrefetchHooks Function({bool versionId})
+    >;
 
 class $ContentStoreManager {
   final _$ContentStore _db;
@@ -5273,4 +6194,6 @@ class $ContentStoreManager {
       $$DictionariesTableTableManager(_db, _db.dictionaries);
   $$DictionaryEntriesTableTableManager get dictionaryEntries =>
       $$DictionaryEntriesTableTableManager(_db, _db.dictionaryEntries);
+  $$SubheadingsTableTableManager get subheadings =>
+      $$SubheadingsTableTableManager(_db, _db.subheadings);
 }

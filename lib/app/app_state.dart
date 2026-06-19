@@ -173,3 +173,24 @@ class AppColorThemeNotifier extends Notifier<String> {
 final appColorThemeProvider = NotifierProvider<AppColorThemeNotifier, String>(
   () => AppColorThemeNotifier(),
 );
+
+class SubheadingsSourceNotifier extends Notifier<String?> {
+  @override
+  String? build() {
+    final prefs = ref.watch(sharedPreferencesProvider);
+    return prefs.getString('subheadingsSourceVersionId');
+  }
+
+  void setSource(String? versionId) {
+    state = versionId;
+    if (versionId == null) {
+      ref.read(sharedPreferencesProvider).remove('subheadingsSourceVersionId');
+    } else {
+      ref.read(sharedPreferencesProvider).setString('subheadingsSourceVersionId', versionId);
+    }
+  }
+}
+
+final subheadingsSourceProvider = NotifierProvider<SubheadingsSourceNotifier, String?>(
+  () => SubheadingsSourceNotifier(),
+);

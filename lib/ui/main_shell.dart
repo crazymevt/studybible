@@ -28,7 +28,7 @@ class MainShell extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final currentModule = ref.watch(appModuleProvider);
-    final versionsAsync = ref.watch(versionsProvider);
+    final versionsAsync = ref.watch(bibleVersionsProvider);
 
     // Ensure we can still access these modules even if database is empty
     if (currentModule == AppModule.contentManager) {
