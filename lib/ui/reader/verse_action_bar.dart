@@ -9,6 +9,7 @@ import '../../domain/importer/mybible_verse_parser.dart';
 import 'note_editor.dart';
 import 'cross_reference_panel.dart';
 import 'commentary_panel.dart';
+import 'compare_panel.dart';
 
 class VerseActionBar extends ConsumerWidget {
   const VerseActionBar({super.key});
@@ -105,6 +106,35 @@ class VerseActionBar extends ConsumerWidget {
                           ),
                         ),
                         child: const CommentaryPanel(),
+                      ),
+                    );
+                  }
+                },
+              ),
+              const SizedBox(width: 12),
+              _ActionIcon(
+                icon: Icons.difference,
+                label: 'Compare',
+                onTap: () {
+                  if (MediaQuery.sizeOf(context).width > 800) {
+                    ref
+                        .read(activeToolProvider.notifier)
+                        .setTool(ActiveTool.compare);
+                  } else {
+                    showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      backgroundColor: Colors.transparent,
+                      builder: (_) => Container(
+                        height: MediaQuery.sizeOf(context).height * 0.8,
+                        clipBehavior: Clip.antiAlias,
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.surface,
+                          borderRadius: const BorderRadius.vertical(
+                            top: Radius.circular(16),
+                          ),
+                        ),
+                        child: const ComparePanel(),
                       ),
                     );
                   }

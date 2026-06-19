@@ -12,6 +12,7 @@ enum ActiveTool {
   history,
   media,
   readingPlans,
+  compare,
 }
 
 class ActiveToolNotifier extends Notifier<ActiveTool> {

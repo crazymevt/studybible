@@ -9,6 +9,7 @@ import 'reader/dictionary_panel.dart';
 import 'reader/search_panel.dart';
 import 'reader/history_panel.dart';
 import 'reader/media_panel.dart';
+import 'reader/compare_panel.dart';
 import '../app/reader_state.dart';
 import 'journals/journals_prayers_screen.dart';
 import 'dashboard/dashboard_screen.dart';
@@ -67,6 +68,8 @@ class _DesktopLayout extends ConsumerWidget {
                     flex: 4,
                     child: Builder(
                       builder: (context) {
+                        if (activeTool == ActiveTool.compare)
+                          return const ComparePanel();
                         if (activeTool == ActiveTool.crossReference)
                           return const CrossReferencePanel();
                         if (activeTool == ActiveTool.library)
@@ -190,6 +193,7 @@ class _DesktopLayout extends ConsumerWidget {
       case ActiveTool.readingPlans:
         return 8;
       case ActiveTool.none:
+      case ActiveTool.compare:
         return null;
     }
   }

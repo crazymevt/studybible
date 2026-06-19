@@ -125,6 +125,38 @@ final parallelVersesProvider = FutureProvider<Map<String, List<Verse>>>((
   return map;
 });
 
+class CompareResult {
+  final Version version;
+  final List<Verse> verses;
+  CompareResult({required this.version, required this.verses});
+}
+
+final compareVersesProvider = FutureProvider.family<List<CompareResult>, ({String bookName, int chapter, String selectedVersesStr})>((ref, args) async {
+  final versions = await ref.watch(versionsProvider.future);
+  final results = <CompareResult>[];
+  final contentStore = ref.watch(contentStoreProvider);
+
+  final selectedVerses = args.selectedVersesStr.split(',').map((e) => int.tryParse(e) ?? 0).where((e) => e > 0).toList();
+
+  for (final v in versions) {
+    final book = await ref.watch(bookByNameProvider((versionId: v.id, name: args.bookName)).future);
+    if (book != null) {
+      final verses = await (contentStore.select(contentStore.verses)
+            ..where((t) =>
+                t.bookId.equals(book.id) &
+                t.chapter.equals(args.chapter) &
+                t.verse.isIn(selectedVerses))
+            ..orderBy([(t) => OrderingTerm.asc(t.verse)]))
+          .get();
+
+      if (verses.isNotEmpty) {
+        results.add(CompareResult(version: v, verses: verses));
+      }
+    }
+  }
+  return results;
+});
+
 final crossReferencesProvider =
     FutureProvider.family<List<CrossReference>, int>((ref, verse) {
       final store = ref.watch(contentStoreProvider);
