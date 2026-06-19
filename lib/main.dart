@@ -8,6 +8,8 @@ import 'ui/main_shell.dart';
 import 'app/shared_prefs.dart';
 import 'app/app_state.dart';
 
+import 'package:google_fonts/google_fonts.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
@@ -106,7 +108,15 @@ class _StudyBibleAppState extends ConsumerState<StudyBibleApp> with WindowListen
 
     ThemeData buildTheme(Brightness brightness, Color seedColor) {
       final typography = Typography.material2021(platform: defaultTargetPlatform);
-      final baseTextTheme = brightness == Brightness.light ? typography.black : typography.white;
+      final colorTextTheme = brightness == Brightness.light ? typography.black : typography.white;
+      
+      var textTheme = typography.englishLike.apply(
+        fontSizeDelta: fontSizeDelta,
+      ).merge(colorTextTheme);
+
+      if (actualFontFamily != null) {
+        textTheme = GoogleFonts.getTextTheme(actualFontFamily, textTheme);
+      }
 
       return ThemeData(
         colorScheme: ColorScheme.fromSeed(
@@ -114,11 +124,7 @@ class _StudyBibleAppState extends ConsumerState<StudyBibleApp> with WindowListen
           brightness: brightness,
         ),
         useMaterial3: true,
-        fontFamily: actualFontFamily,
-        textTheme: baseTextTheme.apply(
-          fontFamily: actualFontFamily,
-          fontSizeDelta: fontSizeDelta,
-        ),
+        textTheme: textTheme,
       );
     }
 

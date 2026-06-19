@@ -46,8 +46,16 @@ class SettingsScreen extends ConsumerWidget {
                   ref.read(appFontFamilyProvider.notifier).set(newValue);
                 }
               },
-              items: <String>['System Default', 'Serif', 'Sans Serif', 'Monospace']
-                  .map<DropdownMenuItem<String>>((String value) {
+              items: <String>[
+                'System Default',
+                'Roboto',
+                'Lora',
+                'Open Sans',
+                'Lato',
+                'Source Code Pro',
+                'Merriweather',
+                'Playfair Display'
+              ].map<DropdownMenuItem<String>>((String value) {
                 return DropdownMenuItem<String>(
                   value: value,
                   child: Text(value),
