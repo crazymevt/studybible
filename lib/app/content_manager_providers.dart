@@ -40,9 +40,10 @@ class ContentManagerController extends Notifier<Map<String, DownloadProgress>> {
     try {
       final api = ref.read(contentManagerApiProvider);
       final tempDir = await getTemporaryDirectory();
+      await tempDir.create(recursive: true);
       
-      final filename = module.url.split('=').last;
-      final dlFile = File(p.join(tempDir.path, '$filename.zip.bz2'));
+      final safeAbbr = module.abbr.replaceAll(RegExp(r'[^a-zA-Z0-9_-]'), '_');
+      final dlFile = File(p.join(tempDir.path, '$safeAbbr.zip.bz2'));
 
       await api.downloadFile(module.url, dlFile.path, onReceiveProgress: (received, total) {
         if (total != -1) {
@@ -52,7 +53,7 @@ class ContentManagerController extends Notifier<Map<String, DownloadProgress>> {
 
       state = {...state, stateKey: DownloadProgress(1.0, 'Extracting...')};
       
-      final extractDir = Directory(p.join(tempDir.path, 'extract_${module.abbr}'));
+      final extractDir = Directory(p.join(tempDir.path, 'extract_$safeAbbr'));
       final extractedFiles = await ArchiveExtractor.extractArchive(dlFile, extractDir);
 
       state = {...state, stateKey: DownloadProgress(1.0, 'Importing...')};
@@ -106,6 +107,7 @@ class ContentManagerController extends Notifier<Map<String, DownloadProgress>> {
     try {
       final api = ref.read(contentManagerApiProvider);
       final tempDir = await getTemporaryDirectory();
+      await tempDir.create(recursive: true);
 
       final dlFile = File(p.join(tempDir.path, translation.name));
 
