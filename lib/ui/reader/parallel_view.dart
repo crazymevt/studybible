@@ -1,12 +1,14 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import '../../data/content_store.dart';
 import '../../data/models/verse_segment.dart';
+import '../../app/reader_state.dart';
 import 'flowing_paragraph_view.dart';
 import 'chapter_navigation_footer.dart';
 
-class ParallelView extends ConsumerWidget {
+class ParallelView extends ConsumerStatefulWidget {
   final Map<String, List<Verse>> versesMap;
   final bool isFlowing;
   final Set<int> selectedVerses;
@@ -21,6 +23,47 @@ class ParallelView extends ConsumerWidget {
     required this.savedHighlights,
     required this.onVerseTap,
   });
+
+  @override
+  ConsumerState<ParallelView> createState() => _ParallelViewState();
+}
+
+class _ParallelViewState extends ConsumerState<ParallelView> {
+  final ItemScrollController itemScrollController = ItemScrollController();
+  final ItemPositionsListener itemPositionsListener = ItemPositionsListener.create();
+
+  @override
+  void initState() {
+    super.initState();
+    _checkScrollTarget();
+  }
+
+  @override
+  void didUpdateWidget(covariant ParallelView oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _checkScrollTarget();
+  }
+
+  void _checkScrollTarget() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final targetVerse = ref.read(targetVerseToScrollProvider);
+      if (targetVerse != null && itemScrollController.isAttached) {
+        final Set<int> allVerseNumbers = {};
+        for (final verses in widget.versesMap.values) {
+          allVerseNumbers.addAll(verses.map((v) => v.verse));
+        }
+        final verseNumbers = allVerseNumbers.toList()..sort();
+        final targetIndex = verseNumbers.indexOf(targetVerse);
+        if (targetIndex != -1) {
+          itemScrollController.jumpTo(index: targetIndex);
+        }
+        // Clear it so we don't jump again on rebuild
+        ref.read(targetVerseToScrollProvider.notifier).set(null);
+      }
+    });
+  }
+
+
 
   List<InlineSpan> _buildVerseSpans(BuildContext context, Verse verse) {
     if (verse.segments.isEmpty || verse.segments == '[]') {
@@ -83,18 +126,18 @@ class ParallelView extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    if (versesMap.isEmpty) {
+  Widget build(BuildContext context) {
+    if (widget.versesMap.isEmpty) {
       return const Center(child: Text('No active versions.'));
     }
 
-    final keys = versesMap.keys.toList();
+    final keys = widget.versesMap.keys.toList();
 
-    if (isFlowing) {
+    if (widget.isFlowing) {
       // Flowing mode: independent columns
       return Row(
         children: keys.map((versionId) {
-          final verses = versesMap[versionId] ?? [];
+          final verses = widget.versesMap[versionId] ?? [];
           return Expanded(
             child: Column(
               children: [
@@ -102,9 +145,9 @@ class ParallelView extends ConsumerWidget {
                 Expanded(
                   child: FlowingParagraphView(
                     verses: verses,
-                    selectedVerses: selectedVerses,
-                    savedHighlights: savedHighlights,
-                    onVerseTap: onVerseTap,
+                    selectedVerses: widget.selectedVerses,
+                    savedHighlights: widget.savedHighlights,
+                    onVerseTap: widget.onVerseTap,
                   ),
                 ),
               ],
@@ -116,7 +159,7 @@ class ParallelView extends ConsumerWidget {
 
     // Verse-by-verse mode: Synchronized scrolling (Row-by-Row layout)
     final Set<int> allVerseNumbers = {};
-    for (final verses in versesMap.values) {
+    for (final verses in widget.versesMap.values) {
       allVerseNumbers.addAll(verses.map((v) => v.verse));
     }
     final verseNumbers = allVerseNumbers.toList()..sort();
@@ -131,17 +174,21 @@ class ParallelView extends ConsumerWidget {
           }).toList(),
         ),
         Expanded(
-          child: ListView.builder(
-            padding: const EdgeInsets.symmetric(vertical: 24.0),
+          child: ScrollablePositionedList.builder(
+            itemScrollController: itemScrollController,
+            itemPositionsListener: itemPositionsListener,
             itemCount: verseNumbers.length + 1,
             itemBuilder: (context, index) {
               if (index == verseNumbers.length) {
-                return const ChapterNavigationFooter();
+                return const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 24.0),
+                  child: ChapterNavigationFooter(),
+                );
               }
 
               final verseNum = verseNumbers[index];
-              final isSelected = selectedVerses.contains(verseNum);
-              final highlightHex = savedHighlights[verseNum];
+              final isSelected = widget.selectedVerses.contains(verseNum);
+              final highlightHex = widget.savedHighlights[verseNum];
               final highlightColor = highlightHex != null 
                   ? Color(int.parse(highlightHex.replaceFirst('#', '0xFF'))) 
                   : null;
@@ -156,7 +203,7 @@ class ParallelView extends ConsumerWidget {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: keys.map((versionId) {
-                      final verses = versesMap[versionId] ?? [];
+                      final verses = widget.versesMap[versionId] ?? [];
                       // Find the verse or return a fallback
                       final verse = verses.firstWhere(
                         (v) => v.verse == verseNum, 
@@ -165,7 +212,7 @@ class ParallelView extends ConsumerWidget {
 
                       return Expanded(
                         child: InkWell(
-                           onTap: () => onVerseTap(verseNum),
+                           onTap: () => widget.onVerseTap(verseNum),
                            child: Padding(
                              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                              child: verse.id == -1 

@@ -8,6 +8,8 @@ import 'achievements_dialog.dart';
 import '../../data/models/achievement_def.dart';
 import '../../app/reading_plan_providers.dart';
 import '../../app/app_state.dart';
+import '../../data/verse_of_the_day_list.dart';
+import '../../app/reader_state.dart';
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
@@ -29,12 +31,15 @@ class DashboardScreen extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('Dashboard'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.bug_report),
-            tooltip: 'Generate Dummy Data',
-            onPressed: () {
-              ref.read(dashboardActionProvider).generateDummyTimeData();
-            },
+          Padding(
+            padding: const EdgeInsets.only(right: 16.0),
+            child: FilledButton.icon(
+              icon: const Icon(Icons.menu_book),
+              label: const Text('Read Bible'),
+              onPressed: () {
+                ref.read(appModuleProvider.notifier).setModule(AppModule.reader);
+              },
+            ),
           ),
         ],
       ),
@@ -99,6 +104,8 @@ class DashboardScreen extends ConsumerWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
+                            _buildVerseOfTheDayCard(context, ref),
+                            const SizedBox(height: 16),
                             _buildReadingProgressCard(context, percent, chaptersRead, coverage),
                             const SizedBox(height: 16),
                             _buildReadingPlansSection(context, ref),
@@ -124,6 +131,8 @@ class DashboardScreen extends ConsumerWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
+                      _buildVerseOfTheDayCard(context, ref),
+                      const SizedBox(height: 16),
                       _buildReadingProgressCard(context, percent, chaptersRead, coverage),
                       const SizedBox(height: 16),
                       _buildReadingPlansSection(context, ref),
@@ -496,6 +505,94 @@ class _ReadingPlanProgressItem extends ConsumerWidget {
         },
         loading: () => const LinearProgressIndicator(),
         error: (err, _) => const SizedBox.shrink(),
+      ),
+    );
+  }
+}
+
+extension on DashboardScreen {
+  Widget _buildVerseOfTheDayCard(BuildContext context, WidgetRef ref) {
+    final dayOfYear = DateTime.now().difference(DateTime(DateTime.now().year, 1, 1)).inDays;
+    final verse = versesOfTheDay[dayOfYear % versesOfTheDay.length];
+
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: () {
+          final reference = verse.reference;
+          final lastSpaceIdx = reference.lastIndexOf(' ');
+          if (lastSpaceIdx == -1) return;
+          
+          final bookName = reference.substring(0, lastSpaceIdx);
+          final chapterVerse = reference.substring(lastSpaceIdx + 1);
+          
+          final colonIdx = chapterVerse.indexOf(':');
+          if (colonIdx == -1) return;
+          
+          final chapterStr = chapterVerse.substring(0, colonIdx);
+          final chapter = int.tryParse(chapterStr);
+          
+          if (chapter != null) {
+            ref.read(selectedBookNameProvider.notifier).set(bookName);
+            ref.read(selectedChapterProvider.notifier).set(chapter);
+            
+            final verseStr = chapterVerse.substring(colonIdx + 1);
+            final dashIdx = verseStr.indexOf('-');
+            final startVerseStr = dashIdx == -1 ? verseStr : verseStr.substring(0, dashIdx);
+            final verseNum = int.tryParse(startVerseStr);
+            
+            if (verseNum != null) {
+              ref.read(targetVerseToScrollProvider.notifier).set(verseNum);
+              ref.read(selectedVersesProvider.notifier).clear();
+              ref.read(selectedVersesProvider.notifier).toggle(verseNum);
+            }
+            
+            ref.read(appModuleProvider.notifier).setModule(AppModule.reader);
+          }
+        },
+        child: Container(
+          decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          gradient: LinearGradient(
+            colors: [
+              Theme.of(context).colorScheme.primary.withAlpha(40),
+              Theme.of(context).colorScheme.primary.withAlpha(5),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.auto_awesome, color: Theme.of(context).colorScheme.primary),
+                const SizedBox(width: 8),
+                Text('Verse of the Day', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.primary)),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Text(
+              '"${verse.text}"',
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                fontStyle: FontStyle.italic,
+                height: 1.5,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              verse.reference,
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      ),
       ),
     );
   }

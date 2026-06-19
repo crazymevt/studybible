@@ -65,6 +65,14 @@ class SelectedChapterNotifier extends Notifier<int> {
 }
 final selectedChapterProvider = NotifierProvider<SelectedChapterNotifier, int>(() => SelectedChapterNotifier());
 
+// Added to allow jumping to a specific verse when navigating from outside
+class TargetVerseNotifier extends Notifier<int?> {
+  @override
+  int? build() => null;
+  void set(int? verse) => state = verse;
+}
+final targetVerseToScrollProvider = NotifierProvider<TargetVerseNotifier, int?>(() => TargetVerseNotifier());
+
 class SelectedVersesNotifier extends Notifier<Set<int>> {
   @override
   Set<int> build() => <int>{};

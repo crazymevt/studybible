@@ -42,7 +42,14 @@ final versesForChapterProvider = FutureProvider.family<List<Verse>, ({int bookId
 
 final bookByNameProvider = FutureProvider.family<Book?, ({String versionId, String name})>((ref, args) async {
   final books = await ref.watch(booksForVersionProvider(args.versionId).future);
-  return books.where((b) => b.name == args.name).firstOrNull;
+  return books.where((b) {
+    final bName = b.name.toLowerCase();
+    final aName = args.name.toLowerCase();
+    if (bName == aName) return true;
+    if (bName == '${aName}s') return true;
+    if ('${bName}s' == aName) return true;
+    return false;
+  }).firstOrNull;
 });
 
 final parallelVersesProvider = FutureProvider<Map<String, List<Verse>>>((ref) async {
