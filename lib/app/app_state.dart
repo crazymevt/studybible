@@ -36,6 +36,7 @@ enum AppModule {
   journalsPrayers,
   dashboard,
   contentManager,
+  backupRestore,
 }
 
 class AppModuleNotifier extends Notifier<AppModule> {

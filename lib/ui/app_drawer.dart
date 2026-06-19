@@ -66,6 +66,16 @@ class AppDrawer extends ConsumerWidget {
               Navigator.of(context).pop();
             },
           ),
+          const Divider(),
+          ListTile(
+            leading: const Icon(Icons.backup),
+            title: const Text('Backup & Restore'),
+            selected: currentModule == AppModule.backupRestore,
+            onTap: () {
+              ref.read(appModuleProvider.notifier).setModule(AppModule.backupRestore);
+              Navigator.of(context).pop();
+            },
+          ),
         ],
       ),
     );
