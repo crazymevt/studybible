@@ -240,11 +240,12 @@ class _ReadingPlanGeneratorScreenState extends ConsumerState<ReadingPlanGenerato
   Widget _buildPreCuratedForm() {
     return DropdownButtonFormField<String>(
       value: _selectedJsonAsset,
+      isExpanded: true,
       decoration: const InputDecoration(labelText: 'Select Plan', border: OutlineInputBorder()),
       items: _preCuratedPlans.entries.map((e) {
         return DropdownMenuItem(
           value: e.key,
-          child: Text(e.value),
+          child: Text(e.value, overflow: TextOverflow.ellipsis),
         );
       }).toList(),
       onChanged: (val) {

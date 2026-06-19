@@ -71,34 +71,36 @@ class ReadingPlanPanel extends ConsumerWidget {
 class _EmptyState extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Padding(
-      padding: const EdgeInsets.all(24.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.menu_book, size: 64, color: Theme.of(context).colorScheme.primary.withAlpha(100)),
-          const SizedBox(height: 16),
-          Text(
-            'No Active Plans',
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            'Create a daily reading plan to read through the Bible at your own pace.',
-            textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.grey),
-          ),
-          const SizedBox(height: 32),
-          ElevatedButton.icon(
-            icon: const Icon(Icons.add),
-            label: const Text('Create New Plan'),
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const ReadingPlanGeneratorScreen()),
-              );
-            },
-          )
-        ],
+    return Center(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.menu_book, size: 64, color: Theme.of(context).colorScheme.primary.withAlpha(100)),
+            const SizedBox(height: 16),
+            Text(
+              'No Active Plans',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Create a daily reading plan to read through the Bible at your own pace.',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.grey),
+            ),
+            const SizedBox(height: 32),
+            ElevatedButton.icon(
+              icon: const Icon(Icons.add),
+              label: const Text('Create New Plan'),
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const ReadingPlanGeneratorScreen()),
+                );
+              },
+            )
+          ],
+        ),
       ),
     );
   }
@@ -129,6 +131,7 @@ class _ActivePlanView extends ConsumerWidget {
                 Expanded(
                   child: DropdownButtonFormField<String>(
                     value: selectedPlanId,
+                    isExpanded: true,
                     decoration: const InputDecoration(
                       labelText: 'Active Plan',
                       border: OutlineInputBorder(),
@@ -136,7 +139,7 @@ class _ActivePlanView extends ConsumerWidget {
                     ),
                     items: plans.map((p) => DropdownMenuItem<String>(
                       value: p.id,
-                      child: Text(p.title),
+                      child: Text(p.title, overflow: TextOverflow.ellipsis),
                     )).toList(),
                     onChanged: onPlanSelected,
                   ),
