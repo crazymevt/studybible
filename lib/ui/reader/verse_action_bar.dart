@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app/reader_state.dart';
 import '../../app/user_providers.dart';
 import '../../app/app_state.dart';
+import '../../app/content_providers.dart';
+import '../../domain/importer/mybible_verse_parser.dart';
 import 'note_editor.dart';
 import 'cross_reference_panel.dart';
 import 'commentary_panel.dart';
@@ -42,10 +45,9 @@ class VerseActionBar extends ConsumerWidget {
                 label: 'Add Note',
                 onTap: () {
                   final selected = ref.read(selectedVersesProvider);
-                  final verse = selected.isNotEmpty ? selected.first : null;
                   showDialog(
                     context: context,
-                    builder: (_) => NoteEditorDialog(verse: verse),
+                    builder: (_) => NoteEditorDialog(verses: selected),
                   );
                   ref.read(selectedVersesProvider.notifier).clear();
                 },
@@ -112,7 +114,55 @@ class VerseActionBar extends ConsumerWidget {
               _ActionIcon(
                 icon: Icons.copy,
                 label: 'Copy',
-                onTap: () {
+                onTap: () async {
+                  final versesMap = ref.read(parallelVersesProvider).value;
+                  if (versesMap == null || versesMap.isEmpty) return;
+                  final verses = versesMap.values.first;
+
+                  final selected = ref.read(selectedVersesProvider).toList()..sort();
+                  final selectedVerseModels = verses.where((v) => selected.contains(v.verse)).toList();
+                  if (selectedVerseModels.isEmpty) return;
+
+                  final book = ref.read(selectedBookNameProvider);
+                  final chapter = ref.read(selectedChapterProvider);
+                  
+                  String formatVerseList(List<int> verses) {
+                    if (verses.isEmpty) return '';
+                    final parts = <String>[];
+                    int start = verses.first;
+                    int end = verses.first;
+
+                    for (int i = 1; i < verses.length; i++) {
+                      if (verses[i] == end + 1) {
+                        end = verses[i];
+                      } else {
+                        parts.add(start == end ? '$start' : '$start-$end');
+                        start = verses[i];
+                        end = verses[i];
+                      }
+                    }
+                    parts.add(start == end ? '$start' : '$start-$end');
+                    return parts.join(', ');
+                  }
+
+                  final verseNumbers = formatVerseList(selected);
+
+                  final buffer = StringBuffer();
+                  buffer.writeln('$book $chapter:$verseNumbers');
+
+                  final parser = MyBibleVerseParser();
+                  for (final v in selectedVerseModels) {
+                    final cleanText = parser.parseVerse(v.textContent).map((s) => s.text).join('').replaceAll(RegExp(r'\s+'), ' ').trim();
+                    buffer.writeln('${v.verse} $cleanText');
+                  }
+
+                  await Clipboard.setData(ClipboardData(text: buffer.toString().trim()));
+
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Copied to clipboard')),
+                    );
+                  }
                   ref.read(selectedVersesProvider.notifier).clear();
                 },
               ),

@@ -96,8 +96,10 @@ final globalSearchResultsProvider = FutureProvider<List<SearchResult>>((
       
       final cleanText = MyBibleVerseParser()
           .parseVerse(text)
-          .map((s) => s.text + (s.footnoteText ?? ''))
-          .join('');
+          .map((s) => s.text)
+          .join('')
+          .replaceAll(RegExp(r'\s+'), ' ')
+          .trim();
 
       results.add(
         SearchResult(
