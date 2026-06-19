@@ -37,6 +37,12 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
   int? _trackingChapter;
   late final DashboardAction _dashboardAction;
 
+  bool _showSearchBox = false;
+  String _searchQuery = '';
+  int _currentMatchIndex = -1;
+  final FocusNode _searchFocusNode = FocusNode();
+  final FocusNode _mainFocusNode = FocusNode();
+
   @override
   void initState() {
     super.initState();
@@ -45,6 +51,26 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
     _lifecycleListener = AppLifecycleListener(
       onStateChange: _handleLifecycleState,
     );
+    HardwareKeyboard.instance.addHandler(_handleGlobalKey);
+  }
+
+  bool _handleGlobalKey(KeyEvent event) {
+    if (!mounted) return false;
+    final isCmdOrCtrl = HardwareKeyboard.instance.logicalKeysPressed.contains(LogicalKeyboardKey.metaLeft) ||
+                        HardwareKeyboard.instance.logicalKeysPressed.contains(LogicalKeyboardKey.metaRight) ||
+                        HardwareKeyboard.instance.logicalKeysPressed.contains(LogicalKeyboardKey.controlLeft) ||
+                        HardwareKeyboard.instance.logicalKeysPressed.contains(LogicalKeyboardKey.controlRight);
+    
+    if (isCmdOrCtrl && event.logicalKey == LogicalKeyboardKey.keyF) {
+       if (event is KeyDownEvent) {
+         setState(() {
+           _showSearchBox = true;
+         });
+         _searchFocusNode.requestFocus();
+       }
+       return true; // handled
+    }
+    return false; // ignored
   }
 
   void _handleLifecycleState(AppLifecycleState state) {
@@ -66,10 +92,29 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
 
   @override
   void dispose() {
+    HardwareKeyboard.instance.removeHandler(_handleGlobalKey);
     _logSession();
     _lifecycleListener.dispose();
     _chapterReadTimer?.cancel();
+    _searchFocusNode.dispose();
+    _mainFocusNode.dispose();
     super.dispose();
+  }
+
+  void _nextMatch(List<int> matchVerses) {
+    if (matchVerses.isEmpty) return;
+    setState(() {
+      _currentMatchIndex = (_currentMatchIndex + 1) % matchVerses.length;
+    });
+    ref.read(targetVerseToScrollProvider.notifier).set(matchVerses[_currentMatchIndex]);
+  }
+
+  void _prevMatch(List<int> matchVerses) {
+    if (matchVerses.isEmpty) return;
+    setState(() {
+      _currentMatchIndex = (_currentMatchIndex - 1) < 0 ? matchVerses.length - 1 : _currentMatchIndex - 1;
+    });
+    ref.read(targetVerseToScrollProvider.notifier).set(matchVerses[_currentMatchIndex]);
   }
 
   void _updateChapterTracking(String book, int chapter) {
@@ -165,10 +210,42 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
       _updateChapterTracking(bookName, chapter);
     }
 
+    List<int> matchVerses = [];
+    if (_searchQuery.isNotEmpty && parallelVersesAsync.hasValue) {
+      final versesMap = parallelVersesAsync.value!;
+      final lowerQuery = _searchQuery.toLowerCase();
+      final Set<int> matches = {};
+      for (final verses in versesMap.values) {
+        for (final v in verses) {
+          if (v.textContent.toLowerCase().contains(lowerQuery)) {
+            matches.add(v.verse);
+          }
+        }
+      }
+      matchVerses = matches.toList()..sort();
+      
+      // Keep index in bounds if search results shrink
+      if (_currentMatchIndex >= matchVerses.length) {
+        _currentMatchIndex = matchVerses.isEmpty ? -1 : 0;
+      }
+    } else {
+      _currentMatchIndex = -1;
+    }
+
     return Focus(
+      focusNode: _mainFocusNode,
       autofocus: true,
       onKeyEvent: (node, event) {
         if (event.logicalKey == LogicalKeyboardKey.escape) {
+          if (_showSearchBox) {
+            setState(() {
+              _showSearchBox = false;
+              _searchQuery = '';
+              _currentMatchIndex = -1;
+            });
+            _mainFocusNode.requestFocus();
+            return KeyEventResult.handled;
+          }
           if (ref.read(selectedVersesProvider).isNotEmpty) {
             ref.read(selectedVersesProvider.notifier).clear();
             return KeyEventResult.handled;
@@ -294,6 +371,79 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
               );
             },
           ),
+          if (_showSearchBox)
+            Container(
+              color: Theme.of(context).colorScheme.surfaceContainerHighest,
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              child: Row(
+                children: [
+                  const Icon(Icons.search, size: 20),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: TextField(
+                      focusNode: _searchFocusNode,
+                      decoration: const InputDecoration(
+                        hintText: 'Find in page...',
+                        border: InputBorder.none,
+                        isDense: true,
+                      ),
+                      onChanged: (value) {
+                        setState(() {
+                          _searchQuery = value;
+                          _currentMatchIndex = value.isEmpty ? -1 : 0;
+                        });
+                        if (matchVerses.isNotEmpty) {
+                           ref.read(targetVerseToScrollProvider.notifier).set(matchVerses[_currentMatchIndex]);
+                        }
+                      },
+                      onSubmitted: (_) => _nextMatch(matchVerses),
+                    ),
+                  ),
+                  if (_searchQuery.isNotEmpty) ...[
+                    Text(
+                      matchVerses.isEmpty
+                          ? '0/0'
+                          : '${_currentMatchIndex + 1}/${matchVerses.length}',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        fontSize: 12,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    IconButton(
+                      icon: const Icon(Icons.keyboard_arrow_up),
+                      onPressed: matchVerses.isEmpty ? null : () => _prevMatch(matchVerses),
+                      tooltip: 'Previous match',
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                    ),
+                    const SizedBox(width: 8),
+                    IconButton(
+                      icon: const Icon(Icons.keyboard_arrow_down),
+                      onPressed: matchVerses.isEmpty ? null : () => _nextMatch(matchVerses),
+                      tooltip: 'Next match',
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                    ),
+                  ],
+                  const SizedBox(width: 8),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () {
+                      setState(() {
+                        _showSearchBox = false;
+                        _searchQuery = '';
+                        _currentMatchIndex = -1;
+                      });
+                      _mainFocusNode.requestFocus();
+                    },
+                    tooltip: 'Close search',
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                  ),
+                ],
+              ),
+            ),
           Expanded(
             child: parallelVersesAsync.when(
         data: (versesMap) {
@@ -318,6 +468,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
                         .read(selectedVersesProvider.notifier)
                         .toggle(verseId),
                     onFootnoteTap: (verseId) => _openCommentaryPanel(),
+                    searchQuery: _searchQuery,
                   )
                 : VerseListView(
                     verses: verses,
@@ -330,6 +481,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
                         .read(selectedVersesProvider.notifier)
                         .toggle(verseId),
                     onFootnoteTap: (verseId) => _openCommentaryPanel(),
+                    searchQuery: _searchQuery,
                   );
           } else {
             content = ParallelView(
@@ -343,6 +495,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
               onVerseTap: (verseId) =>
                   ref.read(selectedVersesProvider.notifier).toggle(verseId),
               onFootnoteTap: (verseId) => _openCommentaryPanel(),
+              searchQuery: _searchQuery,
             );
           }
 

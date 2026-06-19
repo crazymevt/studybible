@@ -21,6 +21,7 @@ class VerseListView extends ConsumerStatefulWidget {
   final ItemPositionsListener? externalPositionsListener;
   final bool showFooter;
   final Map<int, List<String>> subheadings;
+  final String? searchQuery;
 
   const VerseListView({
     super.key,
@@ -35,6 +36,7 @@ class VerseListView extends ConsumerStatefulWidget {
     this.externalPositionsListener,
     this.showFooter = true,
     this.subheadings = const {},
+    this.searchQuery,
   });
 
   @override
@@ -126,6 +128,7 @@ class _VerseListViewState extends ConsumerState<VerseListView> {
       onFootnoteTap: widget.onFootnoteTap,
       onWordRightClick: _openDictionary,
       ignoreLeadingBreaks: true,
+      searchQuery: widget.searchQuery,
     );
   }
 

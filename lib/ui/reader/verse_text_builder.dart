@@ -14,6 +14,7 @@ List<InlineSpan> buildVerseSpans({
   Function(int)? onFootnoteTap,
   InlineSpan? verseNumberSpan,
   bool ignoreLeadingBreaks = false,
+  String? searchQuery,
 }) {
   final spans = <InlineSpan>[];
   final bodyStyle = Theme.of(context).textTheme.bodyLarge?.copyWith(
@@ -23,11 +24,13 @@ List<InlineSpan> buildVerseSpans({
   
   if (verse.segments.isEmpty || verse.segments == '[]') {
     if (verseNumberSpan != null) spans.add(verseNumberSpan);
-    spans.addAll(_buildWordSpans(
+    spans.addAll(_buildHighlightedSpans(
       '${verse.textContent} ',
       bodyStyle,
       onVerseTap: () => onVerseTap(verse.verse),
       onWordRightClick: onWordRightClick,
+      searchQuery: searchQuery,
+      context: context,
     ));
     return spans;
   }
@@ -91,11 +94,13 @@ List<InlineSpan> buildVerseSpans({
           color: seg.isJesusWords ? Colors.red.shade700 : null,
         );
 
-        spans.addAll(_buildWordSpans(
+        spans.addAll(_buildHighlightedSpans(
           seg.text,
           style,
           onVerseTap: () => onVerseTap(verse.verse),
           onWordRightClick: onWordRightClick,
+          searchQuery: searchQuery,
+          context: context,
         ));
       }
     }
@@ -107,14 +112,55 @@ List<InlineSpan> buildVerseSpans({
     return spans;
   } catch (e) {
     if (verseNumberSpan != null) spans.add(verseNumberSpan);
-    spans.addAll(_buildWordSpans(
+    spans.addAll(_buildHighlightedSpans(
       '${verse.textContent} ',
       bodyStyle,
       onVerseTap: () => onVerseTap(verse.verse),
       onWordRightClick: onWordRightClick,
+      searchQuery: searchQuery,
+      context: context,
     ));
     return spans;
   }
+}
+
+List<InlineSpan> _buildHighlightedSpans(
+  String text,
+  TextStyle? style, {
+  required VoidCallback onVerseTap,
+  required Function(String, Offset) onWordRightClick,
+  required String? searchQuery,
+  required BuildContext context,
+}) {
+  if (searchQuery == null || searchQuery.isEmpty) {
+    return _buildWordSpans(text, style, onVerseTap: onVerseTap, onWordRightClick: onWordRightClick);
+  }
+
+  final spans = <InlineSpan>[];
+  final regex = RegExp(RegExp.escape(searchQuery), caseSensitive: false);
+  final matches = regex.allMatches(text);
+
+  int lastMatchEnd = 0;
+  for (final match in matches) {
+    if (match.start > lastMatchEnd) {
+      spans.addAll(_buildWordSpans(text.substring(lastMatchEnd, match.start), style, onVerseTap: onVerseTap, onWordRightClick: onWordRightClick));
+    }
+
+    final highlightStyle = style?.copyWith(
+          backgroundColor: Colors.yellow.withValues(alpha: 0.5),
+          color: Colors.black, // Ensure text is visible on yellow
+        ) ??
+        TextStyle(backgroundColor: Colors.yellow.withValues(alpha: 0.5), color: Colors.black);
+
+    spans.addAll(_buildWordSpans(text.substring(match.start, match.end), highlightStyle, onVerseTap: onVerseTap, onWordRightClick: onWordRightClick));
+    lastMatchEnd = match.end;
+  }
+
+  if (lastMatchEnd < text.length) {
+    spans.addAll(_buildWordSpans(text.substring(lastMatchEnd), style, onVerseTap: onVerseTap, onWordRightClick: onWordRightClick));
+  }
+
+  return spans;
 }
 
 List<InlineSpan> _buildWordSpans(

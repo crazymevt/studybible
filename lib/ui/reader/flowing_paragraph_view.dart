@@ -7,6 +7,7 @@ import '../../data/content_store.dart';
 import 'chapter_navigation_footer.dart';
 import 'dictionary_panel.dart';
 import 'verse_text_builder.dart';
+import '../../app/reader_state.dart';
 
 class FlowingParagraphView extends ConsumerStatefulWidget {
   final List<Verse> verses;
@@ -18,6 +19,7 @@ class FlowingParagraphView extends ConsumerStatefulWidget {
   final ValueChanged<int>? onFootnoteTap;
   final bool showFooter;
   final Map<int, List<String>> subheadings;
+  final String? searchQuery;
 
   const FlowingParagraphView({
     super.key,
@@ -30,6 +32,7 @@ class FlowingParagraphView extends ConsumerStatefulWidget {
     this.onFootnoteTap,
     this.showFooter = true,
     this.subheadings = const {},
+    this.searchQuery,
   });
 
   @override
@@ -39,11 +42,16 @@ class FlowingParagraphView extends ConsumerStatefulWidget {
 
 class _FlowingParagraphViewState extends ConsumerState<FlowingParagraphView> {
   late List<TapGestureRecognizer> _recognizers;
+  final Map<int, GlobalKey> _verseKeys = {};
 
   @override
   void initState() {
     super.initState();
     _initRecognizers();
+    for (var v in widget.verses) {
+      _verseKeys[v.verse] = GlobalKey();
+    }
+    _checkScrollTarget();
   }
 
   @override
@@ -52,7 +60,29 @@ class _FlowingParagraphViewState extends ConsumerState<FlowingParagraphView> {
     if (oldWidget.verses != widget.verses) {
       _disposeRecognizers();
       _initRecognizers();
+      _verseKeys.clear();
+      for (var v in widget.verses) {
+        _verseKeys[v.verse] = GlobalKey();
+      }
     }
+    _checkScrollTarget();
+  }
+
+  void _checkScrollTarget() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final targetVerse = ref.read(targetVerseToScrollProvider);
+      if (targetVerse != null) {
+        final key = _verseKeys[targetVerse];
+        if (key != null && key.currentContext != null) {
+          Scrollable.ensureVisible(
+            key.currentContext!,
+            duration: const Duration(milliseconds: 300),
+            alignment: 0.2,
+          );
+          ref.read(targetVerseToScrollProvider.notifier).set(null);
+        }
+      }
+    });
   }
 
   void _initRecognizers() {
@@ -149,13 +179,20 @@ class _FlowingParagraphViewState extends ConsumerState<FlowingParagraphView> {
       }
 
       final verseNumberSpan = TextSpan(
-        text: '${verse.verse} ',
-        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-          color: Theme.of(context).colorScheme.primary,
-          fontWeight: FontWeight.bold,
-          backgroundColor: bgColor,
-        ),
-        recognizer: recognizer,
+        children: [
+          WidgetSpan(
+            child: SizedBox(key: _verseKeys[verse.verse], width: 0, height: 0),
+          ),
+          TextSpan(
+            text: '${verse.verse} ',
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+              color: Theme.of(context).colorScheme.primary,
+              fontWeight: FontWeight.bold,
+              backgroundColor: bgColor,
+            ),
+            recognizer: recognizer,
+          ),
+        ],
       );
 
       final verseSpans = buildVerseSpans(
@@ -167,6 +204,7 @@ class _FlowingParagraphViewState extends ConsumerState<FlowingParagraphView> {
         onWordRightClick: _openDictionary,
         verseNumberSpan: verseNumberSpan,
         ignoreLeadingBreaks: verseSubheadings.isNotEmpty,
+        searchQuery: widget.searchQuery,
       );
 
       return TextSpan(
