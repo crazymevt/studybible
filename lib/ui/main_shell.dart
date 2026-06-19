@@ -14,6 +14,7 @@ import 'journals/journals_prayers_screen.dart';
 import 'dashboard/dashboard_screen.dart';
 import 'content_manager/content_manager_screen.dart';
 import 'settings/backup_restore_screen.dart';
+import 'reader/study_pane.dart';
 import 'reader/reading_plan_panel.dart';
 
 class MainShell extends ConsumerWidget {
@@ -71,7 +72,7 @@ class _DesktopLayout extends ConsumerWidget {
                       if (activeTool == ActiveTool.crossReference)
                         return const CrossReferencePanel();
                       if (activeTool == ActiveTool.library)
-                        return const Drawer(); // placeholder
+                        return const StudyPane();
                       if (activeTool == ActiveTool.commentaries)
                         return const CommentaryPanel();
                       if (activeTool == ActiveTool.notes)
