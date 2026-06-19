@@ -13,6 +13,7 @@ List<InlineSpan> buildVerseSpans({
   required Function(String, Offset) onWordRightClick,
   Function(int)? onFootnoteTap,
   InlineSpan? verseNumberSpan,
+  bool ignoreLeadingBreaks = false,
 }) {
   final spans = <InlineSpan>[];
   final bodyStyle = Theme.of(context).textTheme.bodyLarge?.copyWith(
@@ -38,8 +39,10 @@ List<InlineSpan> buildVerseSpans({
     bool hasText = false;
     for (final seg in segments) {
       if (!hasText && (seg.isParagraphBreak || seg.isLineBreak)) {
-        if (seg.isParagraphBreak) spans.add(const TextSpan(text: '\n\n'));
-        if (seg.isLineBreak) spans.add(const TextSpan(text: '\n'));
+        if (!ignoreLeadingBreaks) {
+          if (seg.isParagraphBreak) spans.add(const TextSpan(text: '\n\n'));
+          if (seg.isLineBreak) spans.add(const TextSpan(text: '\n'));
+        }
         continue;
       }
       

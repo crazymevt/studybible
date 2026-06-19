@@ -166,6 +166,7 @@ class _FlowingParagraphViewState extends ConsumerState<FlowingParagraphView> {
         onFootnoteTap: widget.onFootnoteTap,
         onWordRightClick: _openDictionary,
         verseNumberSpan: verseNumberSpan,
+        ignoreLeadingBreaks: verseSubheadings.isNotEmpty,
       );
 
       return TextSpan(

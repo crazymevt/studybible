@@ -125,6 +125,7 @@ class _VerseListViewState extends ConsumerState<VerseListView> {
       onVerseTap: widget.onVerseTap,
       onFootnoteTap: widget.onFootnoteTap,
       onWordRightClick: _openDictionary,
+      ignoreLeadingBreaks: true,
     );
   }
 
