@@ -11,12 +11,15 @@ class SettingsScreen extends ConsumerWidget {
     final showDashboardOnStart = ref.watch(showDashboardOnStartProvider);
     final fontFamily = ref.watch(appFontFamilyProvider);
     final fontSizeDelta = ref.watch(appFontSizeDeltaProvider);
+    final themeMode = ref.watch(themeModeProvider);
+    final appColorTheme = ref.watch(appColorThemeProvider);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Settings')),
       body: ListView(
         padding: const EdgeInsets.all(16.0),
         children: [
+          // ── General ──
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 8.0),
             child: Text(
@@ -35,10 +38,81 @@ class SettingsScreen extends ConsumerWidget {
             },
           ),
           const Divider(),
+
+          // ── Theme ──
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 8.0),
             child: Text(
-              'Appearance',
+              'Theme',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+          ),
+          ListTile(
+            title: const Text('Theme Mode'),
+            subtitle: const Text('Choose light, dark, or system default'),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: SegmentedButton<ThemeMode>(
+              segments: const [
+                ButtonSegment(
+                  value: ThemeMode.system,
+                  icon: Icon(Icons.brightness_auto),
+                  label: Text('System'),
+                ),
+                ButtonSegment(
+                  value: ThemeMode.light,
+                  icon: Icon(Icons.light_mode),
+                  label: Text('Light'),
+                ),
+                ButtonSegment(
+                  value: ThemeMode.dark,
+                  icon: Icon(Icons.dark_mode),
+                  label: Text('Dark'),
+                ),
+              ],
+              selected: {themeMode},
+              onSelectionChanged: (Set<ThemeMode> newSelection) {
+                ref.read(themeModeProvider.notifier).setMode(newSelection.first);
+              },
+            ),
+          ),
+          const SizedBox(height: 16),
+          ListTile(
+            title: const Text('Color Scheme'),
+            subtitle: const Text('Choose the color palette for the app'),
+          ),
+          _buildColorThemeOption(context, ref, appColorTheme,
+              value: 'default',
+              title: 'Default Purple',
+              subtitle: 'Standard Material layout'),
+          _buildColorThemeOption(context, ref, appColorTheme,
+              value: 'softIndiglow',
+              title: 'Soft Indiglow',
+              subtitle: 'Warm indigo and soft blues'),
+          _buildColorThemeOption(context, ref, appColorTheme,
+              value: 'modernIndigo',
+              title: 'Modern Indigo',
+              subtitle: 'Clean surfaces with a confident indigo accent'),
+          _buildColorThemeOption(context, ref, appColorTheme,
+              value: 'quietSage',
+              title: 'Quiet Sage',
+              subtitle: 'Muted sage-green and stone'),
+          _buildColorThemeOption(context, ref, appColorTheme,
+              value: 'onyx',
+              title: 'Onyx',
+              subtitle: 'Neutral graphite surfaces with calm teal accent'),
+          _buildColorThemeOption(context, ref, appColorTheme,
+              value: 'ocean',
+              title: 'Ocean',
+              subtitle: 'Deep sea blue and sky accent'),
+          const Divider(),
+
+          // ── Appearance ──
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 8.0),
+            child: Text(
+              'Reader',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
           ),
@@ -129,6 +203,27 @@ class SettingsScreen extends ConsumerWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildColorThemeOption(
+    BuildContext context,
+    WidgetRef ref,
+    String currentTheme, {
+    required String value,
+    required String title,
+    required String subtitle,
+  }) {
+    return RadioListTile<String>(
+      title: Text(title),
+      subtitle: Text(subtitle),
+      value: value,
+      groupValue: currentTheme,
+      onChanged: (val) {
+        if (val != null) {
+          ref.read(appColorThemeProvider.notifier).setTheme(val);
+        }
+      },
     );
   }
 }
