@@ -11,6 +11,7 @@ import 'verse_action_bar.dart';
 import 'book_chooser_sheet.dart';
 import 'study_pane.dart';
 import 'history_panel.dart';
+import 'media_panel.dart';
 import '../../app/app_state.dart';
 import '../app_drawer.dart';
 import '../../app/dashboard_providers.dart';
@@ -198,6 +199,34 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
                 );
               } else {
                 ref.read(activeToolProvider.notifier).setTool(ActiveTool.history);
+              }
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.video_library),
+            tooltip: 'Media',
+            onPressed: () {
+              if (MediaQuery.sizeOf(context).width <= 800) {
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  useSafeArea: true,
+                  builder: (context) => DraggableScrollableSheet(
+                    initialChildSize: 0.9,
+                    minChildSize: 0.5,
+                    maxChildSize: 1.0,
+                    expand: false,
+                    builder: (_, scrollController) => Consumer(
+                      builder: (context, ref, _) {
+                        final bookName = ref.watch(selectedBookNameProvider);
+                        final chapter = ref.watch(selectedChapterProvider);
+                        return MediaPanel(bookName: bookName, chapter: chapter);
+                      },
+                    ),
+                  ),
+                );
+              } else {
+                ref.read(activeToolProvider.notifier).setTool(ActiveTool.media);
               }
             },
           ),

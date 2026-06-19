@@ -1,0 +1,824 @@
+{
+  "name": "BibleProject",
+  "copyright": "Copyright \u00a9 2026 BibleProject. All rights reserved.",
+  "url": "https://bibleproject.com",
+  "description": "BibleProject produces free Bible videos, podcasts, blogs, classes, and educational resources to help make the biblical story accessible to everyone everywhere.",
+  "media": {
+    "Jude": [
+      {
+        "title": "Jude Overview",
+        "id": "6UoCmakZmys",
+        "chapters": [
+          1,
+          1
+        ],
+        "slug": "jude"
+      }
+    ],
+    "1 Thessalonians": [
+      {
+        "title": "1 Thessalonians Overview",
+        "id": "No7Nq6IX23c",
+        "chapters": [
+          1,
+          5
+        ],
+        "slug": "1-thessalonians"
+      }
+    ],
+    "2 Thessalonians": [
+      {
+        "title": "2 Thessalonians Overview",
+        "id": "kbPBDKOn1cc",
+        "chapters": [
+          1,
+          3
+        ],
+        "slug": "2-thessalonians"
+      }
+    ],
+    "Psalms": [
+      {
+        "title": "Psalms Overview",
+        "id": "j9phNEaPrv8",
+        "chapters": [
+          1,
+          150
+        ],
+        "slug": "psalms"
+      }
+    ],
+    "Revelation": [
+      {
+        "title": "Revelation Overview (Part 1)",
+        "id": "5nvVVcYD-0w",
+        "chapters": [
+          1,
+          11
+        ],
+        "slug": "revelation-1-11"
+      },
+      {
+        "title": "Revelation Overview (Part 2)",
+        "id": "QpnIrbq2bKo",
+        "chapters": [
+          12,
+          22
+        ],
+        "slug": "revelation-12-22"
+      }
+    ],
+    "Philippians": [
+      {
+        "title": "Philippians Overview",
+        "id": "oE9qqW1-BkU",
+        "chapters": [
+          1,
+          4
+        ],
+        "slug": "philippians"
+      }
+    ],
+    "Judges": [
+      {
+        "title": "Judges Overview",
+        "id": "kOYy8iCfIJ4",
+        "chapters": [
+          1,
+          21
+        ],
+        "slug": "judges"
+      }
+    ],
+    "Galatians": [
+      {
+        "title": "Galatians Overview",
+        "id": "vmx4UjRFp0M",
+        "chapters": [
+          1,
+          6
+        ],
+        "slug": "galatians"
+      }
+    ],
+    "2 Timothy": [
+      {
+        "title": "2 Timothy Overview",
+        "id": "urlvnxCaL00",
+        "chapters": [
+          1,
+          4
+        ],
+        "slug": "2-timothy"
+      }
+    ],
+    "Ecclesiastes": [
+      {
+        "title": "Ecclesiastes Overview",
+        "id": "lrsQ1tc-2wk",
+        "chapters": [
+          1,
+          12
+        ],
+        "slug": "ecclesiastes"
+      }
+    ],
+    "Lamentations": [
+      {
+        "title": "Lamentations Overview",
+        "id": "p8GDFPdaQZQ",
+        "chapters": [
+          1,
+          5
+        ],
+        "slug": "lamentations"
+      }
+    ],
+    "2 Kings": [
+      {
+        "title": "1 & 2 Kings Overview",
+        "id": "bVFW3wbi9pk",
+        "chapters": [
+          1,
+          25
+        ],
+        "slug": "kings"
+      }
+    ],
+    "Leviticus": [
+      {
+        "title": "Leviticus Overview",
+        "id": "IJ-FekWUZzE",
+        "chapters": [
+          1,
+          27
+        ],
+        "slug": "leviticus"
+      }
+    ],
+    "Philemon": [
+      {
+        "title": "Philemon Overview",
+        "id": "aW9Q3Jt6Yvk",
+        "chapters": [
+          1,
+          1
+        ],
+        "slug": "philemon"
+      }
+    ],
+    "Joshua": [
+      {
+        "title": "Joshua Overview",
+        "id": "JqOqJlFF_eU",
+        "chapters": [
+          1,
+          24
+        ],
+        "slug": "joshua"
+      }
+    ],
+    "Jeremiah": [
+      {
+        "title": "Jeremiah Overview",
+        "id": "RSK36cHbrk0",
+        "chapters": [
+          1,
+          52
+        ],
+        "slug": "jeremiah"
+      }
+    ],
+    "Romans": [
+      {
+        "title": "Romans Overview (Part 1)",
+        "id": "ej_6dVdJSIU",
+        "chapters": [
+          1,
+          4
+        ],
+        "slug": "romans-1-4"
+      },
+      {
+        "title": "Romans Overview (Part 2)",
+        "id": "0SVTl4Xa5fY",
+        "chapters": [
+          5,
+          16
+        ],
+        "slug": "romans-5-16"
+      }
+    ],
+    "1 Peter": [
+      {
+        "title": "1 Peter Overview",
+        "id": "WhP7AZQlzCg",
+        "chapters": [
+          1,
+          5
+        ],
+        "slug": "1-peter"
+      }
+    ],
+    "Zephaniah": [
+      {
+        "title": "Zephaniah Overview",
+        "id": "oFZknKPNvz8",
+        "chapters": [
+          1,
+          3
+        ],
+        "slug": "zephaniah"
+      }
+    ],
+    "Ruth": [
+      {
+        "title": "Ruth Overview",
+        "id": "0h1eoBeR4Jk",
+        "chapters": [
+          1,
+          4
+        ],
+        "slug": "ruth"
+      }
+    ],
+    "1 Kings": [
+      {
+        "title": "1 & 2 Kings Overview",
+        "id": "bVFW3wbi9pk",
+        "chapters": [
+          1,
+          22
+        ],
+        "slug": "kings"
+      }
+    ],
+    "3 John": [
+      {
+        "title": "1-3 John Overview",
+        "id": "l3QkE6nKylM",
+        "chapters": [
+          1,
+          1
+        ],
+        "slug": "1-3-john"
+      }
+    ],
+    "James": [
+      {
+        "title": "James Overview",
+        "id": "qn-hLHWwRYY",
+        "chapters": [
+          1,
+          5
+        ],
+        "slug": "james"
+      }
+    ],
+    "Nehemiah": [
+      {
+        "title": "Ezra & Nehemiah Overview",
+        "id": "MkETkRv9tG8",
+        "chapters": [
+          1,
+          13
+        ],
+        "slug": "ezra-nehemiah"
+      }
+    ],
+    "1 Timothy": [
+      {
+        "title": "1 Timothy Overview",
+        "id": "7RoqnGcEjcs",
+        "chapters": [
+          1,
+          6
+        ],
+        "slug": "1-timothy"
+      }
+    ],
+    "Colossians": [
+      {
+        "title": "Colossians Overview",
+        "id": "pXTXlDxQsvc",
+        "chapters": [
+          1,
+          4
+        ],
+        "slug": "colossians"
+      }
+    ],
+    "2 Peter": [
+      {
+        "title": "2 Peter Overview",
+        "id": "wWLv_ITyKYc",
+        "chapters": [
+          1,
+          3
+        ],
+        "slug": "2-peter"
+      }
+    ],
+    "2 Samuel": [
+      {
+        "title": "2 Samuel Overview",
+        "id": "YvoWDXNDJgs",
+        "chapters": [
+          1,
+          24
+        ],
+        "slug": "2-samuel"
+      }
+    ],
+    "Zechariah": [
+      {
+        "title": "Zechariah Overview",
+        "id": "_106IfO6Kc0",
+        "chapters": [
+          1,
+          14
+        ],
+        "slug": "zechariah"
+      }
+    ],
+    "2 John": [
+      {
+        "title": "1-3 John Overview",
+        "id": "l3QkE6nKylM",
+        "chapters": [
+          1,
+          1
+        ],
+        "slug": "1-3-john"
+      }
+    ],
+    "Daniel": [
+      {
+        "title": "Daniel Overview",
+        "id": "9cSC9uobtPM",
+        "chapters": [
+          1,
+          12
+        ],
+        "slug": "daniel"
+      }
+    ],
+    "Obadiah": [
+      {
+        "title": "Obadiah Overview",
+        "id": "i4ogCrEoG5s",
+        "chapters": [
+          1,
+          1
+        ],
+        "slug": "obadiah"
+      }
+    ],
+    "Matthew": [
+      {
+        "title": "Matthew Overview (Part 1)",
+        "id": "3Dv4-n6OYGI",
+        "chapters": [
+          1,
+          13
+        ],
+        "slug": "matthew-1-13"
+      },
+      {
+        "title": "Matthew Overview (Part 2)",
+        "id": "GGCF3OPWN14",
+        "chapters": [
+          14,
+          28
+        ],
+        "slug": "matthew-14-28"
+      }
+    ],
+    "Luke": [
+      {
+        "title": "Luke Overview (Part 1)",
+        "id": "XIb_dCIxzr0",
+        "chapters": [
+          1,
+          9
+        ],
+        "slug": "luke-1-9"
+      },
+      {
+        "title": "Luke Overview (Part 2)",
+        "id": "26z_KhwNdD8",
+        "chapters": [
+          10,
+          24
+        ],
+        "slug": "luke-10-24"
+      }
+    ],
+    "Hosea": [
+      {
+        "title": "Hosea Overview",
+        "id": "kE6SZ1ogOVU",
+        "chapters": [
+          1,
+          14
+        ],
+        "slug": "hosea"
+      }
+    ],
+    "Mark": [
+      {
+        "title": "Mark Overview",
+        "id": "HGHqu9-DtXk",
+        "chapters": [
+          1,
+          16
+        ],
+        "slug": "mark"
+      }
+    ],
+    "John": [
+      {
+        "title": "John Overview (Part 1)",
+        "id": "G-2e9mMf7E8",
+        "chapters": [
+          1,
+          9
+        ],
+        "slug": "john-1-9"
+      },
+      {
+        "title": "John Overview (Part 2)",
+        "id": "RUfh_wOsauk",
+        "chapters": [
+          10,
+          21
+        ],
+        "slug": "john-10-21"
+      }
+    ],
+    "Titus": [
+      {
+        "title": "Titus Overview",
+        "id": "PUEYCVXJM3k",
+        "chapters": [
+          1,
+          3
+        ],
+        "slug": "titus"
+      }
+    ],
+    "Exodus": [
+      {
+        "title": "Exodus Overview (Part 1)",
+        "id": "jH_aojNJM3E",
+        "chapters": [
+          1,
+          18
+        ],
+        "slug": "exodus-1-18"
+      },
+      {
+        "title": "Exodus Overview (Part 2)",
+        "id": "oNpTha80yyE",
+        "chapters": [
+          19,
+          40
+        ],
+        "slug": "exodus-19-40"
+      }
+    ],
+    "Nahum": [
+      {
+        "title": "Nahum Overview",
+        "id": "Y30DanA5EhU",
+        "chapters": [
+          1,
+          3
+        ],
+        "slug": "nahum"
+      }
+    ],
+    "Esther": [
+      {
+        "title": "Esther Overview",
+        "id": "JydNSlufRIs",
+        "chapters": [
+          1,
+          10
+        ],
+        "slug": "esther"
+      }
+    ],
+    "Proverbs": [
+      {
+        "title": "Proverbs Overview",
+        "id": "AzmYV8GNAIM",
+        "chapters": [
+          1,
+          31
+        ],
+        "slug": "proverbs"
+      }
+    ],
+    "Isaiah": [
+      {
+        "title": "Isaiah Overview (Part 1)",
+        "id": "d0A6Uchb1F8",
+        "chapters": [
+          1,
+          39
+        ],
+        "slug": "isaiah-1-39"
+      },
+      {
+        "title": "Isaiah Overview (Part 2)",
+        "id": "_TzdEPuqgQg",
+        "chapters": [
+          40,
+          66
+        ],
+        "slug": "isaiah-40-66"
+      }
+    ],
+    "Deuteronomy": [
+      {
+        "title": "Deuteronomy Overview",
+        "id": "q5QEH9bH8AU",
+        "chapters": [
+          1,
+          34
+        ],
+        "slug": "deuteronomy"
+      }
+    ],
+    "Ezekiel": [
+      {
+        "title": "Ezekiel Overview (Part 1)",
+        "id": "R-CIPu1nko8",
+        "chapters": [
+          1,
+          32
+        ],
+        "slug": "ezekiel-1-32"
+      },
+      {
+        "title": "Ezekiel Overview (Part 2)",
+        "id": "SDeCWW_Bnyw",
+        "chapters": [
+          33,
+          48
+        ],
+        "slug": "ezekiel-33-48"
+      }
+    ],
+    "1 Samuel": [
+      {
+        "title": "1 Samuel Overview",
+        "id": "QJOju5Dw0V0",
+        "chapters": [
+          1,
+          31
+        ],
+        "slug": "1-samuel"
+      }
+    ],
+    "Amos": [
+      {
+        "title": "Amos Overview",
+        "id": "mGgWaPGpGz4",
+        "chapters": [
+          1,
+          9
+        ],
+        "slug": "amos"
+      }
+    ],
+    "Acts": [
+      {
+        "title": "Acts Overview (Part 1)",
+        "id": "CGbNw855ksw",
+        "chapters": [
+          1,
+          12
+        ],
+        "slug": "acts-1-12"
+      },
+      {
+        "title": "Acts Overview (Part 2)",
+        "id": "Z-17KxpjL0Q",
+        "chapters": [
+          13,
+          28
+        ],
+        "slug": "acts-13-28"
+      }
+    ],
+    "Malachi": [
+      {
+        "title": "Malachi Overview",
+        "id": "HPGShWZ4Jvk",
+        "chapters": [
+          1,
+          6
+        ],
+        "slug": "malachi"
+      }
+    ],
+    "Joel": [
+      {
+        "title": "Joel Overview",
+        "id": "zQLazbgz90c",
+        "chapters": [
+          1,
+          3
+        ],
+        "slug": "joel"
+      }
+    ],
+    "Hebrews": [
+      {
+        "title": "Hebrews Overview",
+        "id": "1fNWTZZwgbs",
+        "chapters": [
+          1,
+          13
+        ],
+        "slug": "hebrews"
+      }
+    ],
+    "Numbers": [
+      {
+        "title": "Numbers Overview",
+        "id": "tp5MIrMZFqo",
+        "chapters": [
+          1,
+          36
+        ],
+        "slug": "numbers"
+      }
+    ],
+    "1 Chronicles": [
+      {
+        "title": "1 & 2 Chronicles Overview",
+        "id": "HR7xaHv3Ias",
+        "chapters": [
+          1,
+          29
+        ],
+        "slug": "chronicles"
+      }
+    ],
+    "1 John": [
+      {
+        "title": "1-3 John Overview",
+        "id": "l3QkE6nKylM",
+        "chapters": [
+          1,
+          5
+        ],
+        "slug": "1-3-john"
+      }
+    ],
+    "Ezra": [
+      {
+        "title": "Ezra & Nehemiah Overview",
+        "id": "MkETkRv9tG8",
+        "chapters": [
+          1,
+          10
+        ],
+        "slug": "ezra-nehemiah"
+      }
+    ],
+    "Ephesians": [
+      {
+        "title": "Ephesians Overview",
+        "id": "Y71r-T98E2Q",
+        "chapters": [
+          1,
+          6
+        ],
+        "slug": "ephesians"
+      }
+    ],
+    "Job": [
+      {
+        "title": "Job Overview",
+        "id": "xQwnH8th_fs",
+        "chapters": [
+          1,
+          42
+        ],
+        "slug": "job"
+      }
+    ],
+    "Haggai": [
+      {
+        "title": "Haggai Overview",
+        "id": "juPvv_xcX-U",
+        "chapters": [
+          1,
+          2
+        ],
+        "slug": "haggai"
+      }
+    ],
+    "1 Corinthians": [
+      {
+        "title": "1 Corinthians Overview",
+        "id": "yiHf8klCCc4",
+        "chapters": [
+          1,
+          16
+        ],
+        "slug": "1-corinthians"
+      }
+    ],
+    "Song of Solomon": [
+      {
+        "title": "Song of Songs Overview",
+        "id": "4KC7xE4fgOw",
+        "chapters": [
+          1,
+          8
+        ],
+        "slug": "song-of-songs"
+      }
+    ],
+    "Genesis": [
+      {
+        "title": "Genesis Overview (Part 1)",
+        "id": "GQI72THyO5I",
+        "chapters": [
+          1,
+          11
+        ],
+        "slug": "genesis-1-11"
+      },
+      {
+        "title": "Genesis Overview (Part 2)",
+        "id": "F4isSyennFo",
+        "chapters": [
+          12,
+          50
+        ],
+        "slug": "genesis-12-50"
+      }
+    ],
+    "Habakkuk": [
+      {
+        "title": "Habakkuk Overview",
+        "id": "OPMaRqGJPUU",
+        "chapters": [
+          1,
+          3
+        ],
+        "slug": "habakkuk"
+      }
+    ],
+    "2 Chronicles": [
+      {
+        "title": "1 & 2 Chronicles Overview",
+        "id": "HR7xaHv3Ias",
+        "chapters": [
+          1,
+          36
+        ],
+        "slug": "chronicles"
+      }
+    ],
+    "2 Corinthians": [
+      {
+        "title": "2 Corinthians Overview",
+        "id": "3lfPK2vfC54",
+        "chapters": [
+          1,
+          13
+        ],
+        "slug": "2-corinthians"
+      }
+    ],
+    "Micah": [
+      {
+        "title": "Micah Overview",
+        "id": "MFEUEcylwLc",
+        "chapters": [
+          1,
+          7
+        ],
+        "slug": "micah"
+      }
+    ],
+    "Jonah": [
+      {
+        "title": "Jonah Overview",
+        "id": "dLIabZc0O4c",
+        "chapters": [
+          1,
+          4
+        ],
+        "slug": "jonah"
+      }
+    ]
+  }
+}

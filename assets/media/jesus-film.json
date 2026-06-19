@@ -1,0 +1,720 @@
+{
+  "name": "Jesus Film Project",
+  "copyright": "\u00a9 Jesus Film Project. Provided for personal study.",
+  "url": "https://www.jesusfilm.org",
+  "description": "Segmented video clips from the Jesus Film Project: JESUS, Life of Jesus (Gospel of John), Book of Acts, and 40 Days with Jesus.",
+  "media": {
+    "Acts": [
+      {
+        "title": "Jesus Taken Up Into Heaven",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/book-of-acts.html/jesus-taken-up-into-heaven/english.html",
+        "chapters": [
+          1,
+          1
+        ]
+      },
+      {
+        "title": "The Holy Spirit Comes at Pentecost",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/book-of-acts.html/the-holy-spirit-comes-at-pentecost/english.html",
+        "chapters": [
+          2,
+          2
+        ]
+      },
+      {
+        "title": "Peter Heals a Lame Beggar",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/book-of-acts.html/peter-heals-a-lame-beggar/english.html",
+        "chapters": [
+          3,
+          3
+        ]
+      },
+      {
+        "title": "Ananias and Sapphira",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/book-of-acts.html/ananias-and-sapphira/english.html",
+        "chapters": [
+          5,
+          5
+        ]
+      },
+      {
+        "title": "The Stoning of Stephen",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/book-of-acts.html/stoning-of-stephen/english.html",
+        "chapters": [
+          7,
+          7
+        ]
+      },
+      {
+        "title": "Philip and the Ethiopian",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/book-of-acts.html/philip-and-the-ethiopian/english.html",
+        "chapters": [
+          8,
+          8
+        ]
+      },
+      {
+        "title": "Saul's Conversion on the Damascus Road",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/book-of-acts.html/saul-conversion/english.html",
+        "chapters": [
+          9,
+          9
+        ]
+      },
+      {
+        "title": "Peter's Vision and Cornelius's House",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/book-of-acts.html/peters-vision/english.html",
+        "chapters": [
+          10,
+          10
+        ]
+      },
+      {
+        "title": "Peter's Miraculous Escape From Prison",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/book-of-acts.html/peters-miraculous-escape-from-prison/english.html",
+        "chapters": [
+          12,
+          12
+        ]
+      },
+      {
+        "title": "The Council at Jerusalem",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/book-of-acts.html/the-council-at-jerusalem/english.html",
+        "chapters": [
+          15,
+          15
+        ]
+      },
+      {
+        "title": "Paul and Silas in Prison",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/book-of-acts.html/paul-and-silas-in-prison/english.html",
+        "chapters": [
+          16,
+          16
+        ]
+      },
+      {
+        "title": "Preaching Before Idols in Athens",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/book-of-acts.html/idols-in-athens/english.html",
+        "chapters": [
+          17,
+          17
+        ]
+      },
+      {
+        "title": "The Storm and Shipwreck at Sea",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/book-of-acts.html/the-shipwreck/english.html",
+        "chapters": [
+          27,
+          27
+        ]
+      },
+      {
+        "title": "Paul Preaches in Rome Under Guard",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/book-of-acts.html/paul-preaches-in-rome-under-guard/english.html",
+        "chapters": [
+          28,
+          28
+        ]
+      }
+    ],
+    "John": [
+      {
+        "title": "The Word Became Flesh",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/life-of-jesus-gospel-of-john.html/the-word-became-flesh/english.html",
+        "chapters": [
+          1,
+          1
+        ]
+      },
+      {
+        "title": "Water into Wine at Cana",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/life-of-jesus-gospel-of-john.html/wedding-at-cana/english.html",
+        "chapters": [
+          2,
+          2
+        ]
+      },
+      {
+        "title": "Jesus and Nicodemus",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/life-of-jesus-gospel-of-john.html/jesus-and-nicodemus/english.html",
+        "chapters": [
+          3,
+          3
+        ]
+      },
+      {
+        "title": "The Woman at the Well",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/life-of-jesus-gospel-of-john.html/the-woman-at-the-well/english.html",
+        "chapters": [
+          4,
+          4
+        ]
+      },
+      {
+        "title": "Jesus Feeds the Five Thousand",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/life-of-jesus-gospel-of-john.html/feeding-the-5000/english.html",
+        "chapters": [
+          6,
+          6
+        ]
+      },
+      {
+        "title": "Jesus Walks on Water",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/life-of-jesus-gospel-of-john.html/jesus-walks-on-water/english.html",
+        "chapters": [
+          6,
+          6
+        ]
+      },
+      {
+        "title": "The Bread of Life Discourse",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/life-of-jesus-gospel-of-john.html/the-bread-of-life/english.html",
+        "chapters": [
+          6,
+          6
+        ]
+      },
+      {
+        "title": "Jesus Heals a Man Born Blind",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/life-of-jesus-gospel-of-john.html/healing-of-the-man-born-blind/english.html",
+        "chapters": [
+          9,
+          9
+        ]
+      },
+      {
+        "title": "The Resurrection of Lazarus",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/life-of-jesus-gospel-of-john.html/the-resurrection-of-lazarus/english.html",
+        "chapters": [
+          11,
+          11
+        ]
+      },
+      {
+        "title": "The Washing of the Disciples' Feet",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/life-of-jesus-gospel-of-john.html/jesus-washes-his-disciples-feet/english.html",
+        "chapters": [
+          13,
+          13
+        ]
+      },
+      {
+        "title": "I Am the Vine",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/life-of-jesus-gospel-of-john.html/the-vine-and-the-branches/english.html",
+        "chapters": [
+          15,
+          15
+        ]
+      },
+      {
+        "title": "The Trial Before Pilate",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/life-of-jesus-gospel-of-john.html/jesus-before-pilate/english.html",
+        "chapters": [
+          18,
+          18
+        ]
+      },
+      {
+        "title": "The Crucifixion and Death of Jesus",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/life-of-jesus-gospel-of-john.html/the-crucifixion/english.html",
+        "chapters": [
+          19,
+          19
+        ]
+      },
+      {
+        "title": "Mary Magdalene and the Empty Tomb",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/life-of-jesus-gospel-of-john.html/the-empty-tomb/english.html",
+        "chapters": [
+          20,
+          20
+        ]
+      }
+    ],
+    "Luke": [
+      {
+        "title": "Miraculous Birth",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/40-days-with-jesus.html/day-2-miraculous-birth/english.html",
+        "chapters": [
+          1,
+          2
+        ]
+      },
+      {
+        "title": "The Birth of Jesus",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/jesus.html/the-birth-of-jesus/english.html",
+        "chapters": [
+          2,
+          2
+        ]
+      },
+      {
+        "title": "The Baptism of Jesus by John",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/jesus.html/baptism-of-jesus-by-john/english.html",
+        "chapters": [
+          3,
+          3
+        ]
+      },
+      {
+        "title": "Jesus' Baptism",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/40-days-with-jesus.html/day-3-jesus-baptism/english.html",
+        "chapters": [
+          3,
+          3
+        ]
+      },
+      {
+        "title": "John's Questions",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/40-days-with-jesus.html/day-15-johns-questions/english.html",
+        "chapters": [
+          3,
+          7
+        ]
+      },
+      {
+        "title": "The Temptation of Jesus in the Wilderness",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/jesus.html/temptation-of-jesus/english.html",
+        "chapters": [
+          4,
+          4
+        ]
+      },
+      {
+        "title": "Jesus Rejects Nazareth",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/jesus.html/jesus-rejects-nazareth/english.html",
+        "chapters": [
+          4,
+          4
+        ]
+      },
+      {
+        "title": "Devil Tempts Jesus",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/40-days-with-jesus.html/day-4-devil-tempts-jesus/english.html",
+        "chapters": [
+          4,
+          4
+        ]
+      },
+      {
+        "title": "Jesus' Mission",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/40-days-with-jesus.html/day-5-jesus-mission/english.html",
+        "chapters": [
+          4,
+          4
+        ]
+      },
+      {
+        "title": "The Calling of the Disciples",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/jesus.html/calling-of-the-disciples/english.html",
+        "chapters": [
+          5,
+          5
+        ]
+      },
+      {
+        "title": "Miracle Catch",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/40-days-with-jesus.html/day-7-miracle-catch/english.html",
+        "chapters": [
+          5,
+          5
+        ]
+      },
+      {
+        "title": "Choosing the Twelve",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/40-days-with-jesus.html/day-9-choosing-the-twelve/english.html",
+        "chapters": [
+          5,
+          6
+        ]
+      },
+      {
+        "title": "Kingdom People",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/40-days-with-jesus.html/day-24-kingdom-people/english.html",
+        "chapters": [
+          5,
+          17
+        ]
+      },
+      {
+        "title": "The Sermon on the Mount / Plain",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/jesus.html/the-sermon-on-the-mount/english.html",
+        "chapters": [
+          6,
+          6
+        ]
+      },
+      {
+        "title": "Beatitudes",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/40-days-with-jesus.html/day-10-beatitudes/english.html",
+        "chapters": [
+          6,
+          6
+        ]
+      },
+      {
+        "title": "Sermon on the Mount (Part 1)",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/40-days-with-jesus.html/day-11-sermon-on-the-mount-part-1/english.html",
+        "chapters": [
+          6,
+          6
+        ]
+      },
+      {
+        "title": "Sermon on the Mount (Part 2)",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/40-days-with-jesus.html/day-12-sermon-on-the-mount-part-2/english.html",
+        "chapters": [
+          6,
+          6
+        ]
+      },
+      {
+        "title": "Forgiven and Rebuked",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/40-days-with-jesus.html/day-13-forgiven-and-rebuked/english.html",
+        "chapters": [
+          7,
+          7
+        ]
+      },
+      {
+        "title": "Jesus Heals a Demoniac",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/jesus.html/jesus-heals-a-demoniac/english.html",
+        "chapters": [
+          8,
+          8
+        ]
+      },
+      {
+        "title": "Raising the Dead",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/40-days-with-jesus.html/day-8-raising-the-dead/english.html",
+        "chapters": [
+          8,
+          8
+        ]
+      },
+      {
+        "title": "Women Disciples",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/40-days-with-jesus.html/day-14-women-disciples/english.html",
+        "chapters": [
+          8,
+          8
+        ]
+      },
+      {
+        "title": "Parable of the Soils",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/40-days-with-jesus.html/day-16-parable-of-the-soils/english.html",
+        "chapters": [
+          8,
+          8
+        ]
+      },
+      {
+        "title": "Parable of the Lamp",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/40-days-with-jesus.html/day-17-parable-of-the-lamp/english.html",
+        "chapters": [
+          8,
+          8
+        ]
+      },
+      {
+        "title": "Storm",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/40-days-with-jesus.html/day-18-storm/english.html",
+        "chapters": [
+          8,
+          8
+        ]
+      },
+      {
+        "title": "Demoniac",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/40-days-with-jesus.html/day-19-demoniac/english.html",
+        "chapters": [
+          8,
+          8
+        ]
+      },
+      {
+        "title": "Feeds 5,000",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/40-days-with-jesus.html/day-20-feeds-5000/english.html",
+        "chapters": [
+          9,
+          9
+        ]
+      },
+      {
+        "title": "Jesus' True Identity",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/40-days-with-jesus.html/day-21-jesus-true-identity/english.html",
+        "chapters": [
+          9,
+          9
+        ]
+      },
+      {
+        "title": "Good Samaritan",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/40-days-with-jesus.html/day-26-good-samaritan/english.html",
+        "chapters": [
+          10,
+          10
+        ]
+      },
+      {
+        "title": "Lord's Prayer",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/40-days-with-jesus.html/day-22-lords-prayer/english.html",
+        "chapters": [
+          11,
+          11
+        ]
+      },
+      {
+        "title": "Prayer and Anxiety",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/40-days-with-jesus.html/day-23-prayer-and-anxiety/english.html",
+        "chapters": [
+          11,
+          12
+        ]
+      },
+      {
+        "title": "Kingdom Conflict",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/40-days-with-jesus.html/day-25-kingdom-conflict/english.html",
+        "chapters": [
+          12,
+          13
+        ]
+      },
+      {
+        "title": "True Humility",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/40-days-with-jesus.html/day-6-true-humility/english.html",
+        "chapters": [
+          18,
+          18
+        ]
+      },
+      {
+        "title": "Blind Man",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/40-days-with-jesus.html/day-27-blind-man/english.html",
+        "chapters": [
+          18,
+          18
+        ]
+      },
+      {
+        "title": "Triumphal Entry",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/40-days-with-jesus.html/day-29-triumphal-entry/english.html",
+        "chapters": [
+          18,
+          19
+        ]
+      },
+      {
+        "title": "The Triumphal Entry into Jerusalem",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/jesus.html/triumphal-entry/english.html",
+        "chapters": [
+          19,
+          19
+        ]
+      },
+      {
+        "title": "Zacchaeus",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/40-days-with-jesus.html/day-28-zacchaeus/english.html",
+        "chapters": [
+          19,
+          19
+        ]
+      },
+      {
+        "title": "Money Matters",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/40-days-with-jesus.html/day-30-money-matters/english.html",
+        "chapters": [
+          19,
+          21
+        ]
+      },
+      {
+        "title": "Jesus' Authority",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/40-days-with-jesus.html/day-31-jesus-authority/english.html",
+        "chapters": [
+          20,
+          20
+        ]
+      },
+      {
+        "title": "The Last Supper",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/jesus.html/the-last-supper/english.html",
+        "chapters": [
+          22,
+          22
+        ]
+      },
+      {
+        "title": "Last Supper",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/40-days-with-jesus.html/day-32-last-supper/english.html",
+        "chapters": [
+          22,
+          22
+        ]
+      },
+      {
+        "title": "Upper Room Talk",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/40-days-with-jesus.html/day-33-upper-room-talk/english.html",
+        "chapters": [
+          22,
+          22
+        ]
+      },
+      {
+        "title": "Betrayal",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/40-days-with-jesus.html/day-34-betrayal/english.html",
+        "chapters": [
+          22,
+          22
+        ]
+      },
+      {
+        "title": "The Trial",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/40-days-with-jesus.html/day-35-the-trial/english.html",
+        "chapters": [
+          22,
+          23
+        ]
+      },
+      {
+        "title": "The Crucifixion of Jesus",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/jesus.html/the-crucifixion/english.html",
+        "chapters": [
+          23,
+          23
+        ]
+      },
+      {
+        "title": "Crucified",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/40-days-with-jesus.html/day-36-crucified/english.html",
+        "chapters": [
+          23,
+          23
+        ]
+      },
+      {
+        "title": "Death of Jesus",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/40-days-with-jesus.html/day-37-death-of-jesus/english.html",
+        "chapters": [
+          23,
+          23
+        ]
+      },
+      {
+        "title": "He is Risen!",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/40-days-with-jesus.html/day-38-he-is-risen/english.html",
+        "chapters": [
+          23,
+          24
+        ]
+      },
+      {
+        "title": "The Resurrection of Jesus",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/jesus.html/the-resurrection/english.html",
+        "chapters": [
+          24,
+          24
+        ]
+      }
+    ],
+    "Matthew": [
+      {
+        "title": "Great Command",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/40-days-with-jesus.html/day-40-great-command/english.html",
+        "chapters": [
+          28,
+          28
+        ]
+      }
+    ],
+    "Romans": [
+      {
+        "title": "Invitation",
+        "type": "web",
+        "url": "https://www.jesusfilm.org/watch/40-days-with-jesus.html/day-39-invitation/english.html",
+        "chapters": [
+          3,
+          6
+        ]
+      }
+    ]
+  }
+}

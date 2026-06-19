@@ -1,0 +1,188 @@
+{
+  "name": "BibleProject (Extended)",
+  "copyright": "Copyright \u00a9 2026 BibleProject. All rights reserved.",
+  "url": "https://bibleproject.com",
+  "description": "Additional BibleProject videos (theme studies, word studies, series, and overviews) mapped to specific passages. Verified against live YouTube titles.",
+  "media": {
+    "Genesis": [
+      {
+        "title": "Elohim",
+        "id": "U5iyUik97Lg",
+        "chapters": [
+          1,
+          1
+        ],
+        "slug": "elohim"
+      },
+      {
+        "title": "Royal Priests of Eden",
+        "id": "K60TAYja110",
+        "chapters": [
+          1,
+          3
+        ],
+        "slug": "royal-priests-of-eden"
+      }
+    ],
+    "Exodus": [
+      {
+        "title": "7th Commandment: Do Not Commit Adultery",
+        "id": "Pyk64lwOLpw",
+        "chapters": [
+          20,
+          20
+        ],
+        "slug": "7th-commandment-do-not-commit-adultery"
+      },
+      {
+        "title": "8th Commandment: Do Not Steal",
+        "id": "WylKQKFI_4M",
+        "chapters": [
+          20,
+          20
+        ],
+        "slug": "8th-commandment-do-not-steal"
+      },
+      {
+        "title": "9th Commandment: Do Not Bear False Witness",
+        "id": "SSBRI49NYmY",
+        "chapters": [
+          20,
+          20
+        ],
+        "slug": "9th-commandment-do-not-bear-false-witness"
+      },
+      {
+        "title": "What the 10 Commandments Really Do to Human Life",
+        "id": "4M9BsOvx6cs",
+        "chapters": [
+          20,
+          20
+        ],
+        "slug": "what-the-10-commandments-really-do-to-human-life"
+      },
+      {
+        "title": "Moses and Aaron",
+        "id": "rhc1SjvYXqE",
+        "chapters": [
+          28,
+          28
+        ],
+        "slug": "moses-and-aaron"
+      },
+      {
+        "title": "Character of God (Episode 1)",
+        "id": "nxwzq1PJImM",
+        "chapters": [
+          34,
+          34
+        ],
+        "slug": "character-of-god-episode-1"
+      }
+    ],
+    "2 Samuel": [
+      {
+        "title": "David the Priestly King",
+        "id": "JCP2zWaJlGc",
+        "chapters": [
+          6,
+          6
+        ],
+        "slug": "david-the-priestly-king"
+      }
+    ],
+    "Psalms": [
+      {
+        "title": "Psalm 8",
+        "id": "d_-xvaK4wIw",
+        "chapters": [
+          8,
+          8
+        ],
+        "slug": "psalm-8"
+      },
+      {
+        "title": "Psalm 148",
+        "id": "XgCrFl4Mc5Q",
+        "chapters": [
+          148,
+          148
+        ],
+        "slug": "psalm-148"
+      }
+    ],
+    "Proverbs": [
+      {
+        "title": "Proverbs 8",
+        "id": "k8P-x34iYRE",
+        "chapters": [
+          8,
+          8
+        ],
+        "slug": "proverbs-8"
+      }
+    ],
+    "Luke": [
+      {
+        "title": "Gospel of Luke Summary (Part 1)",
+        "id": "XIb_dCIxzr0",
+        "chapters": [
+          1,
+          24
+        ],
+        "slug": "gospel-of-luke-summary-part-1"
+      },
+      {
+        "title": "Gospel of Luke Summary (Part 2)",
+        "id": "26z_KhwNdD8",
+        "chapters": [
+          1,
+          24
+        ],
+        "slug": "gospel-of-luke-summary-part-2"
+      }
+    ],
+    "Acts": [
+      {
+        "title": "Book of Acts Summary (Part 1)",
+        "id": "CGbNw855ksw",
+        "chapters": [
+          1,
+          28
+        ],
+        "slug": "book-of-acts-summary-part-1"
+      },
+      {
+        "title": "What Happened at Pentecost and Why It's Important",
+        "id": "JQhkWmFJKnA",
+        "chapters": [
+          2,
+          2
+        ],
+        "slug": "what-happened-at-pentecost-and-why-it-s-important"
+      }
+    ],
+    "Hebrews": [
+      {
+        "title": "Jesus the Royal Priest",
+        "id": "LBr-blQxIm4",
+        "chapters": [
+          7,
+          7
+        ],
+        "slug": "jesus-the-royal-priest"
+      }
+    ],
+    "1 Peter": [
+      {
+        "title": "The Royal Priesthood",
+        "id": "Tw-bBfBDpE0",
+        "chapters": [
+          2,
+          2
+        ],
+        "slug": "the-royal-priesthood"
+      }
+    ]
+  }
+}

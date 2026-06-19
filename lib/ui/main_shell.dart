@@ -8,6 +8,8 @@ import 'reader/notes_panel.dart';
 import 'reader/dictionary_panel.dart';
 import 'reader/search_panel.dart';
 import 'reader/history_panel.dart';
+import 'reader/media_panel.dart';
+import '../app/reader_state.dart';
 import 'journals/journals_prayers_screen.dart';
 import 'dashboard/dashboard_screen.dart';
 import 'content_manager/content_manager_screen.dart';
@@ -88,7 +90,17 @@ class _DesktopLayout extends ConsumerWidget {
                     flex: 4,
                     child: HistoryPanel(),
                   ),
-                // Add other tools here...
+                if (activeTool == ActiveTool.media)
+                  Expanded(
+                    flex: 4,
+                    child: Consumer(
+                      builder: (context, ref, _) {
+                        final bookName = ref.watch(selectedBookNameProvider);
+                        final chapter = ref.watch(selectedChapterProvider);
+                        return MediaPanel(bookName: bookName, chapter: chapter);
+                      },
+                    ),
+                  ),
               ],
             ),
           ),
@@ -128,6 +140,10 @@ class _DesktopLayout extends ConsumerWidget {
                 icon: Tooltip(message: 'History', child: Icon(Icons.history)),
                 label: Text('History'),
               ),
+              NavigationRailDestination(
+                icon: Tooltip(message: 'Media', child: Icon(Icons.video_library)),
+                label: Text('Media'),
+              ),
             ],
             selectedIndex: _getSelectedIndex(activeTool),
             onDestinationSelected: (index) {
@@ -149,6 +165,7 @@ class _DesktopLayout extends ConsumerWidget {
       case ActiveTool.dictionary: return 4;
       case ActiveTool.commentaries: return 5;
       case ActiveTool.history: return 6;
+      case ActiveTool.media: return 7;
       case ActiveTool.none: return null;
     }
   }
@@ -162,6 +179,7 @@ class _DesktopLayout extends ConsumerWidget {
       case 4: return ActiveTool.dictionary;
       case 5: return ActiveTool.commentaries;
       case 6: return ActiveTool.history;
+      case 7: return ActiveTool.media;
       default: return ActiveTool.none;
     }
   }
