@@ -277,7 +277,22 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
       endDrawer: MediaQuery.sizeOf(context).width <= 800
           ? const MobileToolsDrawer()
           : const StudyPane(),
-      body: parallelVersesAsync.when(
+      body: Column(
+        children: [
+          // Breadcrumb navigation bar
+          _BreadcrumbBar(
+            onVersionTap: _showVersionPicker,
+            onBookTap: () {
+              showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                backgroundColor: Colors.transparent,
+                builder: (_) => const BookChooserSheet(),
+              );
+            },
+          ),
+          Expanded(
+            child: parallelVersesAsync.when(
         data: (versesMap) {
           if (versesMap.isEmpty) {
             return const Center(child: Text('No verses found.'));
@@ -365,6 +380,169 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, stack) => Center(child: Text('Error: $err')),
       ),
+    ),
+        ],
+      ),
     ));
+  }
+}
+
+class _BreadcrumbBar extends ConsumerWidget {
+  final VoidCallback onVersionTap;
+  final VoidCallback onBookTap;
+
+  const _BreadcrumbBar({
+    required this.onVersionTap,
+    required this.onBookTap,
+  });
+
+  void _showChapterPicker(BuildContext context, WidgetRef ref) async {
+    final store = ref.read(contentStoreProvider);
+    final bookName = ref.read(selectedBookNameProvider);
+    final activeVersions = ref.read(activeVersionsProvider);
+    if (activeVersions.isEmpty) return;
+
+    // Find the book to get its ID
+    final books = await (store.select(store.books)
+          ..where((b) => b.name.equals(bookName)))
+        .get();
+    if (books.isEmpty) return;
+    final bookId = books.first.id;
+
+    // Get chapter count via the existing provider
+    final chapterCount = await ref.read(chapterCountProvider(bookId).future);
+
+    if (!context.mounted) return;
+
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        final theme = Theme.of(ctx);
+        return AlertDialog(
+          title: Text('$bookName — Select Chapter'),
+          content: SizedBox(
+            width: 320,
+            child: GridView.builder(
+              shrinkWrap: true,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 6,
+                mainAxisSpacing: 4,
+                crossAxisSpacing: 4,
+              ),
+              itemCount: chapterCount,
+              itemBuilder: (context, index) {
+                final ch = index + 1;
+                final isSelected = ch == ref.read(selectedChapterProvider);
+                return InkWell(
+                  borderRadius: BorderRadius.circular(8),
+                  onTap: () {
+                    ref.read(selectedChapterProvider.notifier).set(ch);
+                    ref.read(navigationControllerProvider).recordHistory();
+                    Navigator.of(ctx).pop();
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: isSelected
+                          ? theme.colorScheme.primary
+                          : theme.colorScheme.surfaceContainerHighest,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      '$ch',
+                      style: TextStyle(
+                        color: isSelected
+                            ? theme.colorScheme.onPrimary
+                            : theme.colorScheme.onSurface,
+                        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final activeVersions = ref.watch(activeVersionsProvider);
+    final bookName = ref.watch(selectedBookNameProvider);
+    final chapter = ref.watch(selectedChapterProvider);
+    final theme = Theme.of(context);
+    final versionLabel = activeVersions.isNotEmpty
+        ? activeVersions.join(', ')
+        : 'No Version';
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 6.0),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
+        border: Border(
+          bottom: BorderSide(
+            color: theme.dividerColor.withValues(alpha: 0.3),
+          ),
+        ),
+      ),
+      child: Row(
+        children: [
+          InkWell(
+            borderRadius: BorderRadius.circular(4),
+            onTap: onVersionTap,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 2.0),
+              child: Text(
+                versionLabel,
+                style: theme.textTheme.labelMedium?.copyWith(
+                  color: theme.colorScheme.primary,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ),
+          Icon(Icons.chevron_right, size: 16, color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
+          InkWell(
+            borderRadius: BorderRadius.circular(4),
+            onTap: onBookTap,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 2.0),
+              child: Text(
+                bookName,
+                style: theme.textTheme.labelMedium?.copyWith(
+                  color: theme.colorScheme.primary,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ),
+          Icon(Icons.chevron_right, size: 16, color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
+          InkWell(
+            borderRadius: BorderRadius.circular(4),
+            onTap: () => _showChapterPicker(context, ref),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 2.0),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Chapter $chapter',
+                    style: theme.textTheme.labelMedium?.copyWith(
+                      color: theme.colorScheme.primary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(width: 2),
+                  Icon(Icons.arrow_drop_down, size: 16, color: theme.colorScheme.primary),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
