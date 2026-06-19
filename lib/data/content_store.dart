@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:flutter/services.dart';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:path_provider/path_provider.dart';
@@ -60,16 +59,6 @@ LazyDatabase _openConnection() {
     final dbFolder = await getApplicationDocumentsDirectory();
     final file = File(p.join(dbFolder.path, 'content.db'));
     
-    if (!await file.exists()) {
-      try {
-        final blob = await rootBundle.load('assets/content.db');
-        final buffer = blob.buffer;
-        await file.writeAsBytes(buffer.asUint8List(blob.offsetInBytes, blob.lengthInBytes));
-      } catch (e) {
-        // Fallback or empty DB
-      }
-    }
-
     return NativeDatabase.createInBackground(file);
   });
 }
