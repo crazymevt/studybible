@@ -193,6 +193,8 @@ LazyDatabase _openConnection() {
   return LazyDatabase(() async {
     final dbFolder = await getApplicationDocumentsDirectory();
     final file = File(p.join(dbFolder.path, 'user.db'));
-    return NativeDatabase.createInBackground(file);
+    return NativeDatabase.createInBackground(file, setup: (db) {
+      db.execute('PRAGMA journal_mode=WAL;');
+    });
   });
 }
