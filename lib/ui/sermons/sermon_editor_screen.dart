@@ -140,6 +140,8 @@ class _SermonEditorScreenState extends ConsumerState<SermonEditorScreen> {
     if (widget.isFullScreen) {
       return Scaffold(
         appBar: AppBar(
+          backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+          foregroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
           title: const Text('Edit Sermon'),
           actions: [
             IconButton(
