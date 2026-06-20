@@ -16,15 +16,35 @@ class ComparePanel extends ConsumerWidget {
     final selectedVerses = ref.watch(selectedVersesProvider).toList()..sort();
 
     if (selectedVerses.isEmpty) {
-      return Container(
+      return Material(
         color: Theme.of(context).colorScheme.surface,
         child: Column(
           children: [
-            AppBar(
-              title: const Text('Compare'),
-              leading: IconButton(
-                icon: const Icon(Icons.close),
-                onPressed: () => ref.read(activeToolProvider.notifier).close(),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Compare',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () {
+                      if (MediaQuery.sizeOf(context).width > 800) {
+                        ref.read(activeToolProvider.notifier).close();
+                      } else {
+                        Navigator.of(context).pop();
+                      }
+                    },
+                  ),
+                ],
               ),
             ),
             const Expanded(
@@ -43,21 +63,35 @@ class ComparePanel extends ConsumerWidget {
       selectedVersesStr: selectedVerses.join(','),
     )));
 
-    return Container(
+    return Material(
       color: Theme.of(context).colorScheme.surface,
       child: Column(
         children: [
-          AppBar(
-            title: Text('Compare ($bookName $chapter)'),
-            leading: IconButton(
-              icon: const Icon(Icons.close),
-              onPressed: () {
-                if (MediaQuery.sizeOf(context).width > 800) {
-                  ref.read(activeToolProvider.notifier).close();
-                } else {
-                  Navigator.of(context).pop();
-                }
-              },
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surfaceContainerHighest,
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Compare ($bookName $chapter)',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () {
+                    if (MediaQuery.sizeOf(context).width > 800) {
+                      ref.read(activeToolProvider.notifier).close();
+                    } else {
+                      Navigator.of(context).pop();
+                    }
+                  },
+                ),
+              ],
             ),
           ),
           Expanded(

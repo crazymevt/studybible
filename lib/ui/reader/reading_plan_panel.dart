@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 
 import '../../app/reading_plan_providers.dart';
 import '../../app/content_providers.dart';
+import '../../app/app_state.dart';
 import '../reading_plans/reading_plan_generator_screen.dart';
 
 class SelectedPlanIdNotifier extends Notifier<String?> {
@@ -24,20 +25,39 @@ class ReadingPlanPanel extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final activePlansAsync = ref.watch(activeReadingPlansProvider);
 
-    return Drawer(
-      child: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Text(
-                'Reading Plans',
-                style: Theme.of(context).textTheme.headlineSmall,
-              ),
+    return Material(
+      color: Theme.of(context).colorScheme.surface,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surfaceContainerHighest,
             ),
-            const Divider(),
-            Expanded(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Reading Plans',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () {
+                    if (MediaQuery.sizeOf(context).width > 800) {
+                      ref.read(activeToolProvider.notifier).close();
+                    } else {
+                      Navigator.of(context).pop();
+                    }
+                  },
+                ),
+              ],
+            ),
+          ),
+          Expanded(
               child: activePlansAsync.when(
                 data: (plans) {
                   if (plans.isEmpty) {
@@ -71,7 +91,6 @@ class ReadingPlanPanel extends ConsumerWidget {
             ),
           ],
         ),
-      ),
     );
   }
 }

@@ -32,24 +32,40 @@ class DevotionalsPanel extends ConsumerWidget {
     final selectedIdRaw = ref.watch(selectedDevotionalIdProvider);
     final selectedDay = ref.watch(selectedDevotionalDayProvider);
 
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      appBar: AppBar(
-        title: const Text('Devotionals'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.close),
-            onPressed: () {
-              if (MediaQuery.sizeOf(context).width > 800) {
-                ref.read(activeToolProvider.notifier).close();
-              } else {
-                Navigator.of(context).pop();
-              }
-            },
+    return Material(
+      color: Theme.of(context).colorScheme.surface,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surfaceContainerHighest,
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Devotionals',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () {
+                    if (MediaQuery.sizeOf(context).width > 800) {
+                      ref.read(activeToolProvider.notifier).close();
+                    } else {
+                      Navigator.of(context).pop();
+                    }
+                  },
+                ),
+              ],
+            ),
           ),
-        ],
-      ),
-      body: devotionalsAsync.when(
+          Expanded(
+            child: devotionalsAsync.when(
         data: (devotionals) {
           if (devotionals.isEmpty) {
             return const Center(child: Text('No devotionals installed.'));
@@ -141,6 +157,9 @@ class DevotionalsPanel extends ConsumerWidget {
         },
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, stack) => Center(child: Text('Error: $err')),
+      ),
+    ),
+        ],
       ),
     );
   }

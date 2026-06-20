@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app/user_providers.dart';
 
+import '../../app/app_state.dart';
+
 class StudyPane extends ConsumerWidget {
   const StudyPane({super.key});
 
@@ -10,19 +12,39 @@ class StudyPane extends ConsumerWidget {
     final notesAsync = ref.watch(chapterNotesProvider);
     final bookmarksAsync = ref.watch(chapterBookmarksProvider);
 
-    return Drawer(
-      child: SafeArea(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Text(
-                'Study Pane',
-                style: Theme.of(context).textTheme.headlineSmall,
-              ),
+    return Material(
+      color: Theme.of(context).colorScheme.surface,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surfaceContainerHighest,
             ),
-            const Divider(),
-            Expanded(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Library',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () {
+                    if (MediaQuery.sizeOf(context).width > 800) {
+                      ref.read(activeToolProvider.notifier).close();
+                    } else {
+                      Navigator.of(context).pop();
+                    }
+                  },
+                ),
+              ],
+            ),
+          ),
+          Expanded(
               child: ListView(
                 children: [
                   _SectionHeader(title: 'Notes'),
@@ -93,7 +115,6 @@ class StudyPane extends ConsumerWidget {
             ),
           ],
         ),
-      ),
     );
   }
 }
