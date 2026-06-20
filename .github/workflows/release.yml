@@ -78,7 +78,7 @@ jobs:
         run: flutter build macos --release
 
       - name: Compress macOS Build
-        run: ditto -c -k --sequesterRsrc --keepParent build/macos/Build/Products/Release/StudyBible.app StudyBible-macOS.zip
+        run: ditto -c -k --sequesterRsrc --keepParent "build/macos/Build/Products/Release/Study Bible.app" StudyBible-macOS.zip
 
       - name: Release Artifacts
         uses: softprops/action-gh-release@v2
