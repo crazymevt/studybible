@@ -224,26 +224,34 @@ class _AudioPlayerWidgetState extends ConsumerState<AudioPlayerWidget> {
               children: [
                 const Icon(Icons.record_voice_over, size: 16, color: Colors.grey),
                 const SizedBox(width: 8),
-                DropdownButtonHideUnderline(
-                  child: DropdownButton<String>(
-                    value: audioData.activeVoice,
-                    icon: const Icon(Icons.arrow_drop_down, size: 20),
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                    isDense: true,
-                    onChanged: (String? newValue) {
-                      if (newValue != null) {
-                        ref.read(selectedVoiceProvider.notifier).setVoice(newValue);
-                      }
-                    },
-                    items: audioData.availableVoices.map<DropdownMenuItem<String>>((String value) {
-                      final formattedName = value[0].toUpperCase() + value.substring(1);
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: Text(formattedName),
-                      );
-                    }).toList(),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      value: audioData.activeVoice,
+                      icon: Icon(Icons.arrow_drop_down, size: 20, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                      isDense: true,
+                      onChanged: (String? newValue) {
+                        if (newValue != null) {
+                          ref.read(selectedVoiceProvider.notifier).setVoice(newValue);
+                        }
+                      },
+                      items: audioData.availableVoices.map<DropdownMenuItem<String>>((String value) {
+                        final formattedName = value[0].toUpperCase() + value.substring(1);
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(formattedName),
+                        );
+                      }).toList(),
+                    ),
                   ),
                 ),
               ],
