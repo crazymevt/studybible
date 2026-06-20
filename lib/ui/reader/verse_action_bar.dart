@@ -299,22 +299,25 @@ class _ClearHighlightSwatch extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return GestureDetector(
-      onTap: () async {
-        final selected = ref.read(selectedVersesProvider);
-        for (final verse in selected) {
-          await ref.read(highlightActionProvider).clearHighlight(verse);
-        }
-        ref.read(selectedVersesProvider.notifier).clear();
-      },
-      child: Container(
-        width: 24,
-        height: 24,
-        decoration: const BoxDecoration(
-          color: Colors.white24,
-          shape: BoxShape.circle,
+    return Tooltip(
+      message: 'Clear Highlight',
+      child: GestureDetector(
+        onTap: () async {
+          final selected = ref.read(selectedVersesProvider);
+          for (final verse in selected) {
+            await ref.read(highlightActionProvider).clearHighlight(verse);
+          }
+          ref.read(selectedVersesProvider.notifier).clear();
+        },
+        child: Container(
+          width: 24,
+          height: 24,
+          decoration: const BoxDecoration(
+            color: Colors.white24,
+            shape: BoxShape.circle,
+          ),
+          child: const Icon(Icons.format_color_reset, size: 14, color: Colors.white),
         ),
-        child: const Icon(Icons.format_color_reset, size: 14, color: Colors.white),
       ),
     );
   }
