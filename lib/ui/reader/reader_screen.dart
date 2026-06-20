@@ -391,8 +391,21 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
                           _searchQuery = value;
                           _currentMatchIndex = value.isEmpty ? -1 : 0;
                         });
-                        if (matchVerses.isNotEmpty) {
-                           ref.read(targetVerseToScrollProvider.notifier).set(matchVerses[_currentMatchIndex]);
+                        if (value.isNotEmpty && parallelVersesAsync.hasValue) {
+                          final versesMap = parallelVersesAsync.value!;
+                          final lowerQuery = value.toLowerCase();
+                          final Set<int> matches = {};
+                          for (final verses in versesMap.values) {
+                            for (final v in verses) {
+                              if (v.textContent.toLowerCase().contains(lowerQuery)) {
+                                matches.add(v.verse);
+                              }
+                            }
+                          }
+                          final newMatchVerses = matches.toList()..sort();
+                          if (newMatchVerses.isNotEmpty) {
+                            ref.read(targetVerseToScrollProvider.notifier).set(newMatchVerses[0]);
+                          }
                         }
                       },
                       onSubmitted: (_) => _nextMatch(matchVerses),
