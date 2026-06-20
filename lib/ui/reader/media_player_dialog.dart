@@ -86,23 +86,31 @@ class _MediaPlayerDialogState extends State<MediaPlayerDialog> {
         Positioned(
           top: 8,
           right: 8,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (Platform.isMacOS || Platform.isWindows || Platform.isLinux)
-                IconButton(
-                  icon: Icon(
-                    _isFullscreen ? Icons.fullscreen_exit : Icons.fullscreen,
-                    color: Colors.white,
-                    size: 32,
-                  ),
-                  onPressed: _toggleFullscreen,
-                ),
-              IconButton(
-                icon: const Icon(Icons.close, color: Colors.white, size: 32),
-                onPressed: () => Navigator.of(context).pop(),
+          child: SafeArea(
+            child: Container(
+              decoration: const BoxDecoration(
+                color: Colors.black54,
+                borderRadius: BorderRadius.all(Radius.circular(24)),
               ),
-            ],
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (Platform.isMacOS || Platform.isWindows || Platform.isLinux)
+                    IconButton(
+                      icon: Icon(
+                        _isFullscreen ? Icons.fullscreen_exit : Icons.fullscreen,
+                        color: Colors.white,
+                        size: 24,
+                      ),
+                      onPressed: _toggleFullscreen,
+                    ),
+                  IconButton(
+                    icon: const Icon(Icons.close, color: Colors.white, size: 24),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                ],
+              ),
+            ),
           ),
         ),
       ],
