@@ -87,20 +87,20 @@ flutter_launcher_icons:
   android: "launcher_icon"
   ios: true
   remove_alpha_ios: true
-  image_path: "assets/icons/bible_study.png"
+  image_path: "assets/icons/extracted_icon.png"
   min_sdk_android: 21
   web:
     generate: true
-    image_path: "assets/icons/bible_study.png"
+    image_path: "assets/icons/extracted_icon.png"
     background_color: "#ffffff"
     theme_color: "#6750A4"
   windows:
     generate: true
-    image_path: "assets/icons/bible_study.png"
+    image_path: "assets/icons/extracted_icon.png"
     icon_size: 48
   macos:
     generate: true
-    image_path: "assets/icons/bible_study.png"
+    image_path: "assets/icons/extracted_icon.png"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
