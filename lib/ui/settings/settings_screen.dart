@@ -20,7 +20,11 @@ class SettingsScreen extends ConsumerWidget {
     final appColorTheme = ref.watch(appColorThemeProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Settings')),
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+        foregroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
+        title: const Text('Settings'),
+      ),
       body: ListView(
         padding: const EdgeInsets.all(16.0),
         children: [
