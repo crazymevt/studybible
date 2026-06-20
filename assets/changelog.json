@@ -1,5 +1,71 @@
 [
   {
+    "version": "26.6.20+2",
+    "date": "2026-06-20",
+    "features": [
+      {
+        "category": "New Features",
+        "title": "Add GitHub Actions CI/CD release workflow",
+        "description": "",
+        "icon": "star"
+      },
+      {
+        "category": "Bugfixes",
+        "title": "Bypass flutter_launcher_icons for macOS and Windows to use exact native icons",
+        "description": "",
+        "icon": "bug_report"
+      },
+      {
+        "category": "Updates",
+        "title": "Use extracted png from mac icns for platform icons",
+        "description": "",
+        "icon": "update"
+      },
+      {
+        "category": "Updates",
+        "title": "Use full-bleed bible_study.png for app icons",
+        "description": "",
+        "icon": "update"
+      },
+      {
+        "category": "Updates",
+        "title": "Import app icons from clojure project and generate platform launcher icons",
+        "description": "",
+        "icon": "update"
+      },
+      {
+        "category": "Updates",
+        "title": "Update app name to Study Bible across all platforms",
+        "description": "",
+        "icon": "update"
+      },
+      {
+        "category": "New Features",
+        "title": "Add full support for Strong's numbers with Dictionary integration",
+        "description": "",
+        "icon": "star"
+      },
+      {
+        "category": "Updates",
+        "title": "Prevent automatic verse selection when clicking footnotes",
+        "description": "",
+        "icon": "update"
+      },
+      {
+        "category": "Updates",
+        "title": "Add installed checkmarks and redownload option to content manager",
+        "description": "",
+        "icon": "update"
+      },
+      {
+        "category": "New Features",
+        "title": "Categorize changelog features by New Features, Updates, and Bugfixes",
+        "description": "",
+        "icon": "star"
+      }
+    ]
+  },
+  {
     "version": "26.6.20+1",
     "date": "2026-06-20",
     "features": [
