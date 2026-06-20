@@ -208,7 +208,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
 
   void _openStrongDictionary(String strongNumber) {
     ref.read(dictionarySearchQueryProvider.notifier).setQuery(strongNumber);
-    if (MediaQuery.sizeOf(context).width > 800) {
+    if (MediaQuery.sizeOf(context).width > 900) {
       ref.read(activeToolProvider.notifier).openTool(ActiveTool.dictionary);
     } else {
       showModalBottomSheet(
@@ -346,7 +346,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
                       onSubmitted: (value) {
                         if (value.isNotEmpty) {
                           ref.read(globalSearchQueryProvider.notifier).setQuery(value);
-                          if (MediaQuery.sizeOf(context).width > 800) {
+                          if (MediaQuery.sizeOf(context).width > 900) {
                             ref.read(activeToolProvider.notifier).openTool(ActiveTool.search);
                             Scaffold.of(context).openEndDrawer();
                           } else {
@@ -414,7 +414,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
               });
             },
           ),
-          if (MediaQuery.sizeOf(context).width <= 800)
+          if (MediaQuery.sizeOf(context).width <= 900)
             Builder(
               builder: (context) => IconButton(
                 icon: const Icon(Icons.build),
@@ -424,7 +424,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
             ),
         ],
       ),
-      endDrawer: MediaQuery.sizeOf(context).width <= 800
+      endDrawer: MediaQuery.sizeOf(context).width <= 900
           ? const MobileToolsDrawer()
           : null,
       body: Column(
@@ -703,31 +703,37 @@ class _BreadcrumbBar extends ConsumerWidget {
       ),
       child: Row(
         children: [
-          InkWell(
-            borderRadius: BorderRadius.circular(4),
-            onTap: onVersionTap,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 2.0),
-              child: Text(
-                versionLabel,
-                style: theme.textTheme.labelMedium?.copyWith(
-                  color: theme.colorScheme.primary,
-                  fontWeight: FontWeight.w600,
+          Flexible(
+            child: InkWell(
+              borderRadius: BorderRadius.circular(4),
+              onTap: onVersionTap,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 2.0),
+                child: Text(
+                  versionLabel,
+                  style: theme.textTheme.labelMedium?.copyWith(
+                    color: theme.colorScheme.primary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ),
           ),
           Icon(Icons.chevron_right, size: 16, color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
-          InkWell(
-            borderRadius: BorderRadius.circular(4),
-            onTap: onBookTap,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 2.0),
-              child: Text(
-                bookName,
-                style: theme.textTheme.labelMedium?.copyWith(
-                  color: theme.colorScheme.primary,
-                  fontWeight: FontWeight.w600,
+          Flexible(
+            child: InkWell(
+              borderRadius: BorderRadius.circular(4),
+              onTap: onBookTap,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 2.0),
+                child: Text(
+                  bookName,
+                  style: theme.textTheme.labelMedium?.copyWith(
+                    color: theme.colorScheme.primary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ),

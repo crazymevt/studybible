@@ -18,7 +18,7 @@ class JournalsPrayersScreen extends ConsumerStatefulWidget {
 class _JournalsPrayersScreenState extends ConsumerState<JournalsPrayersScreen> {
   @override
   Widget build(BuildContext context) {
-    final isDesktop = MediaQuery.sizeOf(context).width > 800;
+    final isDesktop = MediaQuery.sizeOf(context).width > 900;
 
     if (isDesktop) {
       return Scaffold(

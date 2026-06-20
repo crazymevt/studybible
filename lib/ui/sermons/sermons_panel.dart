@@ -92,7 +92,7 @@ class SermonsPanel extends ConsumerWidget {
                         onPressed: () => ref.read(sermonActionProvider).deleteSermon(sermon.id),
                       ),
                       onTap: () {
-                        if (MediaQuery.sizeOf(context).width > 800) {
+                        if (MediaQuery.sizeOf(context).width > 900) {
                           ref.read(selectedSermonIdProvider.notifier).set(sermon.id);
                         } else {
                           Navigator.of(context).push(MaterialPageRoute(
@@ -147,7 +147,7 @@ class SermonsPanel extends ConsumerWidget {
               );
               if (context.mounted) {
                 Navigator.pop(context);
-                if (MediaQuery.sizeOf(context).width > 800) {
+                if (MediaQuery.sizeOf(context).width > 900) {
                   ref.read(selectedSermonIdProvider.notifier).set(sermon.id);
                 } else {
                   Navigator.of(context).push(MaterialPageRoute(

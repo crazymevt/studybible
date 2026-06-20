@@ -82,7 +82,7 @@ class VerseActionBar extends ConsumerWidget {
                 icon: Icons.difference,
                 label: 'Compare',
                 onTap: () {
-                  if (MediaQuery.sizeOf(context).width > 800) {
+                  if (MediaQuery.sizeOf(context).width > 900) {
                     ref
                         .read(activeToolProvider.notifier)
                         .setTool(ActiveTool.compare);

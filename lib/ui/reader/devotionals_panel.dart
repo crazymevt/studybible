@@ -54,7 +54,7 @@ class DevotionalsPanel extends ConsumerWidget {
                 IconButton(
                   icon: const Icon(Icons.close),
                   onPressed: () {
-                    if (MediaQuery.sizeOf(context).width > 800) {
+                    if (MediaQuery.sizeOf(context).width > 900) {
                       ref.read(activeToolProvider.notifier).close();
                     } else {
                       Navigator.of(context).pop();

@@ -86,7 +86,7 @@ class DashboardScreen extends ConsumerWidget {
       drawer: const AppDrawer(),
       body: LayoutBuilder(
         builder: (context, constraints) {
-          final isDesktop = constraints.maxWidth > 800;
+          final isDesktop = constraints.maxWidth > 900;
           return SingleChildScrollView(
             padding: const EdgeInsets.all(24),
             child: Column(

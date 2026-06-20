@@ -89,7 +89,7 @@ class _MainShellState extends ConsumerState<MainShell> {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        if (constraints.maxWidth > 800) {
+        if (constraints.maxWidth > 900) {
           return const _DesktopLayout();
         } else {
           return const ReaderScreen();

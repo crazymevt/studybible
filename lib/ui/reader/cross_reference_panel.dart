@@ -187,7 +187,7 @@ class _CrossReferenceItem extends ConsumerWidget {
                           .recordHistory(verse: xref.targetVerse);
 
                       // Close the panel if on mobile
-                      if (MediaQuery.sizeOf(context).width <= 800) {
+                      if (MediaQuery.sizeOf(context).width <= 900) {
                         Navigator.of(context).pop();
                       }
                     },

@@ -40,7 +40,7 @@ class JournalsListPanel extends ConsumerWidget {
     final journalsAsync = ref.watch(journalsProvider);
     final selectedId = ref.watch(selectedJournalIdProvider);
 
-    final isDesktop = MediaQuery.sizeOf(context).width > 800;
+    final isDesktop = MediaQuery.sizeOf(context).width > 900;
     final selectedDate = ref.watch(selectedJournalDateProvider);
 
     ref.listen<AsyncValue<List<Journal>>>(journalsProvider, (previous, next) {

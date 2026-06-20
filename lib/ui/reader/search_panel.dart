@@ -236,12 +236,12 @@ class SearchResultsList extends ConsumerWidget {
                   ref.read(navigationControllerProvider).recordHistory();
                 }
 
-                if (MediaQuery.sizeOf(context).width <= 800) {
+                if (MediaQuery.sizeOf(context).width <= 900) {
                   Navigator.of(context).pop();
                 }
                 
                 if (item.type == 'note') {
-                  if (MediaQuery.sizeOf(context).width > 800) {
+                  if (MediaQuery.sizeOf(context).width > 900) {
                     ref.read(activeToolProvider.notifier).setTool(ActiveTool.notes);
                   } else {
                     showModalBottomSheet(
@@ -262,7 +262,7 @@ class SearchResultsList extends ConsumerWidget {
                 }
               }
             } else if (item.type == 'sermon') {
-              if (MediaQuery.sizeOf(context).width <= 800) {
+              if (MediaQuery.sizeOf(context).width <= 900) {
                 Navigator.of(context).pop();
                 Navigator.of(context).push(MaterialPageRoute(
                   builder: (_) => SermonEditorScreen(sermonId: item.referenceId, isFullScreen: true),
@@ -275,7 +275,7 @@ class SearchResultsList extends ConsumerWidget {
               ref
                   .read(dictionarySearchQueryProvider.notifier)
                   .setQuery(item.title);
-              if (MediaQuery.sizeOf(context).width <= 800) {
+              if (MediaQuery.sizeOf(context).width <= 900) {
                 Navigator.of(context).pop();
                 showModalBottomSheet(
                   context: context,
@@ -296,12 +296,12 @@ class SearchResultsList extends ConsumerWidget {
               }
             } else if (item.type == 'journal') {
               ref.read(selectedJournalIdProvider.notifier).setId(item.referenceId);
-              if (MediaQuery.sizeOf(context).width <= 800) {
+              if (MediaQuery.sizeOf(context).width <= 900) {
                 Navigator.of(context).pop();
               }
               ref.read(appModuleProvider.notifier).setModule(AppModule.journalsPrayers);
             } else if (item.type == 'prayer') {
-              if (MediaQuery.sizeOf(context).width <= 800) {
+              if (MediaQuery.sizeOf(context).width <= 900) {
                 Navigator.of(context).pop();
               }
               ref.read(appModuleProvider.notifier).setModule(AppModule.journalsPrayers);
@@ -313,7 +313,7 @@ class SearchResultsList extends ConsumerWidget {
                 }
                 ref.read(navigationControllerProvider).recordHistory();
               }
-              if (MediaQuery.sizeOf(context).width <= 800) {
+              if (MediaQuery.sizeOf(context).width <= 900) {
                 Navigator.of(context).pop();
                 showModalBottomSheet(
                   context: context,
@@ -399,7 +399,7 @@ class GroupedSearchResultsList extends ConsumerWidget {
                   ref
                       .read(dictionarySearchQueryProvider.notifier)
                       .setQuery(item.title);
-                  if (MediaQuery.sizeOf(context).width <= 800) {
+                  if (MediaQuery.sizeOf(context).width <= 900) {
                     Navigator.of(context).pop();
                     showModalBottomSheet(
                       context: context,
@@ -429,7 +429,7 @@ class GroupedSearchResultsList extends ConsumerWidget {
                       ref.read(navigationControllerProvider).recordHistory();
                     }
                   }
-                  if (MediaQuery.sizeOf(context).width <= 800) {
+                  if (MediaQuery.sizeOf(context).width <= 900) {
                     Navigator.of(context).pop();
                     showModalBottomSheet(
                       context: context,

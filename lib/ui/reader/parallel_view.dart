@@ -112,7 +112,7 @@ class _ParallelViewState extends ConsumerState<ParallelView> {
 
     if (result == 'dictionary') {
       ref.read(dictionarySearchQueryProvider.notifier).setQuery(word);
-      if (MediaQuery.sizeOf(context).width > 800) {
+      if (MediaQuery.sizeOf(context).width > 900) {
         ref.read(activeToolProvider.notifier).openTool(ActiveTool.dictionary);
       } else {
         showModalBottomSheet(

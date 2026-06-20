@@ -94,7 +94,7 @@ class HistoryPanel extends ConsumerWidget {
                         }
 
                         ref.read(activeToolProvider.notifier).close();
-                        if (MediaQuery.sizeOf(context).width <= 800) {
+                        if (MediaQuery.sizeOf(context).width <= 900) {
                           Navigator.of(context).pop();
                         }
                       },
