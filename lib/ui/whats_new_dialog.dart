@@ -22,6 +22,12 @@ class WhatsNewDialog extends StatelessWidget {
         return Icons.local_fire_department;
       case 'favorite':
         return Icons.favorite;
+      case 'star':
+        return Icons.star;
+      case 'bug_report':
+        return Icons.bug_report;
+      case 'update':
+        return Icons.update;
       case 'new_releases':
       default:
         return Icons.new_releases;
@@ -59,6 +65,24 @@ class WhatsNewDialog extends StatelessWidget {
         final features = latestRelease['features'] as List<dynamic>;
         final releaseVersion = latestRelease['version'] ?? appVersion;
 
+        // Group features by category
+        final Map<String, List<dynamic>> groupedFeatures = {};
+        for (final feature in features) {
+          final category = feature['category'] ?? 'Updates';
+          groupedFeatures.putIfAbsent(category, () => []).add(feature);
+        }
+
+        // Sort categories logically: New Features, Updates, Bugfixes, then others
+        final sortedCategories = groupedFeatures.keys.toList()..sort((a, b) {
+          int getWeight(String cat) {
+            if (cat == 'New Features') return 0;
+            if (cat == 'Updates') return 1;
+            if (cat == 'Bugfixes') return 2;
+            return 3;
+          }
+          return getWeight(a).compareTo(getWeight(b));
+        });
+
         return AlertDialog(
           title: Row(
             children: [
@@ -71,13 +95,28 @@ class WhatsNewDialog extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: features.map((feature) {
-                return _buildFeature(
-                  context,
-                  icon: _getIconData(feature['icon'] ?? 'new_releases'),
-                  title: feature['title'] ?? '',
-                  description: feature['description'] ?? '',
-                );
+              children: sortedCategories.expand((category) {
+                final catFeatures = groupedFeatures[category]!;
+                return [
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8.0, bottom: 12.0),
+                    child: Text(
+                      category,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: Theme.of(context).colorScheme.primary,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                  ),
+                  ...catFeatures.map((feature) {
+                    return _buildFeature(
+                      context,
+                      icon: _getIconData(feature['icon'] ?? 'new_releases'),
+                      title: feature['title'] ?? '',
+                      description: feature['description'] ?? '',
+                    );
+                  }).toList(),
+                ];
               }).toList(),
             ),
           ),
@@ -99,12 +138,12 @@ class WhatsNewDialog extends StatelessWidget {
     required String description,
   }) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16.0),
+      padding: const EdgeInsets.only(bottom: 12.0, left: 8.0),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 28, color: Theme.of(context).colorScheme.primary),
-          const SizedBox(width: 16),
+          Icon(icon, size: 20, color: Theme.of(context).colorScheme.onSurfaceVariant),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -112,12 +151,12 @@ class WhatsNewDialog extends StatelessWidget {
                 if (title.isNotEmpty)
                   Text(
                     title,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 if (title.isNotEmpty && description.isNotEmpty)
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 2),
                 if (description.isNotEmpty)
                   Text(
                     description,

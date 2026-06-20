@@ -3,7 +3,12 @@ import 'dart:convert';
 
 void main() async {
   // Read commits from stdin
-  final commitsStr = stdin.readAsStringSync();
+  String commitsStr = '';
+  String? line;
+  while ((line = stdin.readLineSync(encoding: utf8)) != null) {
+    commitsStr += line! + '\n';
+  }
+  
   final List<String> commits = commitsStr
       .split('\n')
       .map((s) => s.trim())
@@ -63,10 +68,43 @@ const int buildNumber = $buildNumber;
     }
   }
   
-  final features = commits.map((c) => {
-    "title": c,
-    "description": "",
-    "icon": "new_releases"
+  final features = commits.map((c) {
+    String category = 'Updates';
+    String icon = 'update';
+    String title = c;
+    
+    final lowerC = c.toLowerCase();
+    if (lowerC.startsWith('feat:') || lowerC.startsWith('feat ')) {
+      category = 'New Features';
+      icon = 'star';
+      title = c.substring(c.indexOf(':') + 1).trim();
+    } else if (lowerC.startsWith('fix:') || lowerC.startsWith('fix ')) {
+      category = 'Bugfixes';
+      icon = 'bug_report';
+      title = c.substring(c.indexOf(':') + 1).trim();
+    } else if (lowerC.startsWith('update:') || lowerC.startsWith('refactor:')) {
+      category = 'Updates';
+      icon = 'update';
+      title = c.substring(c.indexOf(':') + 1).trim();
+    }
+    
+    // Fallback if no colon was used but the word exists
+    if (title == c) {
+      if (lowerC.startsWith('add ') || lowerC.startsWith('implement ')) {
+        category = 'New Features';
+        icon = 'star';
+      } else if (lowerC.startsWith('fix ') || lowerC.startsWith('resolve ')) {
+        category = 'Bugfixes';
+        icon = 'bug_report';
+      }
+    }
+
+    return {
+      "category": category,
+      "title": title,
+      "description": "",
+      "icon": icon
+    };
   }).toList();
   
   final newRelease = {
