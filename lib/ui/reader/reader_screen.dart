@@ -4,6 +4,7 @@ import '../../app/content_providers.dart';
 import '../../app/reader_state.dart';
 import '../../app/user_providers.dart';
 import '../../app/tag_providers.dart';
+import '../../app/search_providers.dart';
 import '../../app/sync_service.dart';
 import 'verse_list_view.dart';
 import 'flowing_paragraph_view.dart';
@@ -294,10 +295,65 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
       child: Scaffold(
         drawer: const AppDrawer(),
         appBar: AppBar(
-          title: MediaQuery.sizeOf(context).width > 800
-              ? const AudioPlayerWidget()
-              : null,
+          centerTitle: true,
+          title: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 400),
+            child: Container(
+              height: 40,
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Row(
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 12.0),
+                    child: Icon(Icons.search, size: 20, color: Colors.grey),
+                  ),
+                  Expanded(
+                    child: TextField(
+                      decoration: const InputDecoration(
+                        hintText: 'Search entire library...',
+                        border: InputBorder.none,
+                        isDense: true,
+                        contentPadding: EdgeInsets.symmetric(vertical: 10),
+                      ),
+                      onSubmitted: (value) {
+                        if (value.isNotEmpty) {
+                          ref.read(globalSearchQueryProvider.notifier).setQuery(value);
+                          if (MediaQuery.sizeOf(context).width > 800) {
+                            ref.read(activeToolProvider.notifier).openTool(ActiveTool.search);
+                            Scaffold.of(context).openEndDrawer();
+                          } else {
+                            Scaffold.of(context).openEndDrawer();
+                            Future.delayed(const Duration(milliseconds: 100), () {
+                              ref.read(activeToolProvider.notifier).openTool(ActiveTool.search);
+                            });
+                          }
+                        }
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
           actions: [
+            IconButton(
+              icon: const Icon(Icons.headphones),
+              tooltip: 'Audio Player',
+              onPressed: () {
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  backgroundColor: Theme.of(context).colorScheme.surface,
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                  ),
+                  builder: (context) => const AudioPlayerWidget(),
+                );
+              },
+            ),
           IconButton(
             icon: const Icon(Icons.sync),
             tooltip: 'Sync Data',
