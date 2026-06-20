@@ -1,51 +1,94 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../app/version.dart';
 
 class WhatsNewDialog extends StatelessWidget {
   const WhatsNewDialog({super.key});
 
+  Future<List<Map<String, dynamic>>> _loadChangelog() async {
+    final String response = await rootBundle.loadString('assets/changelog.json');
+    final List<dynamic> data = json.decode(response);
+    return data.cast<Map<String, dynamic>>();
+  }
+
+  IconData _getIconData(String iconName) {
+    switch (iconName) {
+      case 'track_changes':
+        return Icons.track_changes;
+      case 'brightness_6':
+        return Icons.brightness_6;
+      case 'local_fire_department':
+        return Icons.local_fire_department;
+      case 'favorite':
+        return Icons.favorite;
+      case 'new_releases':
+      default:
+        return Icons.new_releases;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      title: Row(
-        children: [
-          const Icon(Icons.new_releases, color: Colors.blue),
-          const SizedBox(width: 12),
-          Text("What's New in $appVersion"),
-        ],
-      ),
-      content: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildFeature(
-              context,
-              icon: Icons.track_changes,
-              title: "Global Version Tracking",
-              description: "App version is now prominently tracked and displayed in the drawer.",
+    return FutureBuilder<List<Map<String, dynamic>>>(
+      future: _loadChangelog(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const AlertDialog(
+            content: SizedBox(
+              height: 100,
+              child: Center(child: CircularProgressIndicator()),
             ),
-            _buildFeature(
-              context,
-              icon: Icons.brightness_6,
-              title: "Theme Switcher",
-              description: "Easily toggle between light, dark, and system default themes straight from the App Drawer.",
+          );
+        }
+
+        if (snapshot.hasError || !snapshot.hasData || snapshot.data!.isEmpty) {
+          return AlertDialog(
+            title: const Text("What's New"),
+            content: const Text("No release notes found."),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        }
+
+        final latestRelease = snapshot.data!.first;
+        final features = latestRelease['features'] as List<dynamic>;
+        final releaseVersion = latestRelease['version'] ?? appVersion;
+
+        return AlertDialog(
+          title: Row(
+            children: [
+              const Icon(Icons.new_releases, color: Colors.blue),
+              const SizedBox(width: 12),
+              Text("What's New in $releaseVersion"),
+            ],
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: features.map((feature) {
+                return _buildFeature(
+                  context,
+                  icon: _getIconData(feature['icon'] ?? 'new_releases'),
+                  title: feature['title'] ?? '',
+                  description: feature['description'] ?? '',
+                );
+              }).toList(),
             ),
-            _buildFeature(
-              context,
-              icon: Icons.local_fire_department,
-              title: "Fixed Streak Calculations",
-              description: "Reading verses with the time tracker now correctly contributes to your daily streaks!",
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Awesome!'),
             ),
           ],
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Awesome!'),
-        ),
-      ],
+        );
+      },
     );
   }
 
@@ -66,17 +109,20 @@ class WhatsNewDialog extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  title,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
+                if (title.isNotEmpty)
+                  Text(
+                    title,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  description,
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
+                if (title.isNotEmpty && description.isNotEmpty)
+                  const SizedBox(height: 4),
+                if (description.isNotEmpty)
+                  Text(
+                    description,
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
               ],
             ),
           ),
