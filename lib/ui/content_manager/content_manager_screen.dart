@@ -56,35 +56,152 @@ class _ContentManagerScreenState extends ConsumerState<ContentManagerScreen>
 
   Widget _buildInstalledTab() {
     final versionsAsync = ref.watch(versionsProvider);
-    return versionsAsync.when(
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (err, _) => Center(child: Text('Error: $err')),
-      data: (versions) {
-        if (versions.isEmpty)
-          return const Center(child: Text('No versions installed.'));
-        return ListView.builder(
-          itemCount: versions.length,
-          itemBuilder: (context, index) {
-            final v = versions[index];
-            return ListTile(
-              title: Text(v.name),
-              subtitle: Text(v.id),
-              trailing: IconButton(
-                icon: const Icon(Icons.delete, color: Colors.red),
-                onPressed: () async {
-                  await ref.read(contentStoreProvider).deleteVersion(v.id);
-                  ref.invalidate(versionsProvider);
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Deleted ${v.name}')),
-                    );
-                  }
-                },
-              ),
-            );
-          },
-        );
-      },
+    final commentariesAsync = ref.watch(commentariesProvider);
+    final dictionariesAsync = ref.watch(dictionariesProvider);
+    final devotionalsAsync = ref.watch(devotionalsProvider);
+    final bibleVersionsAsync = ref.watch(bibleVersionsProvider);
+    final subheadingSourcesAsync = ref.watch(subheadingSourcesProvider);
+
+    if (versionsAsync.isLoading || commentariesAsync.isLoading || dictionariesAsync.isLoading || devotionalsAsync.isLoading || bibleVersionsAsync.isLoading || subheadingSourcesAsync.isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (versionsAsync.hasError) return Center(child: Text('Error: ${versionsAsync.error}'));
+    if (commentariesAsync.hasError) return Center(child: Text('Error: ${commentariesAsync.error}'));
+    if (dictionariesAsync.hasError) return Center(child: Text('Error: ${dictionariesAsync.error}'));
+    if (devotionalsAsync.hasError) return Center(child: Text('Error: ${devotionalsAsync.error}'));
+
+    final versions = versionsAsync.value ?? [];
+    final commentaries = commentariesAsync.value ?? [];
+    final dictionaries = dictionariesAsync.value ?? [];
+    final devotionals = devotionalsAsync.value ?? [];
+    
+    final bibleVersionIds = (bibleVersionsAsync.value ?? []).map((v) => v.id).toSet();
+    final subheadingSourceIds = (subheadingSourcesAsync.value ?? []).map((v) => v.id).toSet();
+
+    final bibles = versions.where((v) => bibleVersionIds.contains(v.id)).toList();
+    final subheadings = versions.where((v) => subheadingSourceIds.contains(v.id) && !bibleVersionIds.contains(v.id)).toList();
+
+    if (versions.isEmpty && commentaries.isEmpty && dictionaries.isEmpty && devotionals.isEmpty) {
+      return const Center(child: Text('No content installed.'));
+    }
+
+    return ListView(
+      children: [
+        if (bibles.isNotEmpty) ...[
+          const Padding(
+            padding: EdgeInsets.all(16.0),
+            child: Text('Bibles', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+          ),
+          ...bibles.map((v) => ListTile(
+            title: Text(v.name),
+            subtitle: Text(v.id),
+            trailing: IconButton(
+              icon: const Icon(Icons.delete, color: Colors.red),
+              tooltip: 'Delete ${v.name}',
+              onPressed: () async {
+                await ref.read(contentStoreProvider).deleteVersion(v.id);
+                ref.invalidate(versionsProvider);
+                ref.invalidate(bibleVersionsProvider);
+                ref.invalidate(subheadingSourcesProvider);
+                ref.invalidate(installedModuleIdsProvider);
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Deleted ${v.name}')));
+                }
+              },
+            ),
+          )),
+        ],
+        if (subheadings.isNotEmpty) ...[
+          const Padding(
+            padding: EdgeInsets.all(16.0),
+            child: Text('Subheadings', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+          ),
+          ...subheadings.map((v) => ListTile(
+            title: Text(v.name),
+            subtitle: Text(v.id),
+            trailing: IconButton(
+              icon: const Icon(Icons.delete, color: Colors.red),
+              tooltip: 'Delete ${v.name}',
+              onPressed: () async {
+                await ref.read(contentStoreProvider).deleteVersion(v.id);
+                ref.invalidate(versionsProvider);
+                ref.invalidate(subheadingSourcesProvider);
+                ref.invalidate(installedModuleIdsProvider);
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Deleted ${v.name}')));
+                }
+              },
+            ),
+          )),
+        ],
+        if (commentaries.isNotEmpty) ...[
+          const Padding(
+            padding: EdgeInsets.all(16.0),
+            child: Text('Commentaries', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+          ),
+          ...commentaries.map((c) => ListTile(
+            title: Text(c.abbreviation),
+            subtitle: const Text('Commentary'),
+            trailing: IconButton(
+              icon: const Icon(Icons.delete, color: Colors.red),
+              tooltip: 'Delete ${c.abbreviation}',
+              onPressed: () async {
+                await ref.read(contentStoreProvider).deleteCommentary(c.id);
+                ref.invalidate(commentariesProvider);
+                ref.invalidate(installedModuleIdsProvider);
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Deleted ${c.abbreviation}')));
+                }
+              },
+            ),
+          )),
+        ],
+        if (dictionaries.isNotEmpty) ...[
+          const Padding(
+            padding: EdgeInsets.all(16.0),
+            child: Text('Dictionaries', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+          ),
+          ...dictionaries.map((d) => ListTile(
+            title: Text(d.abbreviation),
+            subtitle: const Text('Dictionary'),
+            trailing: IconButton(
+              icon: const Icon(Icons.delete, color: Colors.red),
+              tooltip: 'Delete ${d.abbreviation}',
+              onPressed: () async {
+                await ref.read(contentStoreProvider).deleteDictionary(d.id);
+                ref.invalidate(dictionariesProvider);
+                ref.invalidate(installedModuleIdsProvider);
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Deleted ${d.abbreviation}')));
+                }
+              },
+            ),
+          )),
+        ],
+        if (devotionals.isNotEmpty) ...[
+          const Padding(
+            padding: EdgeInsets.all(16.0),
+            child: Text('Devotionals', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+          ),
+          ...devotionals.map((d) => ListTile(
+            title: Text(d.name),
+            subtitle: Text(d.abbreviation),
+            trailing: IconButton(
+              icon: const Icon(Icons.delete, color: Colors.red),
+              tooltip: 'Delete ${d.abbreviation}',
+              onPressed: () async {
+                await ref.read(contentStoreProvider).deleteDevotional(d.id);
+                ref.invalidate(devotionalsProvider);
+                ref.invalidate(installedModuleIdsProvider);
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Deleted ${d.abbreviation}')));
+                }
+              },
+            ),
+          )),
+        ],
+      ],
     );
   }
 

@@ -10,6 +10,7 @@ import 'reader/search_panel.dart';
 import 'reader/history_panel.dart';
 import 'reader/media_panel.dart';
 import 'reader/compare_panel.dart';
+import 'reader/devotionals_panel.dart';
 import '../ui/sermons/sermons_panel.dart';
 import '../app/reader_state.dart';
 import 'journals/journals_prayers_screen.dart';
@@ -146,6 +147,8 @@ class _DesktopLayout extends ConsumerWidget {
                         }
                         if (activeTool == ActiveTool.readingPlans)
                           return const ReadingPlanPanel();
+                        if (activeTool == ActiveTool.devotionals)
+                          return const DevotionalsPanel();
                         return const SizedBox.shrink();
                       },
                     ),
@@ -222,6 +225,13 @@ class _DesktopLayout extends ConsumerWidget {
                 ),
                 label: Text('Sermons'),
               ),
+              NavigationRailDestination(
+                icon: Tooltip(
+                  message: 'Devotionals',
+                  child: Icon(Icons.calendar_today),
+                ),
+                label: Text('Devotionals'),
+              ),
             ],
             selectedIndex: _getSelectedIndex(activeTool),
             onDestinationSelected: (index) {
@@ -256,6 +266,8 @@ class _DesktopLayout extends ConsumerWidget {
         return 8;
       case ActiveTool.sermons:
         return 9;
+      case ActiveTool.devotionals:
+        return 10;
       case ActiveTool.none:
       case ActiveTool.compare:
         return null;
@@ -284,6 +296,8 @@ class _DesktopLayout extends ConsumerWidget {
         return ActiveTool.readingPlans;
       case 9:
         return ActiveTool.sermons;
+      case 10:
+        return ActiveTool.devotionals;
       default:
         return ActiveTool.none;
     }

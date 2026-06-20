@@ -84,3 +84,18 @@ class Subheadings extends Table {
   IntColumn get orderIfSeveral => integer().withDefault(const Constant(0))();
   TextColumn get textContent => text()();
 }
+
+@DataClassName('Devotional')
+class Devotionals extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get abbreviation => text()();
+  TextColumn get name => text()();
+}
+
+@DataClassName('DevotionalEntry')
+class DevotionalEntries extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get devotionalId => integer().references(Devotionals, #id)();
+  IntColumn get day => integer()();
+  TextColumn get textContent => text()();
+}

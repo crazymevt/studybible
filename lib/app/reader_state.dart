@@ -139,3 +139,38 @@ final selectedCommentaryProvider =
     NotifierProvider<SelectedCommentaryNotifier, int?>(
       () => SelectedCommentaryNotifier(),
     );
+
+class SelectedDevotionalIdNotifier extends Notifier<int?> {
+  @override
+  int? build() {
+    return null;
+  }
+  
+  void set(int? id) => state = id;
+}
+
+final selectedDevotionalIdProvider = NotifierProvider<SelectedDevotionalIdNotifier, int?>(
+  () => SelectedDevotionalIdNotifier(),
+);
+
+class SelectedDevotionalDayNotifier extends Notifier<int> {
+  @override
+  int build() {
+    return _getToday();
+  }
+  
+  int _getToday() {
+    final now = DateTime.now();
+    final firstDayOfYear = DateTime(now.year, 1, 1);
+    return now.difference(firstDayOfYear).inDays + 1;
+  }
+  
+  void increment() => state++;
+  void decrement() => state--;
+  void set(int day) => state = day;
+  void setToday() => state = _getToday();
+}
+
+final selectedDevotionalDayProvider = NotifierProvider<SelectedDevotionalDayNotifier, int>(
+  () => SelectedDevotionalDayNotifier(),
+);

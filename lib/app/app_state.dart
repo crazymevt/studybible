@@ -15,6 +15,7 @@ enum ActiveTool {
   readingPlans,
   compare,
   sermons,
+  devotionals,
 }
 
 class ActiveToolNotifier extends Notifier<ActiveTool> {

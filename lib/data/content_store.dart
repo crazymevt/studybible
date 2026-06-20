@@ -19,13 +19,15 @@ part 'content_store.g.dart';
     Dictionaries,
     DictionaryEntries,
     Subheadings,
+    Devotionals,
+    DevotionalEntries,
   ],
 )
 class ContentStore extends _$ContentStore {
   ContentStore([QueryExecutor? e]) : super(e ?? _openConnection());
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration {
@@ -48,6 +50,10 @@ class ContentStore extends _$ContentStore {
           await customStatement('DELETE FROM commentary_entries WHERE commentary_id NOT IN (SELECT id FROM commentaries)');
           await customStatement('DELETE FROM dictionaries WHERE id NOT IN (SELECT MAX(id) FROM dictionaries GROUP BY abbreviation)');
           await customStatement('DELETE FROM dictionary_entries WHERE dictionary_id NOT IN (SELECT id FROM dictionaries)');
+        }
+        if (from < 4) {
+          await m.createTable(devotionals);
+          await m.createTable(devotionalEntries);
         }
       },
     );
@@ -95,6 +101,19 @@ class ContentStore extends _$ContentStore {
         dictionaryEntries,
       )..where((d) => d.dictionaryId.equals(id))).go();
       await (delete(dictionaries)..where((d) => d.id.equals(id))).go();
+    });
+  }
+
+  Future<void> deleteDevotional(int id) async {
+    await transaction(() async {
+      await customStatement(
+        "DELETE FROM content_search WHERE type='devotional' AND reference_id IN (SELECT id FROM devotional_entries WHERE devotional_id = ?)",
+        [id],
+      );
+      await (delete(
+        devotionalEntries,
+      )..where((d) => d.devotionalId.equals(id))).go();
+      await (delete(devotionals)..where((d) => d.id.equals(id))).go();
     });
   }
 }

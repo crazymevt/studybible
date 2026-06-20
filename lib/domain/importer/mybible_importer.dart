@@ -30,6 +30,9 @@ class MyBibleImporter {
       case ModuleType.dictionary:
         await _importDictionary(sqliteFile, module);
         break;
+      case ModuleType.devotional:
+        await _importDevotional(sqliteFile, module);
+        break;
       default:
         print(
           'Skipping unsupported module file type: $inferredType for ${sqliteFile.path}',
@@ -404,6 +407,59 @@ class MyBibleImporter {
         WHERE dictionary_id = ?
       ''',
         [dictionaryId],
+      );
+    } finally {
+      db.dispose();
+    }
+  }
+
+  Future<void> _importDevotional(File sqliteFile, Ph4Module module) async {
+    final db = sqlite3.open(sqliteFile.path);
+
+    try {
+      final existing = await (store.select(store.devotionals)..where((d) => d.abbreviation.equals(module.abbr))).get();
+      for (final e in existing) {
+        await store.deleteDevotional(e.id);
+      }
+
+      final devotionalId = await store
+          .into(store.devotionals)
+          .insert(
+            DevotionalsCompanion.insert(
+              abbreviation: module.abbr,
+              name: module.title,
+            ),
+          );
+
+      final entriesQuery = db.select(
+        'SELECT day, devotion FROM devotions ORDER BY day',
+      );
+
+      await store.batch((batch) {
+        for (final row in entriesQuery) {
+          final day = row['day'] != null ? num.parse(row['day'].toString()).toInt() : 0;
+          final devotion = row['devotion']?.toString() ?? '';
+
+          batch.insert(
+            store.devotionalEntries,
+            DevotionalEntriesCompanion.insert(
+              devotionalId: devotionalId,
+              day: day,
+              textContent: devotion,
+            ),
+          );
+        }
+      });
+
+      // Update FTS5 index for this devotional
+      await store.customStatement(
+        '''
+        INSERT INTO content_search(type, reference_id, text_content)
+        SELECT 'devotional', id, text_content
+        FROM devotional_entries
+        WHERE devotional_id = ?
+      ''',
+        [devotionalId],
       );
     } finally {
       db.dispose();

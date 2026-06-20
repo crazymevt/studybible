@@ -39,6 +39,7 @@ final installedModuleIdsProvider = FutureProvider<Set<String>>((ref) async {
   final versions = await store.select(store.versions).get();
   final commentaries = await store.select(store.commentaries).get();
   final dictionaries = await store.select(store.dictionaries).get();
+  final devotionals = await store.select(store.devotionals).get();
   
   final set = <String>{};
   for (final v in versions) {
@@ -50,6 +51,9 @@ final installedModuleIdsProvider = FutureProvider<Set<String>>((ref) async {
   }
   for (final d in dictionaries) {
     set.add(d.abbreviation.toUpperCase());
+  }
+  for (final dv in devotionals) {
+    set.add(dv.abbreviation.toUpperCase());
   }
   return set;
 });
@@ -286,6 +290,16 @@ final navigationControllerProvider = Provider(
 final commentariesProvider = FutureProvider<List<Commentary>>((ref) {
   final store = ref.watch(contentStoreProvider);
   return store.select(store.commentaries).get();
+});
+
+final dictionariesProvider = FutureProvider<List<Dictionary>>((ref) {
+  final store = ref.watch(contentStoreProvider);
+  return store.select(store.dictionaries).get();
+});
+
+final devotionalsProvider = FutureProvider<List<Devotional>>((ref) {
+  final store = ref.watch(contentStoreProvider);
+  return store.select(store.devotionals).get();
 });
 
 class ShowBookIntroNotifier extends Notifier<bool> {

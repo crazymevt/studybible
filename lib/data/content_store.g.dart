@@ -3244,6 +3244,571 @@ class SubheadingsCompanion extends UpdateCompanion<Subheading> {
   }
 }
 
+class $DevotionalsTable extends Devotionals
+    with TableInfo<$DevotionalsTable, Devotional> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $DevotionalsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _abbreviationMeta = const VerificationMeta(
+    'abbreviation',
+  );
+  @override
+  late final GeneratedColumn<String> abbreviation = GeneratedColumn<String>(
+    'abbreviation',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, abbreviation, name];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'devotionals';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<Devotional> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('abbreviation')) {
+      context.handle(
+        _abbreviationMeta,
+        abbreviation.isAcceptableOrUnknown(
+          data['abbreviation']!,
+          _abbreviationMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_abbreviationMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  Devotional map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return Devotional(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      abbreviation: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}abbreviation'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+    );
+  }
+
+  @override
+  $DevotionalsTable createAlias(String alias) {
+    return $DevotionalsTable(attachedDatabase, alias);
+  }
+}
+
+class Devotional extends DataClass implements Insertable<Devotional> {
+  final int id;
+  final String abbreviation;
+  final String name;
+  const Devotional({
+    required this.id,
+    required this.abbreviation,
+    required this.name,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['abbreviation'] = Variable<String>(abbreviation);
+    map['name'] = Variable<String>(name);
+    return map;
+  }
+
+  DevotionalsCompanion toCompanion(bool nullToAbsent) {
+    return DevotionalsCompanion(
+      id: Value(id),
+      abbreviation: Value(abbreviation),
+      name: Value(name),
+    );
+  }
+
+  factory Devotional.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return Devotional(
+      id: serializer.fromJson<int>(json['id']),
+      abbreviation: serializer.fromJson<String>(json['abbreviation']),
+      name: serializer.fromJson<String>(json['name']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'abbreviation': serializer.toJson<String>(abbreviation),
+      'name': serializer.toJson<String>(name),
+    };
+  }
+
+  Devotional copyWith({int? id, String? abbreviation, String? name}) =>
+      Devotional(
+        id: id ?? this.id,
+        abbreviation: abbreviation ?? this.abbreviation,
+        name: name ?? this.name,
+      );
+  Devotional copyWithCompanion(DevotionalsCompanion data) {
+    return Devotional(
+      id: data.id.present ? data.id.value : this.id,
+      abbreviation: data.abbreviation.present
+          ? data.abbreviation.value
+          : this.abbreviation,
+      name: data.name.present ? data.name.value : this.name,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('Devotional(')
+          ..write('id: $id, ')
+          ..write('abbreviation: $abbreviation, ')
+          ..write('name: $name')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, abbreviation, name);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is Devotional &&
+          other.id == this.id &&
+          other.abbreviation == this.abbreviation &&
+          other.name == this.name);
+}
+
+class DevotionalsCompanion extends UpdateCompanion<Devotional> {
+  final Value<int> id;
+  final Value<String> abbreviation;
+  final Value<String> name;
+  const DevotionalsCompanion({
+    this.id = const Value.absent(),
+    this.abbreviation = const Value.absent(),
+    this.name = const Value.absent(),
+  });
+  DevotionalsCompanion.insert({
+    this.id = const Value.absent(),
+    required String abbreviation,
+    required String name,
+  }) : abbreviation = Value(abbreviation),
+       name = Value(name);
+  static Insertable<Devotional> custom({
+    Expression<int>? id,
+    Expression<String>? abbreviation,
+    Expression<String>? name,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (abbreviation != null) 'abbreviation': abbreviation,
+      if (name != null) 'name': name,
+    });
+  }
+
+  DevotionalsCompanion copyWith({
+    Value<int>? id,
+    Value<String>? abbreviation,
+    Value<String>? name,
+  }) {
+    return DevotionalsCompanion(
+      id: id ?? this.id,
+      abbreviation: abbreviation ?? this.abbreviation,
+      name: name ?? this.name,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (abbreviation.present) {
+      map['abbreviation'] = Variable<String>(abbreviation.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DevotionalsCompanion(')
+          ..write('id: $id, ')
+          ..write('abbreviation: $abbreviation, ')
+          ..write('name: $name')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $DevotionalEntriesTable extends DevotionalEntries
+    with TableInfo<$DevotionalEntriesTable, DevotionalEntry> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $DevotionalEntriesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _devotionalIdMeta = const VerificationMeta(
+    'devotionalId',
+  );
+  @override
+  late final GeneratedColumn<int> devotionalId = GeneratedColumn<int>(
+    'devotional_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES devotionals (id)',
+    ),
+  );
+  static const VerificationMeta _dayMeta = const VerificationMeta('day');
+  @override
+  late final GeneratedColumn<int> day = GeneratedColumn<int>(
+    'day',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _textContentMeta = const VerificationMeta(
+    'textContent',
+  );
+  @override
+  late final GeneratedColumn<String> textContent = GeneratedColumn<String>(
+    'text_content',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, devotionalId, day, textContent];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'devotional_entries';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<DevotionalEntry> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('devotional_id')) {
+      context.handle(
+        _devotionalIdMeta,
+        devotionalId.isAcceptableOrUnknown(
+          data['devotional_id']!,
+          _devotionalIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_devotionalIdMeta);
+    }
+    if (data.containsKey('day')) {
+      context.handle(
+        _dayMeta,
+        day.isAcceptableOrUnknown(data['day']!, _dayMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_dayMeta);
+    }
+    if (data.containsKey('text_content')) {
+      context.handle(
+        _textContentMeta,
+        textContent.isAcceptableOrUnknown(
+          data['text_content']!,
+          _textContentMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_textContentMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  DevotionalEntry map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return DevotionalEntry(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      devotionalId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}devotional_id'],
+      )!,
+      day: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}day'],
+      )!,
+      textContent: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}text_content'],
+      )!,
+    );
+  }
+
+  @override
+  $DevotionalEntriesTable createAlias(String alias) {
+    return $DevotionalEntriesTable(attachedDatabase, alias);
+  }
+}
+
+class DevotionalEntry extends DataClass implements Insertable<DevotionalEntry> {
+  final int id;
+  final int devotionalId;
+  final int day;
+  final String textContent;
+  const DevotionalEntry({
+    required this.id,
+    required this.devotionalId,
+    required this.day,
+    required this.textContent,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['devotional_id'] = Variable<int>(devotionalId);
+    map['day'] = Variable<int>(day);
+    map['text_content'] = Variable<String>(textContent);
+    return map;
+  }
+
+  DevotionalEntriesCompanion toCompanion(bool nullToAbsent) {
+    return DevotionalEntriesCompanion(
+      id: Value(id),
+      devotionalId: Value(devotionalId),
+      day: Value(day),
+      textContent: Value(textContent),
+    );
+  }
+
+  factory DevotionalEntry.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return DevotionalEntry(
+      id: serializer.fromJson<int>(json['id']),
+      devotionalId: serializer.fromJson<int>(json['devotionalId']),
+      day: serializer.fromJson<int>(json['day']),
+      textContent: serializer.fromJson<String>(json['textContent']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'devotionalId': serializer.toJson<int>(devotionalId),
+      'day': serializer.toJson<int>(day),
+      'textContent': serializer.toJson<String>(textContent),
+    };
+  }
+
+  DevotionalEntry copyWith({
+    int? id,
+    int? devotionalId,
+    int? day,
+    String? textContent,
+  }) => DevotionalEntry(
+    id: id ?? this.id,
+    devotionalId: devotionalId ?? this.devotionalId,
+    day: day ?? this.day,
+    textContent: textContent ?? this.textContent,
+  );
+  DevotionalEntry copyWithCompanion(DevotionalEntriesCompanion data) {
+    return DevotionalEntry(
+      id: data.id.present ? data.id.value : this.id,
+      devotionalId: data.devotionalId.present
+          ? data.devotionalId.value
+          : this.devotionalId,
+      day: data.day.present ? data.day.value : this.day,
+      textContent: data.textContent.present
+          ? data.textContent.value
+          : this.textContent,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DevotionalEntry(')
+          ..write('id: $id, ')
+          ..write('devotionalId: $devotionalId, ')
+          ..write('day: $day, ')
+          ..write('textContent: $textContent')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, devotionalId, day, textContent);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is DevotionalEntry &&
+          other.id == this.id &&
+          other.devotionalId == this.devotionalId &&
+          other.day == this.day &&
+          other.textContent == this.textContent);
+}
+
+class DevotionalEntriesCompanion extends UpdateCompanion<DevotionalEntry> {
+  final Value<int> id;
+  final Value<int> devotionalId;
+  final Value<int> day;
+  final Value<String> textContent;
+  const DevotionalEntriesCompanion({
+    this.id = const Value.absent(),
+    this.devotionalId = const Value.absent(),
+    this.day = const Value.absent(),
+    this.textContent = const Value.absent(),
+  });
+  DevotionalEntriesCompanion.insert({
+    this.id = const Value.absent(),
+    required int devotionalId,
+    required int day,
+    required String textContent,
+  }) : devotionalId = Value(devotionalId),
+       day = Value(day),
+       textContent = Value(textContent);
+  static Insertable<DevotionalEntry> custom({
+    Expression<int>? id,
+    Expression<int>? devotionalId,
+    Expression<int>? day,
+    Expression<String>? textContent,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (devotionalId != null) 'devotional_id': devotionalId,
+      if (day != null) 'day': day,
+      if (textContent != null) 'text_content': textContent,
+    });
+  }
+
+  DevotionalEntriesCompanion copyWith({
+    Value<int>? id,
+    Value<int>? devotionalId,
+    Value<int>? day,
+    Value<String>? textContent,
+  }) {
+    return DevotionalEntriesCompanion(
+      id: id ?? this.id,
+      devotionalId: devotionalId ?? this.devotionalId,
+      day: day ?? this.day,
+      textContent: textContent ?? this.textContent,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (devotionalId.present) {
+      map['devotional_id'] = Variable<int>(devotionalId.value);
+    }
+    if (day.present) {
+      map['day'] = Variable<int>(day.value);
+    }
+    if (textContent.present) {
+      map['text_content'] = Variable<String>(textContent.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DevotionalEntriesCompanion(')
+          ..write('id: $id, ')
+          ..write('devotionalId: $devotionalId, ')
+          ..write('day: $day, ')
+          ..write('textContent: $textContent')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$ContentStore extends GeneratedDatabase {
   _$ContentStore(QueryExecutor e) : super(e);
   $ContentStoreManager get managers => $ContentStoreManager(this);
@@ -3260,6 +3825,9 @@ abstract class _$ContentStore extends GeneratedDatabase {
   late final $DictionaryEntriesTable dictionaryEntries =
       $DictionaryEntriesTable(this);
   late final $SubheadingsTable subheadings = $SubheadingsTable(this);
+  late final $DevotionalsTable devotionals = $DevotionalsTable(this);
+  late final $DevotionalEntriesTable devotionalEntries =
+      $DevotionalEntriesTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -3274,6 +3842,8 @@ abstract class _$ContentStore extends GeneratedDatabase {
     dictionaries,
     dictionaryEntries,
     subheadings,
+    devotionals,
+    devotionalEntries,
   ];
 }
 
@@ -6174,6 +6744,584 @@ typedef $$SubheadingsTableProcessedTableManager =
       Subheading,
       PrefetchHooks Function({bool versionId})
     >;
+typedef $$DevotionalsTableCreateCompanionBuilder =
+    DevotionalsCompanion Function({
+      Value<int> id,
+      required String abbreviation,
+      required String name,
+    });
+typedef $$DevotionalsTableUpdateCompanionBuilder =
+    DevotionalsCompanion Function({
+      Value<int> id,
+      Value<String> abbreviation,
+      Value<String> name,
+    });
+
+final class $$DevotionalsTableReferences
+    extends BaseReferences<_$ContentStore, $DevotionalsTable, Devotional> {
+  $$DevotionalsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static MultiTypedResultKey<$DevotionalEntriesTable, List<DevotionalEntry>>
+  _devotionalEntriesRefsTable(_$ContentStore db) =>
+      MultiTypedResultKey.fromTable(
+        db.devotionalEntries,
+        aliasName: 'devotionals__id__devotional_entries__devotional_id',
+      );
+
+  $$DevotionalEntriesTableProcessedTableManager get devotionalEntriesRefs {
+    final manager = $$DevotionalEntriesTableTableManager(
+      $_db,
+      $_db.devotionalEntries,
+    ).filter((f) => f.devotionalId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _devotionalEntriesRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
+
+class $$DevotionalsTableFilterComposer
+    extends Composer<_$ContentStore, $DevotionalsTable> {
+  $$DevotionalsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get abbreviation => $composableBuilder(
+    column: $table.abbreviation,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  Expression<bool> devotionalEntriesRefs(
+    Expression<bool> Function($$DevotionalEntriesTableFilterComposer f) f,
+  ) {
+    final $$DevotionalEntriesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.devotionalEntries,
+      getReferencedColumn: (t) => t.devotionalId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$DevotionalEntriesTableFilterComposer(
+            $db: $db,
+            $table: $db.devotionalEntries,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$DevotionalsTableOrderingComposer
+    extends Composer<_$ContentStore, $DevotionalsTable> {
+  $$DevotionalsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get abbreviation => $composableBuilder(
+    column: $table.abbreviation,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$DevotionalsTableAnnotationComposer
+    extends Composer<_$ContentStore, $DevotionalsTable> {
+  $$DevotionalsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get abbreviation => $composableBuilder(
+    column: $table.abbreviation,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  Expression<T> devotionalEntriesRefs<T extends Object>(
+    Expression<T> Function($$DevotionalEntriesTableAnnotationComposer a) f,
+  ) {
+    final $$DevotionalEntriesTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.devotionalEntries,
+          getReferencedColumn: (t) => t.devotionalId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$DevotionalEntriesTableAnnotationComposer(
+                $db: $db,
+                $table: $db.devotionalEntries,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+}
+
+class $$DevotionalsTableTableManager
+    extends
+        RootTableManager<
+          _$ContentStore,
+          $DevotionalsTable,
+          Devotional,
+          $$DevotionalsTableFilterComposer,
+          $$DevotionalsTableOrderingComposer,
+          $$DevotionalsTableAnnotationComposer,
+          $$DevotionalsTableCreateCompanionBuilder,
+          $$DevotionalsTableUpdateCompanionBuilder,
+          (Devotional, $$DevotionalsTableReferences),
+          Devotional,
+          PrefetchHooks Function({bool devotionalEntriesRefs})
+        > {
+  $$DevotionalsTableTableManager(_$ContentStore db, $DevotionalsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$DevotionalsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$DevotionalsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$DevotionalsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> abbreviation = const Value.absent(),
+                Value<String> name = const Value.absent(),
+              }) => DevotionalsCompanion(
+                id: id,
+                abbreviation: abbreviation,
+                name: name,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String abbreviation,
+                required String name,
+              }) => DevotionalsCompanion.insert(
+                id: id,
+                abbreviation: abbreviation,
+                name: name,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$DevotionalsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({devotionalEntriesRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [
+                if (devotionalEntriesRefs) db.devotionalEntries,
+              ],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (devotionalEntriesRefs)
+                    await $_getPrefetchedData<
+                      Devotional,
+                      $DevotionalsTable,
+                      DevotionalEntry
+                    >(
+                      currentTable: table,
+                      referencedTable: $$DevotionalsTableReferences
+                          ._devotionalEntriesRefsTable(db),
+                      managerFromTypedResult: (p0) =>
+                          $$DevotionalsTableReferences(
+                            db,
+                            table,
+                            p0,
+                          ).devotionalEntriesRefs,
+                      referencedItemsForCurrentItem: (item, referencedItems) =>
+                          referencedItems.where(
+                            (e) => e.devotionalId == item.id,
+                          ),
+                      typedResults: items,
+                    ),
+                ];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$DevotionalsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$ContentStore,
+      $DevotionalsTable,
+      Devotional,
+      $$DevotionalsTableFilterComposer,
+      $$DevotionalsTableOrderingComposer,
+      $$DevotionalsTableAnnotationComposer,
+      $$DevotionalsTableCreateCompanionBuilder,
+      $$DevotionalsTableUpdateCompanionBuilder,
+      (Devotional, $$DevotionalsTableReferences),
+      Devotional,
+      PrefetchHooks Function({bool devotionalEntriesRefs})
+    >;
+typedef $$DevotionalEntriesTableCreateCompanionBuilder =
+    DevotionalEntriesCompanion Function({
+      Value<int> id,
+      required int devotionalId,
+      required int day,
+      required String textContent,
+    });
+typedef $$DevotionalEntriesTableUpdateCompanionBuilder =
+    DevotionalEntriesCompanion Function({
+      Value<int> id,
+      Value<int> devotionalId,
+      Value<int> day,
+      Value<String> textContent,
+    });
+
+final class $$DevotionalEntriesTableReferences
+    extends
+        BaseReferences<
+          _$ContentStore,
+          $DevotionalEntriesTable,
+          DevotionalEntry
+        > {
+  $$DevotionalEntriesTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $DevotionalsTable _devotionalIdTable(_$ContentStore db) => db
+      .devotionals
+      .createAlias('devotional_entries__devotional_id__devotionals__id');
+
+  $$DevotionalsTableProcessedTableManager get devotionalId {
+    final $_column = $_itemColumn<int>('devotional_id')!;
+
+    final manager = $$DevotionalsTableTableManager(
+      $_db,
+      $_db.devotionals,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_devotionalIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$DevotionalEntriesTableFilterComposer
+    extends Composer<_$ContentStore, $DevotionalEntriesTable> {
+  $$DevotionalEntriesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get day => $composableBuilder(
+    column: $table.day,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get textContent => $composableBuilder(
+    column: $table.textContent,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$DevotionalsTableFilterComposer get devotionalId {
+    final $$DevotionalsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.devotionalId,
+      referencedTable: $db.devotionals,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$DevotionalsTableFilterComposer(
+            $db: $db,
+            $table: $db.devotionals,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$DevotionalEntriesTableOrderingComposer
+    extends Composer<_$ContentStore, $DevotionalEntriesTable> {
+  $$DevotionalEntriesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get day => $composableBuilder(
+    column: $table.day,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get textContent => $composableBuilder(
+    column: $table.textContent,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$DevotionalsTableOrderingComposer get devotionalId {
+    final $$DevotionalsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.devotionalId,
+      referencedTable: $db.devotionals,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$DevotionalsTableOrderingComposer(
+            $db: $db,
+            $table: $db.devotionals,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$DevotionalEntriesTableAnnotationComposer
+    extends Composer<_$ContentStore, $DevotionalEntriesTable> {
+  $$DevotionalEntriesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get day =>
+      $composableBuilder(column: $table.day, builder: (column) => column);
+
+  GeneratedColumn<String> get textContent => $composableBuilder(
+    column: $table.textContent,
+    builder: (column) => column,
+  );
+
+  $$DevotionalsTableAnnotationComposer get devotionalId {
+    final $$DevotionalsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.devotionalId,
+      referencedTable: $db.devotionals,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$DevotionalsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.devotionals,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$DevotionalEntriesTableTableManager
+    extends
+        RootTableManager<
+          _$ContentStore,
+          $DevotionalEntriesTable,
+          DevotionalEntry,
+          $$DevotionalEntriesTableFilterComposer,
+          $$DevotionalEntriesTableOrderingComposer,
+          $$DevotionalEntriesTableAnnotationComposer,
+          $$DevotionalEntriesTableCreateCompanionBuilder,
+          $$DevotionalEntriesTableUpdateCompanionBuilder,
+          (DevotionalEntry, $$DevotionalEntriesTableReferences),
+          DevotionalEntry,
+          PrefetchHooks Function({bool devotionalId})
+        > {
+  $$DevotionalEntriesTableTableManager(
+    _$ContentStore db,
+    $DevotionalEntriesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$DevotionalEntriesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$DevotionalEntriesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$DevotionalEntriesTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> devotionalId = const Value.absent(),
+                Value<int> day = const Value.absent(),
+                Value<String> textContent = const Value.absent(),
+              }) => DevotionalEntriesCompanion(
+                id: id,
+                devotionalId: devotionalId,
+                day: day,
+                textContent: textContent,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int devotionalId,
+                required int day,
+                required String textContent,
+              }) => DevotionalEntriesCompanion.insert(
+                id: id,
+                devotionalId: devotionalId,
+                day: day,
+                textContent: textContent,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$DevotionalEntriesTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({devotionalId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (devotionalId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.devotionalId,
+                                referencedTable:
+                                    $$DevotionalEntriesTableReferences
+                                        ._devotionalIdTable(db),
+                                referencedColumn:
+                                    $$DevotionalEntriesTableReferences
+                                        ._devotionalIdTable(db)
+                                        .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$DevotionalEntriesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$ContentStore,
+      $DevotionalEntriesTable,
+      DevotionalEntry,
+      $$DevotionalEntriesTableFilterComposer,
+      $$DevotionalEntriesTableOrderingComposer,
+      $$DevotionalEntriesTableAnnotationComposer,
+      $$DevotionalEntriesTableCreateCompanionBuilder,
+      $$DevotionalEntriesTableUpdateCompanionBuilder,
+      (DevotionalEntry, $$DevotionalEntriesTableReferences),
+      DevotionalEntry,
+      PrefetchHooks Function({bool devotionalId})
+    >;
 
 class $ContentStoreManager {
   final _$ContentStore _db;
@@ -6196,4 +7344,8 @@ class $ContentStoreManager {
       $$DictionaryEntriesTableTableManager(_db, _db.dictionaryEntries);
   $$SubheadingsTableTableManager get subheadings =>
       $$SubheadingsTableTableManager(_db, _db.subheadings);
+  $$DevotionalsTableTableManager get devotionals =>
+      $$DevotionalsTableTableManager(_db, _db.devotionals);
+  $$DevotionalEntriesTableTableManager get devotionalEntries =>
+      $$DevotionalEntriesTableTableManager(_db, _db.devotionalEntries);
 }
