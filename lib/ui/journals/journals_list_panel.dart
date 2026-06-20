@@ -195,6 +195,38 @@ class JournalsListPanel extends ConsumerWidget {
                         journal.updatedAt,
                       ).toLocal().toString().split(' ')[0],
                     ),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.delete, size: 20),
+                      onPressed: () async {
+                        final confirm = await showDialog<bool>(
+                          context: context,
+                          builder: (c) => AlertDialog(
+                            title: const Text('Delete Journal'),
+                            content: const Text(
+                              'Are you sure you want to delete this entry?',
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(c, false),
+                                child: const Text('Cancel'),
+                              ),
+                              TextButton(
+                                onPressed: () => Navigator.pop(c, true),
+                                child: const Text('Delete'),
+                              ),
+                            ],
+                          ),
+                        );
+                        if (confirm == true) {
+                          await ref
+                              .read(journalActionProvider)
+                              .deleteJournal(journal.id);
+                          if (selectedId == journal.id) {
+                            ref.read(selectedJournalIdProvider.notifier).setId(null);
+                          }
+                        }
+                      },
+                    ),
                     onTap: () {
                       ref
                           .read(selectedJournalIdProvider.notifier)
