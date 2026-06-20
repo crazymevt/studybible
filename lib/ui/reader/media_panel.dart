@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../app/media_providers.dart';
 import '../../app/app_state.dart';
+import 'dart:io';
 import 'media_player_dialog.dart';
 import 'web_player_dialog.dart';
 
@@ -181,17 +182,31 @@ class MediaPanel extends ConsumerWidget {
                               ),
                               onTap: () {
                                 if (item.id != null) {
-                                  showDialog(
-                                    context: context,
-                                    builder: (_) =>
-                                        MediaPlayerDialog(videoId: item.id!),
-                                  );
+                                  if (Platform.isWindows || Platform.isLinux) {
+                                    launchUrl(
+                                      Uri.parse('https://www.youtube.com/watch?v=${item.id}'),
+                                      mode: LaunchMode.externalApplication,
+                                    );
+                                  } else {
+                                    showDialog(
+                                      context: context,
+                                      builder: (_) =>
+                                          MediaPlayerDialog(videoId: item.id!),
+                                    );
+                                  }
                                 } else if (item.url != null) {
-                                  showDialog(
-                                    context: context,
-                                    builder: (_) =>
-                                        WebPlayerDialog(url: item.url!),
-                                  );
+                                  if (Platform.isWindows || Platform.isLinux) {
+                                    launchUrl(
+                                      Uri.parse(item.url!),
+                                      mode: LaunchMode.externalApplication,
+                                    );
+                                  } else {
+                                    showDialog(
+                                      context: context,
+                                      builder: (_) =>
+                                          WebPlayerDialog(url: item.url!),
+                                    );
+                                  }
                                 }
                               },
                             );
