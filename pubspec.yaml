@@ -72,6 +72,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   flutter_colorpicker: ^1.1.0
+  sqlite3_flutter_libs: ^0.6.0+eol
 dev_dependencies:
   flutter_test:
     sdk: flutter

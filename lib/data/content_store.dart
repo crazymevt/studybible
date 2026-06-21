@@ -27,7 +27,7 @@ class ContentStore extends _$ContentStore {
   ContentStore([QueryExecutor? e]) : super(e ?? _openConnection());
 
   @override
-  int get schemaVersion => 6;
+  int get schemaVersion => 7;
 
   @override
   MigrationStrategy get migration {
@@ -60,9 +60,23 @@ class ContentStore extends _$ContentStore {
           await customStatement('DELETE FROM cross_references');
         }
         if (from < 6) {
-          await customStatement('''
-            CREATE VIRTUAL TABLE IF NOT EXISTS content_vocab USING fts5vocab(content_search, 'row');
-          ''');
+          try {
+            await customStatement('''
+              CREATE VIRTUAL TABLE IF NOT EXISTS content_vocab USING fts5vocab(content_search, 'row');
+            ''');
+          } catch (e) {
+            // It might fail if FTS5 vocab is unsupported, handle gracefully
+          }
+        }
+        if (from < 7) {
+          // Retry creating content_vocab in case it failed in schema 6 due to missing sqlite3_flutter_libs
+          try {
+            await customStatement('''
+              CREATE VIRTUAL TABLE IF NOT EXISTS content_vocab USING fts5vocab(content_search, 'row');
+            ''');
+          } catch (e) {
+            // Ignore
+          }
         }
       },
     );
