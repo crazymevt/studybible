@@ -1,5 +1,35 @@
 [
   {
+    "version": "26.6.21+7",
+    "date": "2026-06-21",
+    "features": [
+      {
+        "category": "Bugfixes",
+        "title": "always include description in module info",
+        "description": "",
+        "icon": "bug_report"
+      },
+      {
+        "category": "New Features",
+        "title": "display module copyright and license info",
+        "description": "",
+        "icon": "star"
+      },
+      {
+        "category": "Updates",
+        "title": "docs: add disclaimer regarding individual module copyrights",
+        "description": "",
+        "icon": "update"
+      },
+      {
+        "category": "Bugfixes",
+        "title": "Add missing open source licenses and acknowledgments",
+        "description": "",
+        "icon": "bug_report"
+      }
+    ]
+  },
+  {
     "version": "26.6.21+6",
     "date": "2026-06-21",
     "features": [
