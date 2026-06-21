@@ -4,9 +4,9 @@ import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 
 import '../data/content_manager_api.dart';
-import '../domain/importer/archive_extractor.dart';
-import '../domain/importer/mybible_importer.dart';
-import '../domain/importer/osis_importer.dart';
+import '../data/importer/archive_extractor.dart';
+import '../data/importer/mybible_importer.dart';
+import '../data/importer/osis_importer.dart';
 import 'content_providers.dart'; // To get contentStoreProvider
 
 final contentManagerApiProvider = Provider((ref) => ContentManagerApi());

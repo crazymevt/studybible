@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../data/user_store.dart';
 import 'user_providers.dart';
-import '../domain/reading_plan/reading_plan_generator.dart';
+import '../data/reading_plan/reading_plan_generator.dart';
 import 'achievement_service.dart';
 
 final readingPlanGeneratorProvider = Provider<ReadingPlanGenerator>((ref) {

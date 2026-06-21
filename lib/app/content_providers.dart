@@ -11,7 +11,7 @@ import 'sync_service.dart';
 import 'dart:async';
 import 'package:collection/collection.dart';
 
-import '../domain/importer/cross_reference_importer.dart';
+import '../data/importer/cross_reference_importer.dart';
 import 'package:flutter/foundation.dart';
 
 final contentStoreProvider = Provider<ContentStore>((ref) {

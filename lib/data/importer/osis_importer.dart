@@ -3,8 +3,8 @@ import 'dart:io';
 import 'package:drift/drift.dart';
 import 'package:xml/xml.dart';
 
-import '../../data/content_store.dart';
-import '../../data/models/verse_segment.dart';
+import '../content_store.dart';
+import '../models/verse_segment.dart';
 
 /// Maps OSIS book abbreviations to full canonical book names.
 const Map<String, String> _osisBookNames = {

@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:drift/drift.dart';
-import '../domain/importer/mybible_verse_parser.dart';
+import '../data/importer/mybible_verse_parser.dart';
 import '../domain/search/reference_parser.dart';
 import 'content_providers.dart';
 import 'user_providers.dart';

@@ -4,8 +4,8 @@ import 'package:uuid/uuid.dart';
 
 import 'package:drift/drift.dart';
 
-import '../../data/user_store.dart';
-import 'reference_parser.dart';
+import '../user_store.dart';
+import 'package:study_bible/domain/reading_plan/reference_parser.dart';
 
 class ReadingPlanGenerator {
   static const _uuid = Uuid();

@@ -3,10 +3,10 @@ import 'dart:convert';
 import 'package:html/parser.dart' as html_parser;
 import 'package:sqlite3/sqlite3.dart';
 import 'package:drift/drift.dart';
-import '../../data/content_store.dart';
-import '../../data/content_manager_api.dart';
+import '../content_store.dart';
+import '../content_manager_api.dart';
 import 'mybible_verse_parser.dart';
-import '../../data/mybible_book_map.dart';
+import '../mybible_book_map.dart';
 
 class MyBibleImporter {
   final ContentStore store;

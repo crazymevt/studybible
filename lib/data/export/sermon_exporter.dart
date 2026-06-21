@@ -8,7 +8,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:vsc_quill_delta_to_html/vsc_quill_delta_to_html.dart';
 import 'package:archive/archive.dart';
 import 'package:file_picker/file_picker.dart';
-import '../../data/user_store.dart';
+import '../user_store.dart';
 import 'dart:io';
 
 enum ExportFormat { pdf, html, text }

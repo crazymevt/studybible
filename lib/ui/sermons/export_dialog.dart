@@ -1,6 +1,6 @@
 // ignore_for_file: deprecated_member_use
 import 'package:flutter/material.dart';
-import '../../domain/export/sermon_exporter.dart';
+import '../../data/export/sermon_exporter.dart';
 import '../../data/user_store.dart';
 
 class ExportDialog extends StatefulWidget {

@@ -6,7 +6,7 @@ import '../data/user_store.dart';
 import 'user_providers.dart';
 import 'content_providers.dart';
 import 'search_providers.dart';
-import '../domain/importer/mybible_verse_parser.dart';
+import '../data/importer/mybible_verse_parser.dart';
 import 'sync_service.dart';
 
 // Represents a unified Tag definition

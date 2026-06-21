@@ -5,7 +5,7 @@ import '../../app/reader_state.dart';
 import '../../app/user_providers.dart';
 import '../../app/app_state.dart';
 import '../../app/content_providers.dart';
-import '../../domain/importer/mybible_verse_parser.dart';
+import '../../data/importer/mybible_verse_parser.dart';
 import 'note_editor.dart';
 import 'compare_panel.dart';
 import '../tags/tag_editor_dialog.dart';

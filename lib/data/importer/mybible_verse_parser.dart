@@ -1,4 +1,4 @@
-import '../../data/models/verse_segment.dart';
+import '../models/verse_segment.dart';
 
 class MyBibleVerseParser {
   bool _inItalic = false;

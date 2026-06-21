@@ -4,7 +4,7 @@ import '../../app/content_providers.dart';
 import '../../app/reader_state.dart';
 import '../../data/content_store.dart';
 import '../../app/app_state.dart';
-import '../../domain/importer/mybible_verse_parser.dart';
+import '../../data/importer/mybible_verse_parser.dart';
 
 class CrossReferencePanel extends ConsumerWidget {
   const CrossReferencePanel({super.key});
