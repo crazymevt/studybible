@@ -4,7 +4,6 @@ import '../../app/content_providers.dart';
 import '../../app/reader_state.dart';
 import '../../app/user_providers.dart';
 import '../../app/tag_providers.dart';
-import '../../app/sync_service.dart';
 import '../../app/audio_providers.dart';
 import 'verse_list_view.dart';
 import 'flowing_paragraph_view.dart';
@@ -16,13 +15,14 @@ import 'mobile_tools_drawer.dart';
 import 'audio_player_widget.dart';
 import 'commentary_panel.dart';
 import 'dictionary_panel.dart';
+import '../common/global_search_bar.dart';
+import '../common/sync_button.dart';
 import '../app_drawer.dart';
 import '../../app/dashboard_providers.dart';
 import '../../app/app_state.dart';
 import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../common/global_search_bar.dart';
 
 class ReaderScreen extends ConsumerStatefulWidget {
   const ReaderScreen({super.key});
@@ -362,27 +362,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
                   );
                 },
               ),
-          IconButton(
-            icon: const Icon(Icons.sync),
-            tooltip: 'Sync Data',
-            onPressed: () async {
-              try {
-                await ref.read(syncServiceProvider).sync();
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Sync complete!')),
-                  );
-                }
-              } catch (e) {
-                if (context.mounted) {
-                  ScaffoldMessenger.of(
-                    context,
-                  ).showSnackBar(SnackBar(content: Text('Sync failed: $e')));
-                }
-              }
-            },
-          ),
-
+          const SyncButton(),
           IconButton(
             icon: const Icon(Icons.library_books),
             tooltip: 'Versions',
