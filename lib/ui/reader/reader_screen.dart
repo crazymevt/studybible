@@ -4,7 +4,6 @@ import '../../app/content_providers.dart';
 import '../../app/reader_state.dart';
 import '../../app/user_providers.dart';
 import '../../app/tag_providers.dart';
-import '../../app/content_providers.dart';
 import '../../app/sync_service.dart';
 import 'verse_list_view.dart';
 import 'flowing_paragraph_view.dart';

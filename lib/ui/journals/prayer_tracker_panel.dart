@@ -66,7 +66,7 @@ class PrayerTrackerPanel extends ConsumerWidget {
 
               return ListView.separated(
                 itemCount: visiblePrayers.length,
-                separatorBuilder: (_, __) => const Divider(height: 1),
+                separatorBuilder: (_, _) => const Divider(height: 1),
                 itemBuilder: (context, index) {
                   final prayer = visiblePrayers[index];
                   final isAnswered = prayer.answeredAt != null;
@@ -126,7 +126,7 @@ class PrayerTrackerPanel extends ConsumerWidget {
                             ),
                           ),
                         ),
-                      ButtonBar(
+                      OverflowBar(
                         alignment: MainAxisAlignment.end,
                         children: [
                           TextButton.icon(

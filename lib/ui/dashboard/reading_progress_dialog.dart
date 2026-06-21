@@ -85,8 +85,8 @@ class ReadingProgressDialog extends ConsumerWidget {
                             child: Chip(
                               label: Text('$chapter'),
                               backgroundColor: isRead
-                                  ? Colors.green.withOpacity(0.2)
-                                  : Colors.grey.withOpacity(0.1),
+                                  ? Colors.green.withValues(alpha: 0.2)
+                                  : Colors.grey.withValues(alpha: 0.1),
                               avatar: isRead
                                   ? const Icon(
                                       Icons.check,

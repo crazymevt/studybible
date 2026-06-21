@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:html/parser.dart' as html_parser;
@@ -154,7 +155,7 @@ class ContentManagerApi {
       }
       return modules;
     } catch (e) {
-      print('Error fetching ph4 modules: $e');
+      debugPrint('Error fetching ph4 modules: $e');
       return [];
     }
   }
@@ -179,7 +180,7 @@ class ContentManagerApi {
       languages.sort((a, b) => a.name.compareTo(b.name));
       return languages;
     } catch (e) {
-      print('Error fetching OSIS languages: $e');
+      debugPrint('Error fetching OSIS languages: $e');
       return [];
     }
   }
@@ -222,7 +223,7 @@ class ContentManagerApi {
       translations.sort((a, b) => a.title.compareTo(b.title));
       return translations;
     } catch (e) {
-      print('Error fetching OSIS translations for $langCode: $e');
+      debugPrint('Error fetching OSIS translations for $langCode: $e');
       return [];
     }
   }

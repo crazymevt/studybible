@@ -166,7 +166,7 @@ class _ActivePlanView extends ConsumerWidget {
               children: [
                 Expanded(
                   child: DropdownButtonFormField<String>(
-                    value: selectedPlanId,
+                    initialValue: selectedPlanId,
                     isExpanded: true,
                     decoration: const InputDecoration(
                       labelText: 'Active Plan',
@@ -227,8 +227,9 @@ class _ActivePlanView extends ConsumerWidget {
         Expanded(
           child: daysAsync.when(
             data: (days) {
-              if (days.isEmpty)
+              if (days.isEmpty) {
                 return const Center(child: Text('No days in this plan.'));
+              }
 
               // Find current day (first uncompleted day)
               final currentDayIndex = days.indexWhere((d) => !d.completed);
@@ -359,8 +360,9 @@ class _DayView extends ConsumerWidget {
         Expanded(
           child: itemsAsync.when(
             data: (items) {
-              if (items.isEmpty)
+              if (items.isEmpty) {
                 return const Center(child: Text('No readings.'));
+              }
               return ListView.builder(
                 itemCount: items.length,
                 itemBuilder: (context, index) {

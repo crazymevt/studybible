@@ -1,3 +1,4 @@
+// ignore_for_file: avoid_print
 import 'dart:io';
 import 'dart:convert';
 
@@ -6,7 +7,7 @@ void main() async {
   String commitsStr = '';
   String? line;
   while ((line = stdin.readLineSync(encoding: utf8)) != null) {
-    commitsStr += line! + '\n';
+    commitsStr += '${line!}\n';
   }
   
   final List<String> commits = commitsStr

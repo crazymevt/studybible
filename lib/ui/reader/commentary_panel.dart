@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
@@ -55,8 +56,9 @@ class CommentaryPanel extends ConsumerWidget {
 
                             return commentariesAsync.when(
                               data: (commentaries) {
-                                if (commentaries.isEmpty)
+                                if (commentaries.isEmpty) {
                                   return const SizedBox.shrink();
+                                }
 
                                 // Auto-select first if none selected
                                 if (selectedId == null) {
@@ -87,7 +89,7 @@ class CommentaryPanel extends ConsumerWidget {
                                 );
                               },
                               loading: () => const SizedBox.shrink(),
-                              error: (_, __) => const SizedBox.shrink(),
+                              error: (_, _) => const SizedBox.shrink(),
                             );
                           },
                         ),
@@ -243,7 +245,7 @@ class CommentaryPanel extends ConsumerWidget {
                                         .read(navigationControllerProvider)
                                         .recordHistory(verse: v);
 
-                                    print(
+                                    debugPrint(
                                       'Navigated to $bookName $c:$v from URL $url',
                                     );
 

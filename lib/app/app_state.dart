@@ -140,6 +140,7 @@ final appShowStrongNumbersProvider =
     );
 
 class AppModuleNotifier extends Notifier<AppModule> {
+  @override
   AppModule build() {
     final showDashboard = ref.watch(showDashboardOnStartProvider);
     return showDashboard ? AppModule.dashboard : AppModule.reader;

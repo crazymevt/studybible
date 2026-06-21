@@ -93,8 +93,9 @@ class _StudyBibleAppState extends ConsumerState<StudyBibleApp>
 
   void _saveWindowBounds() async {
     if (kIsWeb ||
-        (!Platform.isMacOS && !Platform.isWindows && !Platform.isLinux))
+        (!Platform.isMacOS && !Platform.isWindows && !Platform.isLinux)) {
       return;
+    }
 
     final prefs = ref.read(sharedPreferencesProvider);
     final size = await windowManager.getSize();

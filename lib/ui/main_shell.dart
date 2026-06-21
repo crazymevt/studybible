@@ -74,7 +74,7 @@ class _MainShellState extends ConsumerState<MainShell> {
     final hasNoBibles = versionsAsync.when(
       data: (versions) => versions.isEmpty,
       loading: () => false, // Don't show while loading
-      error: (_, __) => false,
+      error: (_, _) => false,
     );
 
     if (hasNoBibles) {
@@ -121,31 +121,41 @@ class _DesktopLayout extends ConsumerWidget {
                     flex: 4,
                     child: Builder(
                       builder: (context) {
-                        if (activeTool == ActiveTool.compare)
+                        if (activeTool == ActiveTool.compare) {
                           return const ComparePanel();
-                        if (activeTool == ActiveTool.sermons)
+                        }
+                        if (activeTool == ActiveTool.sermons) {
                           return const SermonsPanel();
-                        if (activeTool == ActiveTool.crossReference)
+                        }
+                        if (activeTool == ActiveTool.crossReference) {
                           return const CrossReferencePanel();
-                        if (activeTool == ActiveTool.commentaries)
+                        }
+                        if (activeTool == ActiveTool.commentaries) {
                           return const CommentaryPanel();
-                        if (activeTool == ActiveTool.notes)
+                        }
+                        if (activeTool == ActiveTool.notes) {
                           return const NotesPanel();
-                        if (activeTool == ActiveTool.dictionary)
+                        }
+                        if (activeTool == ActiveTool.dictionary) {
                           return const DictionaryPanel();
-                        if (activeTool == ActiveTool.search)
+                        }
+                        if (activeTool == ActiveTool.search) {
                           return const SearchPanel();
-                        if (activeTool == ActiveTool.history)
+                        }
+                        if (activeTool == ActiveTool.history) {
                           return const HistoryPanel();
+                        }
                         if (activeTool == ActiveTool.media) {
                           final book = ref.watch(selectedBookNameProvider);
                           final chap = ref.watch(selectedChapterProvider);
                           return MediaPanel(bookName: book, chapter: chap);
                         }
-                        if (activeTool == ActiveTool.readingPlans)
+                        if (activeTool == ActiveTool.readingPlans) {
                           return const ReadingPlanPanel();
-                        if (activeTool == ActiveTool.devotionals)
+                        }
+                        if (activeTool == ActiveTool.devotionals) {
                           return const DevotionalsPanel();
+                        }
                         return const SizedBox.shrink();
                       },
                     ),

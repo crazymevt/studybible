@@ -83,34 +83,34 @@ class SyncService {
 
     try {
       // 1. Get all local records
-      final local_highlights = await _store.select(_store.highlights).get();
-      final local_notes = await _store.select(_store.notes).get();
-      final local_bookmarks = await _store.select(_store.bookmarks).get();
-      final local_journals = await _store.select(_store.journals).get();
-      final local_sermons = await _store.select(_store.sermons).get();
-      final local_prayers = await _store.select(_store.prayers).get();
-      final local_readingProgresses = await _store
+      final localHighlights = await _store.select(_store.highlights).get();
+      final localNotes = await _store.select(_store.notes).get();
+      final localBookmarks = await _store.select(_store.bookmarks).get();
+      final localJournals = await _store.select(_store.journals).get();
+      final localSermons = await _store.select(_store.sermons).get();
+      final localPrayers = await _store.select(_store.prayers).get();
+      final localReadingprogresses = await _store
           .select(_store.readingProgresses)
           .get();
-      final local_timeTrackers = await _store.select(_store.timeTrackers).get();
-      final local_achievements = await _store.select(_store.achievements).get();
-      final local_navigationHistories = await _store
+      final localTimetrackers = await _store.select(_store.timeTrackers).get();
+      final localAchievements = await _store.select(_store.achievements).get();
+      final localNavigationhistories = await _store
           .select(_store.navigationHistories)
           .get();
-      final local_readingPlans = await _store.select(_store.readingPlans).get();
-      final local_readingPlanDays = await _store
+      final localReadingplans = await _store.select(_store.readingPlans).get();
+      final localReadingplandays = await _store
           .select(_store.readingPlanDays)
           .get();
-      final local_readingPlanItems = await _store
+      final localReadingplanitems = await _store
           .select(_store.readingPlanItems)
           .get();
-      final local_tags = await _store.select(_store.tags).get();
-      final local_entityTags = await _store.select(_store.entityTags).get();
+      final localTags = await _store.select(_store.tags).get();
+      final localEntitytags = await _store.select(_store.entityTags).get();
 
       final localRecords = <GenericSyncRecord>[];
 
       localRecords.addAll(
-        local_highlights.map(
+        localHighlights.map(
           (item) => GenericSyncRecord(
             id: item.id,
             updatedAt: item.updatedAt,
@@ -127,7 +127,7 @@ class SyncService {
         ),
       );
       localRecords.addAll(
-        local_notes.map(
+        localNotes.map(
           (item) => GenericSyncRecord(
             id: item.id,
             updatedAt: item.updatedAt,
@@ -145,7 +145,7 @@ class SyncService {
         ),
       );
       localRecords.addAll(
-        local_bookmarks.map(
+        localBookmarks.map(
           (item) => GenericSyncRecord(
             id: item.id,
             updatedAt: item.updatedAt,
@@ -162,7 +162,7 @@ class SyncService {
         ),
       );
       localRecords.addAll(
-        local_journals.map(
+        localJournals.map(
           (item) => GenericSyncRecord(
             id: item.id,
             updatedAt: item.updatedAt,
@@ -178,7 +178,7 @@ class SyncService {
         ),
       );
       localRecords.addAll(
-        local_sermons.map(
+        localSermons.map(
           (item) => GenericSyncRecord(
             id: item.id,
             updatedAt: item.updatedAt,
@@ -195,7 +195,7 @@ class SyncService {
         ),
       );
       localRecords.addAll(
-        local_prayers.map(
+        localPrayers.map(
           (item) => GenericSyncRecord(
             id: item.id,
             updatedAt: item.updatedAt,
@@ -212,7 +212,7 @@ class SyncService {
         ),
       );
       localRecords.addAll(
-        local_readingProgresses.map(
+        localReadingprogresses.map(
           (item) => GenericSyncRecord(
             id: item.id,
             updatedAt: item.updatedAt,
@@ -229,7 +229,7 @@ class SyncService {
         ),
       );
       localRecords.addAll(
-        local_timeTrackers.map(
+        localTimetrackers.map(
           (item) => GenericSyncRecord(
             id: item.id,
             updatedAt: item.updatedAt,
@@ -246,7 +246,7 @@ class SyncService {
         ),
       );
       localRecords.addAll(
-        local_achievements.map(
+        localAchievements.map(
           (item) => GenericSyncRecord(
             id: item.id,
             updatedAt: item.updatedAt,
@@ -257,7 +257,7 @@ class SyncService {
         ),
       );
       localRecords.addAll(
-        local_navigationHistories.map(
+        localNavigationhistories.map(
           (item) => GenericSyncRecord(
             id: item.id,
             updatedAt: item.updatedAt,
@@ -274,7 +274,7 @@ class SyncService {
         ),
       );
       localRecords.addAll(
-        local_readingPlans.map(
+        localReadingplans.map(
           (item) => GenericSyncRecord(
             id: item.id,
             updatedAt: item.updatedAt,
@@ -291,7 +291,7 @@ class SyncService {
         ),
       );
       localRecords.addAll(
-        local_readingPlanDays.map(
+        localReadingplandays.map(
           (item) => GenericSyncRecord(
             id: item.id,
             updatedAt: item.updatedAt,
@@ -308,7 +308,7 @@ class SyncService {
         ),
       );
       localRecords.addAll(
-        local_readingPlanItems.map(
+        localReadingplanitems.map(
           (item) => GenericSyncRecord(
             id: item.id,
             updatedAt: item.updatedAt,
@@ -328,7 +328,7 @@ class SyncService {
         ),
       );
       localRecords.addAll(
-        local_tags.map(
+        localTags.map(
           (item) => GenericSyncRecord(
             id: item.id,
             updatedAt: item.updatedAt,
@@ -343,7 +343,7 @@ class SyncService {
         ),
       );
       localRecords.addAll(
-        local_entityTags.map(
+        localEntitytags.map(
           (item) => GenericSyncRecord(
             id: item.id,
             updatedAt: item.updatedAt,

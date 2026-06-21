@@ -63,9 +63,11 @@ class SermonExporter {
           );
         }
       } else {
-        await Share.shareXFiles(
-          [XFile.fromData(bytes, name: filename, mimeType: mimeType)],
-          text: 'Exported Sermons',
+        await SharePlus.instance.share(
+          ShareParams(
+            files: [XFile.fromData(bytes, name: filename, mimeType: mimeType)],
+            text: 'Exported Sermons',
+          ),
         );
       }
     } catch (e) {

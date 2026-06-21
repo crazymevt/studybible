@@ -102,6 +102,7 @@ class _VerseListViewState extends ConsumerState<VerseListView> {
     );
 
     if (result == 'dictionary') {
+      if (!mounted) return;
       ref.read(dictionarySearchQueryProvider.notifier).setQuery(word);
       if (MediaQuery.sizeOf(context).width > 900) {
         ref.read(activeToolProvider.notifier).openTool(ActiveTool.dictionary);

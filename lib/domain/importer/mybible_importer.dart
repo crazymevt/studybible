@@ -33,10 +33,6 @@ class MyBibleImporter {
       case ModuleType.devotional:
         await _importDevotional(sqliteFile, module);
         break;
-      default:
-        print(
-          'Skipping unsupported module file type: $inferredType for ${sqliteFile.path}',
-        );
     }
   }
 
@@ -109,8 +105,9 @@ class MyBibleImporter {
         for (final row in versesQuery) {
           if (row['book_number'] == null ||
               row['chapter'] == null ||
-              row['verse'] == null)
+              row['verse'] == null) {
             continue;
+          }
           final bookNumber = num.parse(row['book_number'].toString()).toInt();
           final chapter = num.parse(row['chapter'].toString()).toInt();
           final verse = num.parse(row['verse'].toString()).toInt();
@@ -153,7 +150,9 @@ class MyBibleImporter {
           for (final row in storiesQuery) {
             if (row['book_number'] == null ||
                 row['chapter'] == null ||
-                row['verse'] == null) continue;
+                row['verse'] == null) {
+              continue;
+            }
 
             final bookNumber = num.parse(row['book_number'].toString()).toInt();
             final chapter = num.parse(row['chapter'].toString()).toInt();
@@ -192,7 +191,7 @@ class MyBibleImporter {
         [versionId],
       );
     } finally {
-      db.dispose();
+      db.close();
     }
   }
 
@@ -236,7 +235,9 @@ class MyBibleImporter {
           for (final row in storiesQuery) {
             if (row['book_number'] == null ||
                 row['chapter'] == null ||
-                row['verse'] == null) continue;
+                row['verse'] == null) {
+              continue;
+            }
 
             final bookNumber = num.parse(row['book_number'].toString()).toInt();
             final chapter = num.parse(row['chapter'].toString()).toInt();
@@ -270,7 +271,9 @@ class MyBibleImporter {
           for (final row in subheadingsQuery) {
             if (row['book_number'] == null ||
                 row['chapter'] == null ||
-                row['verse'] == null) continue;
+                row['verse'] == null) {
+              continue;
+            }
 
             final bookNumber = num.parse(row['book_number'].toString()).toInt();
             final chapter = num.parse(row['chapter'].toString()).toInt();
@@ -294,7 +297,7 @@ class MyBibleImporter {
         });
       }
     } finally {
-      db.dispose();
+      db.close();
     }
   }
 
@@ -356,7 +359,7 @@ class MyBibleImporter {
         [commentaryId],
       );
     } finally {
-      db.dispose();
+      db.close();
     }
   }
 
@@ -409,7 +412,7 @@ class MyBibleImporter {
         [dictionaryId],
       );
     } finally {
-      db.dispose();
+      db.close();
     }
   }
 
@@ -462,7 +465,7 @@ class MyBibleImporter {
         [devotionalId],
       );
     } finally {
-      db.dispose();
+      db.close();
     }
   }
 

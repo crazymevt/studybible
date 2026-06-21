@@ -507,7 +507,7 @@ class NavigationController {
       verseText: verseText,
     );
 
-    print(
+    debugPrint(
       'DEBUG: Saving history -> book: $bookName, chapter: $chapter, verse: $verse, text: $verseText',
     );
 

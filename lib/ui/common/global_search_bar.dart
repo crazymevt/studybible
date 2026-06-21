@@ -119,7 +119,7 @@ class _GlobalSearchBarState extends ConsumerState<GlobalSearchBar> {
           parts.removeLast();
         }
         parts.add(selection);
-        final newText = parts.join(' ') + ' ';
+        final newText = '${parts.join(' ')} ';
         _controller.text = newText;
         _controller.selection = TextSelection.collapsed(offset: newText.length);
         

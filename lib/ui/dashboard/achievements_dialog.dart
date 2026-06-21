@@ -58,8 +58,8 @@ class AchievementsDialog extends StatelessWidget {
                     child: ListTile(
                       leading: CircleAvatar(
                         backgroundColor: isUnlocked
-                            ? def.color.withOpacity(0.2)
-                            : Colors.grey.withOpacity(0.2),
+                            ? def.color.withValues(alpha: 0.2)
+                            : Colors.grey.withValues(alpha: 0.2),
                         child: Icon(
                           isUnlocked ? def.icon : Icons.lock,
                           color: isUnlocked ? def.color : Colors.grey,

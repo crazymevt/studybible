@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'dart:convert';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -23,7 +24,7 @@ final mediaCollectionsProvider = FutureProvider<List<MediaCollection>>((
       collections.add(MediaCollection.fromJson(jsonData));
     } catch (e) {
       // Ignore missing files or parse errors to keep loading others
-      print('Failed to load media collection: $file - $e');
+      debugPrint('Failed to load media collection: $file - $e');
     }
   }
 

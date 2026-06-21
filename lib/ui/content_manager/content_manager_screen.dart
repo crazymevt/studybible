@@ -129,7 +129,7 @@ class _ContentManagerScreenState extends ConsumerState<ContentManagerScreen>
                 ref.invalidate(bibleVersionsProvider);
                 ref.invalidate(subheadingSourcesProvider);
                 ref.invalidate(installedModuleIdsProvider);
-                if (context.mounted) {
+                if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Deleted ${v.name}')));
                 }
               },
@@ -152,7 +152,7 @@ class _ContentManagerScreenState extends ConsumerState<ContentManagerScreen>
                 ref.invalidate(versionsProvider);
                 ref.invalidate(subheadingSourcesProvider);
                 ref.invalidate(installedModuleIdsProvider);
-                if (context.mounted) {
+                if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Deleted ${v.name}')));
                 }
               },
@@ -174,7 +174,7 @@ class _ContentManagerScreenState extends ConsumerState<ContentManagerScreen>
                 await ref.read(contentStoreProvider).deleteCommentary(c.id);
                 ref.invalidate(commentariesProvider);
                 ref.invalidate(installedModuleIdsProvider);
-                if (context.mounted) {
+                if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Deleted ${c.abbreviation}')));
                 }
               },
@@ -196,7 +196,7 @@ class _ContentManagerScreenState extends ConsumerState<ContentManagerScreen>
                 await ref.read(contentStoreProvider).deleteDictionary(d.id);
                 ref.invalidate(dictionariesProvider);
                 ref.invalidate(installedModuleIdsProvider);
-                if (context.mounted) {
+                if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Deleted ${d.abbreviation}')));
                 }
               },
@@ -218,7 +218,7 @@ class _ContentManagerScreenState extends ConsumerState<ContentManagerScreen>
                 await ref.read(contentStoreProvider).deleteDevotional(d.id);
                 ref.invalidate(devotionalsProvider);
                 ref.invalidate(installedModuleIdsProvider);
-                if (context.mounted) {
+                if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Deleted ${d.abbreviation}')));
                 }
               },
@@ -336,7 +336,7 @@ class _ContentManagerScreenState extends ConsumerState<ContentManagerScreen>
                               vertical: 2,
                             ),
                             decoration: BoxDecoration(
-                              color: Colors.orange.withOpacity(0.2),
+                              color: Colors.orange.withValues(alpha: 0.2),
                               borderRadius: BorderRadius.circular(4),
                               border: Border.all(color: Colors.orange),
                             ),
@@ -422,11 +422,12 @@ class _ContentManagerScreenState extends ConsumerState<ContentManagerScreen>
                               ),
                               error: (err, _) => Text('Error: $err'),
                               data: (translations) {
-                                if (translations.isEmpty)
+                                if (translations.isEmpty) {
                                   return const Padding(
                                     padding: EdgeInsets.all(16.0),
                                     child: Text('No translations found.'),
                                   );
+                                }
                                 return Column(
                                   children: translations.map((t) {
                                     final stateKey = 'osis_${t.basename}';

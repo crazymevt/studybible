@@ -32,10 +32,6 @@ class ArchiveExtractor {
       }
     }
 
-    if (archive == null) {
-      throw Exception('Archive was null after decoding');
-    }
-
     final List<File> extractedFiles = [];
     for (final file in archive) {
       final filename = file.name;

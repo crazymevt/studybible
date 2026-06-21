@@ -107,7 +107,7 @@ class _DictionaryPanelState extends ConsumerState<DictionaryPanel> {
                 return ListView.separated(
                   padding: const EdgeInsets.all(16),
                   itemCount: entries.length,
-                  separatorBuilder: (_, __) => const Divider(height: 32),
+                  separatorBuilder: (_, _) => const Divider(height: 32),
                   itemBuilder: (context, index) {
                     final item = entries[index];
                     return Column(

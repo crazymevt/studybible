@@ -1,3 +1,4 @@
+// ignore_for_file: deprecated_member_use
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -321,7 +322,7 @@ class _ReadingPlanGeneratorScreenState
 
   Widget _buildPreCuratedForm() {
     return DropdownButtonFormField<String>(
-      value: _selectedJsonAsset,
+      initialValue: _selectedJsonAsset,
       isExpanded: true,
       decoration: const InputDecoration(
         labelText: 'Select Plan',
@@ -420,10 +421,11 @@ class _ReadingPlanGeneratorScreenState
                                 value: _selectedBooks.contains(b),
                                 onChanged: (val) {
                                   setDialogState(() {
-                                    if (val == true)
+                                    if (val == true) {
                                       _selectedBooks.add(b);
-                                    else
+                                    } else {
                                       _selectedBooks.remove(b);
+                                    }
                                   });
                                   setState(() {});
                                 },
@@ -441,10 +443,11 @@ class _ReadingPlanGeneratorScreenState
                                 value: _selectedBooks.contains(b),
                                 onChanged: (val) {
                                   setDialogState(() {
-                                    if (val == true)
+                                    if (val == true) {
                                       _selectedBooks.add(b);
-                                    else
+                                    } else {
                                       _selectedBooks.remove(b);
+                                    }
                                   });
                                   setState(() {});
                                 },

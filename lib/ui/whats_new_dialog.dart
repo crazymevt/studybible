@@ -115,7 +115,7 @@ class WhatsNewDialog extends StatelessWidget {
                       title: feature['title'] ?? '',
                       description: feature['description'] ?? '',
                     );
-                  }).toList(),
+                  }),
                 ];
               }).toList(),
             ),

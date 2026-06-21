@@ -25,10 +25,10 @@ class OnboardingScreen extends ConsumerWidget {
             child: Container(
               constraints: const BoxConstraints(maxWidth: 600),
               decoration: BoxDecoration(
-                color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.4),
+                color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
                 borderRadius: BorderRadius.circular(24),
                 border: Border.all(
-                  color: theme.colorScheme.outlineVariant.withOpacity(0.5),
+                  color: theme.colorScheme.outlineVariant.withValues(alpha: 0.5),
                 ),
               ),
               padding: const EdgeInsets.all(48.0),

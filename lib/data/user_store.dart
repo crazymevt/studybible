@@ -108,7 +108,7 @@ class UserStore extends _$UserStore {
           for (final table in allTables) {
             await m.drop(table);
           }
-          await m.issueCustomQuery('DROP TABLE IF EXISTS user_search;');
+          await customStatement('DROP TABLE IF EXISTS user_search;');
           await m.createAll();
           await customStatement('''
             CREATE VIRTUAL TABLE IF NOT EXISTS user_search USING fts5(type UNINDEXED, reference_id UNINDEXED, text_content);

@@ -198,7 +198,7 @@ class _SearchPanelState extends ConsumerState<SearchPanel> {
 
 class SearchResultsList extends ConsumerWidget {
   final List<SearchResult> results;
-  const SearchResultsList({required this.results});
+  const SearchResultsList({super.key, required this.results});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -208,7 +208,7 @@ class SearchResultsList extends ConsumerWidget {
     return ListView.separated(
       padding: const EdgeInsets.all(16),
       itemCount: results.length,
-      separatorBuilder: (_, __) => const Divider(height: 32),
+      separatorBuilder: (_, _) => const Divider(height: 32),
       itemBuilder: (context, index) {
         final item = results[index];
         return InkWell(
@@ -436,7 +436,7 @@ class SearchResultsList extends ConsumerWidget {
 
 class GroupedSearchResultsList extends ConsumerWidget {
   final List<SearchResult> results;
-  const GroupedSearchResultsList({required this.results});
+  const GroupedSearchResultsList({super.key, required this.results});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

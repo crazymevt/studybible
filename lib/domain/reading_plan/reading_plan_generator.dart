@@ -171,8 +171,9 @@ class ReadingPlanGenerator {
           chaptersThisDay = allChapters.length - chapterIndex;
         }
 
-        if (chaptersThisDay == 0)
+        if (chaptersThisDay == 0) {
           continue; // It's possible for very long duration that some days have 0.
+        }
 
         // Group continuous chapters of the same book into single items
         String? currentBook;

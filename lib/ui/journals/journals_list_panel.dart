@@ -169,7 +169,7 @@ class JournalsListPanel extends ConsumerWidget {
                     selected: isSelected,
                     selectedTileColor: Theme.of(
                       context,
-                    ).colorScheme.primaryContainer.withOpacity(0.5),
+                    ).colorScheme.primaryContainer.withValues(alpha: 0.5),
                     title: Text(
                       journal.title.isEmpty ? 'Untitled' : journal.title,
                       maxLines: 1,

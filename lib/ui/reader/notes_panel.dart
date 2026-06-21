@@ -55,7 +55,7 @@ class NotesPanel extends ConsumerWidget {
                 return ListView.separated(
                   padding: const EdgeInsets.all(16),
                   itemCount: notes.length,
-                  separatorBuilder: (_, __) => const Divider(),
+                  separatorBuilder: (_, _) => const Divider(),
                   itemBuilder: (context, index) {
                     final note = notes[index];
                     String title;

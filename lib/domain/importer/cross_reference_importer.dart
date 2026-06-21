@@ -44,7 +44,7 @@ class CrossReferenceImporter {
       }
     });
 
-    db.dispose();
+    db.close();
     try {
       await tempFile.delete();
     } catch (_) {
