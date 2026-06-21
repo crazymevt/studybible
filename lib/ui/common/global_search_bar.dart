@@ -70,8 +70,10 @@ class _GlobalSearchBarState extends ConsumerState<GlobalSearchBar> {
               results.add('Go to: $titleStr');
             }
           }
-        } catch (_) {}
-        
+        } catch (e) {
+          debugPrint('Failed to build "go to reference" suggestion: $e');
+        }
+
         final words = text.split(RegExp(r'\s+'));
         final lastWord = words.last.toLowerCase();
         

@@ -114,7 +114,8 @@ class SermonExporter {
       try {
         final doc = Document.fromJson(jsonDecode(sermon.content));
         plainText = doc.toPlainText();
-      } catch (_) {
+      } catch (e) {
+        debugPrint('Failed to parse sermon content for PDF export: $e');
         plainText = sermon.content;
       }
 
@@ -182,7 +183,8 @@ class SermonExporter {
       try {
         final doc = Document.fromJson(jsonDecode(sermon.content));
         buffer.writeln(doc.toPlainText());
-      } catch (_) {
+      } catch (e) {
+        debugPrint('Failed to parse sermon content for text export: $e');
         buffer.writeln(sermon.content);
       }
       

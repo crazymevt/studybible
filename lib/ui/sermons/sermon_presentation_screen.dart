@@ -22,7 +22,8 @@ class _SermonPresentationScreenState extends State<SermonPresentationScreen> {
     try {
       final decoded = jsonDecode(widget.sermon.content);
       document = Document.fromJson(decoded);
-    } catch (_) {
+    } catch (e) {
+      debugPrint('Failed to parse sermon content as Quill document: $e');
       document = Document()..insert(0, widget.sermon.content);
     }
     _controller = QuillController(
