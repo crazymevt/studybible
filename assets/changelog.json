@@ -1,5 +1,17 @@
 [
   {
+    "version": "26.6.21+8",
+    "date": "2026-06-21",
+    "features": [
+      {
+        "category": "Updates",
+        "title": "Added app-wide crash and error logging for improved stability",
+        "description": "",
+        "icon": "update"
+      }
+    ]
+  },
+  {
     "version": "26.6.21+7",
     "date": "2026-06-21",
     "features": [
