@@ -1,5 +1,17 @@
 [
   {
+    "version": "26.6.21+2",
+    "date": "2026-06-21",
+    "features": [
+      {
+        "category": "Bugfixes",
+        "title": "Make MyBibleImporter robust to missing columns in SQLite modules",
+        "description": "",
+        "icon": "bug_report"
+      }
+    ]
+  },
+  {
     "version": "26.6.21+1",
     "date": "2026-06-21",
     "features": [
