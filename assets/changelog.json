@@ -1,5 +1,17 @@
 [
   {
+    "version": "26.6.21+6",
+    "date": "2026-06-21",
+    "features": [
+      {
+        "category": "Bugfixes",
+        "title": "evaluate achievements and correctly update paths on sync",
+        "description": "",
+        "icon": "bug_report"
+      }
+    ]
+  },
+  {
     "version": "26.6.21+5",
     "date": "2026-06-21",
     "features": [
