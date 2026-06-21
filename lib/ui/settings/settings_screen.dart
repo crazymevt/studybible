@@ -11,6 +11,7 @@ import '../whats_new_dialog.dart';
 import 'dart:io';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:macos_secure_bookmarks/macos_secure_bookmarks.dart';
+import 'acknowledgments_screen.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -58,6 +59,18 @@ class SettingsScreen extends ConsumerWidget {
               showDialog(
                 context: context,
                 builder: (context) => const WhatsNewDialog(),
+              );
+            },
+          ),
+          ListTile(
+            title: const Text('Acknowledgments'),
+            subtitle: const Text('Credits and open source licenses'),
+            trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const AcknowledgmentsScreen(),
+                ),
               );
             },
           ),
