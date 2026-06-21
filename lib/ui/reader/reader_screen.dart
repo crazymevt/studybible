@@ -5,6 +5,7 @@ import '../../app/reader_state.dart';
 import '../../app/user_providers.dart';
 import '../../app/tag_providers.dart';
 import '../../app/sync_service.dart';
+import '../../app/audio_providers.dart';
 import 'verse_list_view.dart';
 import 'flowing_paragraph_view.dart';
 import 'parallel_view.dart';
@@ -244,6 +245,8 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
     final versesWithTagsAsync = ref.watch(chapterVersesWithTagsProvider);
     final versesWithTags = versesWithTagsAsync.value ?? <int>{};
 
+    final audioData = ref.watch(chapterAudioProvider);
+
     final subheadingsAsync = ref.watch(chapterSubheadingsProvider((bookName: bookName, chapter: chapter)));
     final subheadings = subheadingsAsync.value ?? <int, List<String>>{};
 
@@ -343,21 +346,22 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
             ),
           ),
           actions: [
-            IconButton(
-              icon: const Icon(Icons.headphones),
-              tooltip: 'Audio Player',
-              onPressed: () {
-                showModalBottomSheet(
-                  context: context,
-                  isScrollControlled: true,
-                  backgroundColor: Theme.of(context).colorScheme.surface,
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-                  ),
-                  builder: (context) => const AudioPlayerWidget(),
-                );
-              },
-            ),
+            if (audioData != null)
+              IconButton(
+                icon: const Icon(Icons.headphones),
+                tooltip: 'Audio Player',
+                onPressed: () {
+                  showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    backgroundColor: Theme.of(context).colorScheme.surface,
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                    ),
+                    builder: (context) => const AudioPlayerWidget(),
+                  );
+                },
+              ),
           IconButton(
             icon: const Icon(Icons.sync),
             tooltip: 'Sync Data',
