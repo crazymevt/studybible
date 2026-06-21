@@ -72,5 +72,42 @@ void main() {
       expect(ref.startVerse, 1);
       expect(ref.endVerse, 1);
     });
+
+    test('falls back to chapter 1 for a bare book name', () {
+      final ref = ReferenceParser.parse('Obadiah');
+      expect(ref.bookName, 'Obadiah');
+      expect(ref.startChapter, 1);
+      expect(ref.endChapter, 1);
+      expect(ref.startVerse, isNull);
+      expect(ref.endVerse, isNull);
+    });
+
+    test('normalizes a numbered book joined to its chapter', () {
+      final ref = ReferenceParser.parse('1Chronicles 5');
+      expect(ref.bookName, '1 Chronicles');
+      expect(ref.startChapter, 5);
+      expect(ref.endChapter, 5);
+    });
+  });
+
+  group('ReferenceParser.normalizeBookName', () {
+    test('maps known aliases to canonical names', () {
+      expect(ReferenceParser.normalizeBookName('SongOfSongs'), 'Song of Solomon');
+      expect(ReferenceParser.normalizeBookName('1 Cor'), '1 Corinthians');
+      expect(ReferenceParser.normalizeBookName('1 Cor.'), '1 Corinthians');
+      expect(ReferenceParser.normalizeBookName('2Tim'), '2 Timothy');
+    });
+
+    test('inserts a space after a leading digit', () {
+      expect(ReferenceParser.normalizeBookName('1Samuel'), '1 Samuel');
+    });
+
+    test('trims whitespace', () {
+      expect(ReferenceParser.normalizeBookName('  Genesis  '), 'Genesis');
+    });
+
+    test('leaves unrecognized names unchanged', () {
+      expect(ReferenceParser.normalizeBookName('Genesis'), 'Genesis');
+    });
   });
 }
