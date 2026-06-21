@@ -34,6 +34,14 @@ This project strictly follows a **clean layered architecture**:
 - [Design & Roadmap](DESIGN.md) - The source of truth for what we're building and why.
 - [Contributing](CONTRIBUTING.md) - Guidelines for contributing to the project.
 
+## Acknowledgments
+
+This project is made possible thanks to several upstream resources and formats:
+- **[ph4.org](https://ph4.org/)**: For providing the extensive catalog of Bible modules, commentaries, and dictionaries.
+- **[MyBible](https://mybible.zone/)**: For their excellent SQLite-based module format which this app imports and utilizes.
+- **OSIS (Open Scriptural Information Standard)**: For the standard XML schema used in representing scriptural texts.
+- **Clojure/JavaFX Study Bible**: The original desktop application that inspired and provided the feature foundation for this Flutter reimplementation.
+
 ## Getting Started
 
 1. Install [Flutter](https://docs.flutter.dev/get-started/install).
