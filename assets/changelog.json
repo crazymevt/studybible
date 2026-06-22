@@ -1,5 +1,17 @@
 [
   {
+    "version": "26.6.22+5",
+    "date": "2026-06-22",
+    "features": [
+      {
+        "category": "Updates",
+        "title": "fix(android): resolve OOM/LMKD crashes when restoring large backup files",
+        "description": "",
+        "icon": "update"
+      }
+    ]
+  },
+  {
     "version": "26.6.22+4",
     "date": "2026-06-22",
     "features": [
