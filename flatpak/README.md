@@ -45,8 +45,8 @@ the Flatpak just wraps it.
 
 ## Before submitting to Flathub
 
-1. **License (required).** Add a `LICENSE` file in the repo root and set a valid
-   SPDX `project_license` in the metainfo. It is currently a placeholder.
+1. **License.** ✅ Apache-2.0 (`LICENSE` + `NOTICE` in the repo root, and
+   `project_license` set in the metainfo).
 2. **Switch the source to a release tarball.** Replace the `type: dir` source in
    the `studybible` module with the published `StudyBible-Linux.tar.gz` from a
    GitHub release, pinned by `sha256` (see the comment in the manifest). A

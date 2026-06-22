@@ -84,6 +84,12 @@ This project is made possible thanks to several upstream resources and formats:
 
 
 
+## License
+
+StudyBible is licensed under the [Apache License 2.0](LICENSE). See [NOTICE](NOTICE) for attribution.
+
+Individual Bible modules, commentaries, and dictionaries downloaded or imported into the app remain subject to their own respective copyrights and licenses.
+
 ## ❤️ Support
 
 This is a free app, built as a labor of love. If it's been a blessing to your study and you'd like to support its continued development, you can leave a gift on Ko-fi:

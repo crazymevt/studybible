@@ -6,11 +6,7 @@
   <summary>Multi-version Bible reader with study tools and cross-device sync</summary>
 
   <metadata_license>CC0-1.0</metadata_license>
-  <!-- TODO(license): replace with the app's real SPDX license identifier.
-       Flathub requires a valid project_license AND a matching LICENSE file in
-       the repo root. Pick one (e.g. GPL-3.0-or-later, MIT, Apache-2.0) before
-       submitting to Flathub. -->
-  <project_license>LicenseRef-proprietary=https://github.com/crazymevt/StudyBible</project_license>
+  <project_license>Apache-2.0</project_license>
 
   <developer id="io.github.crazymevt">
     <name>Jessie Hughart</name>
