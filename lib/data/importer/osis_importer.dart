@@ -182,12 +182,11 @@ class OsisImporter {
             // osisID format: "Gen.1.1"
             final verseNum = _parseVerseNum(verseOsisId);
 
-            final text = _extractVerseText(verseEl);
-            if (text.isEmpty) continue;
+            final built = _buildSegments(verseEl);
+            if (built.text.isEmpty) continue;
 
-            final segments = [VerseSegment(text: text)];
             final segmentsJson = jsonEncode(
-              segments.map((s) => s.toJson()).toList(),
+              built.segments.map((s) => s.toJson()).toList(),
             );
 
             batch.insert(
@@ -196,7 +195,7 @@ class OsisImporter {
                 bookId: bookId,
                 chapter: chapterNum,
                 verse: verseNum,
-                textContent: text,
+                textContent: built.text,
                 segments: segmentsJson,
               ),
             );
@@ -236,22 +235,56 @@ class OsisImporter {
     return 1;
   }
 
-  /// Extract the plain text content from a verse element,
-  /// stripping any nested XML markup.
-  String _extractVerseText(XmlElement verseEl) {
-    final buffer = StringBuffer();
-    _collectText(verseEl, buffer);
-    return buffer.toString().replaceAll(RegExp(r'\s+'), ' ').trim();
-  }
+  /// Build the verse's display segments and searchable plain text.
+  ///
+  /// Inline markup (e.g. `<w>`) is flattened into the running text, but each
+  /// OSIS `<note>` becomes a footnote [VerseSegment] instead of being merged
+  /// into the verse — the reader renders these as a tappable indicator, and
+  /// their text is kept out of [text] so it never pollutes the search index.
+  ({String text, List<VerseSegment> segments}) _buildSegments(
+    XmlElement verseEl,
+  ) {
+    final segments = <VerseSegment>[];
+    final plain = StringBuffer();
+    final current = StringBuffer();
 
-  /// Recursively collect text nodes from an element.
-  void _collectText(XmlNode node, StringBuffer buffer) {
-    for (final child in node.children) {
-      if (child is XmlText) {
-        buffer.write(child.value);
-      } else if (child is XmlElement) {
-        _collectText(child, buffer);
+    void flushText() {
+      final collapsed = current.toString().replaceAll(RegExp(r'\s+'), ' ');
+      current.clear();
+      if (collapsed.trim().isEmpty) {
+        // Preserve a separating space so adjacent words don't run together.
+        if (collapsed.isNotEmpty) plain.write(' ');
+        return;
+      }
+      segments.add(VerseSegment(text: collapsed));
+      plain.write(collapsed);
+    }
+
+    void walk(XmlNode node) {
+      for (final child in node.children) {
+        if (child is XmlText) {
+          current.write(child.value);
+        } else if (child is XmlElement) {
+          if (child.localName == 'note') {
+            flushText();
+            final noteText =
+                child.innerText.replaceAll(RegExp(r'\s+'), ' ').trim();
+            if (noteText.isNotEmpty) {
+              segments.add(
+                VerseSegment(isFootnote: true, footnoteText: noteText),
+              );
+            }
+          } else {
+            walk(child);
+          }
+        }
       }
     }
+
+    walk(verseEl);
+    flushText();
+
+    final text = plain.toString().replaceAll(RegExp(r'\s+'), ' ').trim();
+    return (text: text, segments: segments);
   }
 }

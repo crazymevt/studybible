@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:drift/drift.dart' show OrderingTerm;
@@ -5,6 +6,7 @@ import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:study_bible/data/content_store.dart';
 import 'package:study_bible/data/importer/osis_importer.dart';
+import 'package:study_bible/data/models/verse_segment.dart';
 
 /// A minimal but representative OSIS document: a work header with a title,
 /// one OT and one NT book, nested inline markup (`<w>`), and a `<note>` that
@@ -84,7 +86,7 @@ void main() {
     expect(books.map((b) => b.bookOrder), [1, 2]);
   });
 
-  test('parses chapter/verse numbers and strips nested markup + notes',
+  test('flattens inline markup but keeps <note> text out of the verse',
       () async {
     await OsisImporter(store).importOsisFile(osisFile, 'tsv', 'TSV', 'en');
 
@@ -92,13 +94,37 @@ void main() {
     expect(gen.map((v) => v.verse), [1, 2]);
     expect(gen.every((v) => v.chapter == 1), isTrue);
 
-    // <w> text is kept inline, the <note> text is kept too (it is collected
-    // recursively), and runs of whitespace collapse to a single space.
+    // <w> text is flattened inline; the <note> text is excluded; runs of
+    // whitespace collapse to a single space.
     expect(
       gen.first.textContent,
-      'In the beginning God created the heavens and the earth.cf. John 1:1',
+      'In the beginning God created the heavens and the earth.',
     );
+    expect(gen.first.textContent, isNot(contains('John 1:1')));
     expect(gen.first.textContent, isNot(contains('   ')));
+  });
+
+  test('imports each <note> as a footnote segment, not inline verse text',
+      () async {
+    await OsisImporter(store).importOsisFile(osisFile, 'tsv', 'TSV', 'en');
+
+    final gen = await versesFor('Genesis');
+    final segments = (jsonDecode(gen.first.segments) as List)
+        .map((e) => VerseSegment.fromJson(e as Map<String, dynamic>))
+        .toList();
+
+    final footnotes = segments.where((s) => s.isFootnote).toList();
+    expect(footnotes, hasLength(1));
+    expect(footnotes.single.footnoteText, 'cf. John 1:1');
+
+    // The scripture text segments carry no footnote text.
+    final textSegs = segments.where((s) => !s.isFootnote);
+    expect(textSegs.map((s) => s.text).join(), isNot(contains('John 1:1')));
+
+    // The verse without a note has no footnote segment.
+    final v2 = (jsonDecode(gen[1].segments) as List)
+        .map((e) => VerseSegment.fromJson(e as Map<String, dynamic>));
+    expect(v2.any((s) => s.isFootnote), isFalse);
   });
 
   test('populates the FTS search index for imported verses', () async {
