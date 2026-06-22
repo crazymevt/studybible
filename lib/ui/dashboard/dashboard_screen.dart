@@ -11,6 +11,7 @@ import '../../app/app_state.dart';
 import '../../data/verse_of_the_day_list.dart';
 import '../../app/reader_state.dart';
 import '../common/global_search_bar.dart';
+import '../../app/sync_service.dart';
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
@@ -55,6 +56,8 @@ class DashboardScreen extends ConsumerWidget {
           ),
         ),
         actions: [
+          const _SyncButton(),
+          const SizedBox(width: 8),
           Padding(
             padding: const EdgeInsets.only(right: 16.0),
             child: FilledButton.icon(
@@ -828,6 +831,65 @@ extension on DashboardScreen {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _SyncButton extends ConsumerStatefulWidget {
+  const _SyncButton();
+
+  @override
+  ConsumerState<_SyncButton> createState() => _SyncButtonState();
+}
+
+class _SyncButtonState extends ConsumerState<_SyncButton> {
+  bool _isSyncing = false;
+
+  Future<void> _performSync() async {
+    setState(() {
+      _isSyncing = true;
+    });
+    try {
+      await ref.read(syncServiceProvider).sync();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Sync completed successfully')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Sync failed: $e')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSyncing = false;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_isSyncing) {
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.0),
+          child: SizedBox(
+            width: 20,
+            height: 20,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ),
+        ),
+      );
+    }
+
+    return IconButton(
+      icon: const Icon(Icons.sync),
+      tooltip: 'Sync Now',
+      onPressed: _performSync,
     );
   }
 }
