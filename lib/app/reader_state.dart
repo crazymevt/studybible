@@ -1,10 +1,30 @@
+import 'package:collection/collection.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'content_providers.dart';
 import 'shared_prefs.dart';
 
 class ActiveVersionsNotifier extends Notifier<List<String>> {
   @override
   List<String> build() {
     final prefs = ref.watch(sharedPreferencesProvider);
+
+    // Self-heal the stored selection against what's actually installed,
+    // reacting whenever the installed list loads or changes. Done here, in the
+    // owner of this state, via a listener whose callback runs outside the build
+    // phase — previously validActiveVersionsProvider wrote back here while being
+    // watched during a widget build, which threw "setState() called during
+    // build".
+    ref.listen(versionsProvider, (_, next) {
+      final installed = next.value;
+      if (installed == null || installed.isEmpty) return;
+      final ids = installed.map((v) => v.id).toSet();
+      final pruned = state.where(ids.contains).toList();
+      final fixed = pruned.isEmpty ? [installed.first.id] : pruned;
+      if (!const ListEquality<String>().equals(fixed, state)) {
+        set(fixed);
+      }
+    });
+
     return prefs.getStringList('activeVersions') ?? ['NLT'];
   }
 
