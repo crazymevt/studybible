@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:path/path.dart' as p;
+import 'package:saf_stream/saf_stream.dart';
+import 'package:saf_util/saf_util.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../app/backup_providers.dart';
 import '../../data/backup/backup_restore_service.dart';
@@ -39,7 +42,57 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
 
       if (!mounted) return;
 
-      // Let user pick where to save
+      // Mobile has no "Save As" dialog via file_selector (getSaveLocation is
+      // desktop/web only).
+      if (Platform.isAndroid) {
+        // Android: pick a destination folder through the Storage Access
+        // Framework (which includes local storage) and copy the backup into
+        // it — no storage permission, and unlike a share sheet it can target a
+        // plain local folder.
+        final dir = await SafUtil().pickDirectory(
+          writePermission: true,
+          persistablePermission: false,
+          initialUri: '',
+        );
+        if (dir != null) {
+          await SafStream().pasteLocalFile(
+            backupFile.path,
+            dir.uri,
+            service.defaultFilename,
+            'application/octet-stream',
+            overwrite: true,
+          );
+        }
+        await backupFile.delete();
+        if (mounted) {
+          setState(
+            () => _statusMessage = dir != null
+                ? 'Backup saved successfully!'
+                : 'Backup cancelled.',
+          );
+        }
+        return;
+      }
+
+      if (Platform.isIOS) {
+        // iOS: the system share sheet offers "Save to Files" for local folders.
+        final shareResult = await SharePlus.instance.share(
+          ShareParams(
+            files: [XFile(backupFile.path, name: service.defaultFilename)],
+          ),
+        );
+        await backupFile.delete();
+        if (mounted) {
+          final saved = shareResult.status == ShareResultStatus.success;
+          setState(
+            () => _statusMessage =
+                saved ? 'Backup saved successfully!' : 'Backup cancelled.',
+          );
+        }
+        return;
+      }
+
+      // Desktop: let the user pick where to save.
       final saveLocation = await getSaveLocation(
         suggestedName: service.defaultFilename,
       );
