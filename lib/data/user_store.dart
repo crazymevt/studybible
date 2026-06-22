@@ -307,8 +307,11 @@ LazyDatabase _openConnection() {
     final dbFolder = await appDataDir();
     final file = File(p.join(dbFolder.path, 'user.db'));
     return NativeDatabase.createInBackground(file, setup: (db) {
-      db.execute('PRAGMA journal_mode=WAL;');
+      // Set busy_timeout *before* switching to WAL — see the matching note in
+      // content_store.dart. Otherwise the WAL switch can fail instantly with
+      // SQLITE_BUSY when another connection is opening the db concurrently.
       db.execute('PRAGMA busy_timeout=10000;');
+      db.execute('PRAGMA journal_mode=WAL;');
       db.execute('PRAGMA synchronous=NORMAL;');
     });
   });

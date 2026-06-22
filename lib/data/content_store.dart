@@ -231,8 +231,13 @@ LazyDatabase _openConnection() {
     final dbFolder = await appDataDir();
     final file = File(p.join(dbFolder.path, 'content.db'));
     return NativeDatabase.createInBackground(file, setup: (db) {
-      db.execute('PRAGMA journal_mode=WAL;');
+      // Set busy_timeout *before* switching to WAL. Enabling WAL needs a brief
+      // exclusive lock, and if another connection is opening or recovering the
+      // same database concurrently at startup, the switch would otherwise fail
+      // instantly with SQLITE_BUSY (seen as code 261, BUSY_RECOVERY). With the
+      // timeout set first, the switch waits for the other connection instead.
       db.execute('PRAGMA busy_timeout=10000;');
+      db.execute('PRAGMA journal_mode=WAL;');
       db.execute('PRAGMA synchronous=NORMAL;');
     });
   });
