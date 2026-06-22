@@ -522,10 +522,6 @@ class NavigationController {
       verseText: verseText,
     );
 
-    debugPrint(
-      'DEBUG: Saving history -> book: $bookName, chapter: $chapter, verse: $verse, text: $verseText',
-    );
-
     await userStore.into(userStore.navigationHistories).insert(newEntry);
   }
 

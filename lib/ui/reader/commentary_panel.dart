@@ -245,10 +245,6 @@ class CommentaryPanel extends ConsumerWidget {
                                         .read(navigationControllerProvider)
                                         .recordHistory(verse: v);
 
-                                    debugPrint(
-                                      'Navigated to $bookName $c:$v from URL $url',
-                                    );
-
                                     // Also close the tool panel so they can read the verse
                                     ref
                                         .read(activeToolProvider.notifier)
