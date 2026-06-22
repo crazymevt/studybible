@@ -6,7 +6,7 @@ import '../../app/app_state.dart';
 import '../../app/content_providers.dart';
 import '../../app/sync_service.dart';
 import '../../theme/app_themes.dart';
-import 'package:file_selector/file_selector.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../whats_new_dialog.dart';
@@ -102,12 +102,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     };
     final jsonStr = jsonEncode(themeData);
     
-    const XTypeGroup jsonGroup = XTypeGroup(label: 'JSON', extensions: ['json']);
-    final FileSaveLocation? saveLocation = await getSaveLocation(
-      acceptedTypeGroups: const [jsonGroup],
-      suggestedName: 'custom_theme.json',
+    final String? outputFile = await FilePicker.saveFile(
+      dialogTitle: 'Save Theme',
+      fileName: 'custom_theme.json',
+      type: FileType.custom,
+      allowedExtensions: ['json'],
     );
-    final String? outputFile = saveLocation?.path;
 
     if (outputFile != null) {
       await File(outputFile).writeAsString(jsonStr);
@@ -120,12 +120,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   }
 
   Future<void> _importTheme() async {
-    const XTypeGroup jsonGroup = XTypeGroup(label: 'JSON', extensions: ['json']);
-    final XFile? picked = await openFile(acceptedTypeGroups: const [jsonGroup]);
+    final FilePickerResult? picked = await FilePicker.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['json'],
+    );
 
-    if (picked != null) {
+    if (picked != null && picked.files.isNotEmpty && picked.files.single.path != null) {
       try {
-        final jsonStr = await picked.readAsString();
+        final jsonStr = await File(picked.files.single.path!).readAsString();
         final Map<String, dynamic> themeData = jsonDecode(jsonStr);
         
         setState(() {
@@ -715,9 +717,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       initialUri: '',
                     );
                     selectedDirectory = dir?.uri;
-                  } else {
-                    selectedDirectory = await getDirectoryPath();
-                  }
+                    } else {
+                      selectedDirectory = await FilePicker.getDirectoryPath();
+                    }
 
                   if (selectedDirectory != null) {
                     ref.read(syncFolderPathProvider.notifier).setPath(selectedDirectory);

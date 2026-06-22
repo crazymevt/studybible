@@ -1,7 +1,8 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:file_selector/file_selector.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 import 'package:saf_stream/saf_stream.dart';
 import 'package:saf_util/saf_util.dart';
@@ -93,10 +94,10 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
       }
 
       // Desktop: let the user pick where to save.
-      final saveLocation = await getSaveLocation(
-        suggestedName: service.defaultFilename,
+      final result = await FilePicker.saveFile(
+        dialogTitle: 'Save Backup',
+        fileName: service.defaultFilename,
       );
-      final result = saveLocation?.path;
 
       if (result != null) {
         // Copy the temp backup to the chosen location
@@ -133,46 +134,85 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
 
   Future<void> _restoreBackup() async {
     // 1. Pick a file
-    final picked = await openFile();
+    String? pickedFileUri;
+    Stream<List<int>>? readStream;
+    String? pickedFilePath;
 
-    if (picked == null) return;
+    if (Platform.isAndroid) {
+      final doc = await SafUtil().pickFile(
+        mimeTypes: ['application/octet-stream', '*/*'],
+      );
+      if (doc == null) return;
+      pickedFileUri = doc.uri;
+    } else {
+      final picked = await FilePicker.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['studybible'],
+        withReadStream: true,
+      );
 
-    final backupFile = File(picked.path);
-    final service = ref.read(backupRestoreServiceProvider);
-
-    // 2. Inspect the backup
-    BackupInfo info;
-    try {
-      info = await service.inspectBackup(backupFile);
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Invalid backup file: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-      return;
+      if (picked == null || picked.files.isEmpty) return;
+      final pickedFile = picked.files.single;
+      readStream = pickedFile.readStream;
+      pickedFilePath = pickedFile.path;
     }
 
-    if (!mounted) return;
+    final service = ref.read(backupRestoreServiceProvider);
 
-    // 3. Show confirmation dialog with backup details
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => _RestoreConfirmDialog(info: info),
-    );
-
-    if (confirmed != true || !mounted) return;
-
-    // 4. Perform restore
     setState(() {
       _isWorking = true;
-      _statusMessage = 'Restoring...';
+      _statusMessage = 'Preparing backup...';
     });
 
+    File backupFile;
     try {
+      if (Platform.isAndroid && pickedFileUri != null) {
+        readStream = await SafStream().readFileStream(pickedFileUri);
+      }
+
+      if (readStream != null) {
+        final tempDir = await getTemporaryDirectory();
+        backupFile = File(p.join(tempDir.path, 'temp_restore.studybible'));
+        final sink = backupFile.openWrite();
+        await for (final chunk in readStream) {
+          sink.add(chunk);
+        }
+        await sink.close();
+      } else if (pickedFilePath != null) {
+        backupFile = File(pickedFilePath);
+      } else {
+        throw Exception('Could not read picked file');
+      }
+
+      // 2. Inspect the backup
+      BackupInfo info;
+      try {
+        info = await service.inspectBackup(backupFile);
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Invalid backup file: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+        return;
+      }
+
+      if (!mounted) return;
+
+      // 3. Show confirmation dialog with backup details
+      final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (context) => _RestoreConfirmDialog(info: info),
+      );
+
+      if (confirmed != true || !mounted) return;
+
+      // 4. Perform restore
+      setState(() => _statusMessage = 'Restoring...');
+
       await service.restoreBackup(
         backupFile,
         onProgress: (status) {
@@ -215,6 +255,17 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
       }
     } finally {
       if (mounted) setState(() => _isWorking = false);
+      
+      // Clean up temp file if we created one
+      try {
+        if (readStream != null) {
+          final tempDir = await getTemporaryDirectory();
+          final tempFile = File(p.join(tempDir.path, 'temp_restore.studybible'));
+          if (await tempFile.exists()) {
+            await tempFile.delete();
+          }
+        }
+      } catch (_) {}
     }
   }
 

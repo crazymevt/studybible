@@ -7,7 +7,8 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:share_plus/share_plus.dart';
 import 'package:vsc_quill_delta_to_html/vsc_quill_delta_to_html.dart';
 import 'package:archive/archive.dart';
-import 'package:file_selector/file_selector.dart';
+import 'package:file_picker/file_picker.dart';
+
 import '../user_store.dart';
 import 'dart:io';
 
@@ -51,10 +52,10 @@ class SermonExporter {
       }
 
       if (action == ExportAction.save) {
-        final saveLocation = await getSaveLocation(
-          suggestedName: filename,
+        final path = await FilePicker.saveFile(
+          dialogTitle: 'Save Sermons',
+          fileName: filename,
         );
-        final String? path = saveLocation?.path;
         if (path != null) {
           final file = File(path);
           await file.writeAsBytes(bytes);
