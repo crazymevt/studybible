@@ -1,5 +1,23 @@
 [
   {
+    "version": "26.6.21+10",
+    "date": "2026-06-21",
+    "features": [
+      {
+        "category": "Bugfixes",
+        "title": "Cleaner, more accurate search",
+        "description": "Search results and word suggestions no longer include formatting markup or junk tokens, and sermon results show readable text instead of raw rich-text data.",
+        "icon": "bug_report"
+      },
+      {
+        "category": "New Features",
+        "title": "Rebuild search index",
+        "description": "A new option in Settings re-indexes your installed content to clean up search suggestions.",
+        "icon": "star"
+      }
+    ]
+  },
+  {
     "version": "26.6.21+9",
     "date": "2026-06-21",
     "features": [
