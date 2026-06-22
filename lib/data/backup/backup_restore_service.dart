@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:archive/archive.dart';
+import 'package:archive/archive_io.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 import 'package:intl/intl.dart';
@@ -137,10 +138,9 @@ class BackupRestoreService {
     return backupFile;
   }
 
-  /// Inspect a backup file without restoring it.
   Future<BackupInfo> inspectBackup(File backupFile) async {
-    final bytes = await backupFile.readAsBytes();
-    final archive = ZipDecoder().decodeBytes(bytes);
+    final inputStream = InputFileStream(backupFile.path);
+    final archive = ZipDecoder().decodeStream(inputStream);
 
     BackupManifest manifest;
     bool hasUserDb = false;
@@ -163,9 +163,11 @@ class BackupRestoreService {
       if (file.name == 'content.db') hasContentDb = true;
     }
 
+    inputStream.close();
+
     return BackupInfo(
       manifest: manifest,
-      fileSizeBytes: bytes.length,
+      fileSizeBytes: await backupFile.length(),
       hasUserDb: hasUserDb,
       hasContentDb: hasContentDb,
     );
@@ -183,24 +185,41 @@ class BackupRestoreService {
     final dbDir = await _getDbDir();
 
     onProgress?.call('Reading backup file...');
-    final bytes = await backupFile.readAsBytes();
-    final archive = ZipDecoder().decodeBytes(bytes);
+    final inputStream = InputFileStream(backupFile.path);
+    final archive = ZipDecoder().decodeStream(inputStream);
 
     for (final file in archive) {
       if (file.name == 'user.db') {
         onProgress?.call('Restoring user data...');
         final targetFile = File(p.join(dbDir, 'user.db'));
+        
+        final wal = File('${targetFile.path}-wal');
+        final shm = File('${targetFile.path}-shm');
+        if (await wal.exists()) await wal.delete();
+        if (await shm.exists()) await shm.delete();
+
         await targetFile.parent.create(recursive: true);
-        await targetFile.writeAsBytes(file.content as List<int>);
+        final outStream = OutputFileStream(targetFile.path);
+        file.writeContent(outStream);
+        outStream.close();
       } else if (file.name == 'content.db') {
         onProgress?.call('Restoring downloaded content...');
         final targetFile = File(p.join(dbDir, 'content.db'));
+        
+        final wal = File('${targetFile.path}-wal');
+        final shm = File('${targetFile.path}-shm');
+        if (await wal.exists()) await wal.delete();
+        if (await shm.exists()) await shm.delete();
+
         await targetFile.parent.create(recursive: true);
-        await targetFile.writeAsBytes(file.content as List<int>);
+        final outStream = OutputFileStream(targetFile.path);
+        file.writeContent(outStream);
+        outStream.close();
       }
       // Skip manifest.json and anything else
     }
 
+    inputStream.close();
     onProgress?.call('Restore complete. Please restart the app.');
   }
 
