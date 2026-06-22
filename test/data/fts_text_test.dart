@@ -36,4 +36,34 @@ void main() {
       expect(stripMarkupForIndex(''), '');
     });
   });
+
+  group('deltaToPlainText', () {
+    test('extracts text from Delta insert ops', () {
+      expect(
+        deltaToPlainText(
+          '[{"insert":"Grace and "},{"insert":"truth","attributes":{"bold":true}}]',
+        ),
+        'Grace and truth',
+      );
+    });
+
+    test('skips embed (non-string) inserts', () {
+      expect(
+        deltaToPlainText('[{"insert":{"image":"x.png"}},{"insert":"caption"}]'),
+        'caption',
+      );
+    });
+
+    test('collapses trailing newlines/whitespace', () {
+      expect(deltaToPlainText('[{"insert":"Line one\\n\\n"}]'), 'Line one');
+    });
+
+    test('falls back to the input when not valid Delta JSON', () {
+      expect(deltaToPlainText('just plain text'), 'just plain text');
+    });
+
+    test('handles empty string', () {
+      expect(deltaToPlainText(''), '');
+    });
+  });
 }

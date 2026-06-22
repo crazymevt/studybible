@@ -75,6 +75,9 @@ class Sermons extends Table {
   TextColumn get title => text()();
   TextColumn get series => text().nullable()();
   TextColumn get content => text()(); // Stores delta JSON string
+  // Plain-text projection of [content], derived on save, used only for the
+  // full-text search index so the FTS vocab isn't polluted with Delta JSON.
+  TextColumn get contentPlain => text().nullable()();
 
   @override
   Set<Column> get primaryKey => {id};

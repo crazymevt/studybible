@@ -6,6 +6,7 @@ import 'package:uuid/uuid.dart';
 import 'package:drift/drift.dart';
 
 import '../data/user_store.dart';
+import '../data/fts_text.dart';
 
 import '../data/sync/file_sync_engine.dart';
 import '../domain/sync/lww_merge.dart';
@@ -427,6 +428,7 @@ class SyncService {
                 .into(_store.journals)
                 .insert(item, mode: InsertMode.replace);
           } else if (type == 'sermon') {
+            final content = rec.payload['content'] as String;
             final item = Sermon(
               id: rec.id,
               updatedAt: rec.updatedAt,
@@ -435,7 +437,10 @@ class SyncService {
               createdAt: (rec.payload['createdAt'] as num).toInt(),
               title: rec.payload['title'] as String,
               series: rec.payload['series'] as String?,
-              content: rec.payload['content'] as String,
+              content: content,
+              // content_plain is not synced (derived); recompute it locally so
+              // the search index for synced sermons is plain text too.
+              contentPlain: deltaToPlainText(content),
             );
             await _store
                 .into(_store.sermons)

@@ -5,6 +5,8 @@
 // and embedded junk tokens (tag names, attribute values, ids). Strip it to
 // plain words before indexing.
 
+import 'dart:convert';
+
 final RegExp _tagPattern = RegExp(r'<[^>]*>');
 final RegExp _whitespacePattern = RegExp(r'\s+');
 
@@ -30,4 +32,25 @@ String stripMarkupForIndex(String input) {
   }
 
   return text.replaceAll(_whitespacePattern, ' ').trim();
+}
+
+/// Extracts plain text from a Quill Delta JSON string (a list of ops, each with
+/// an `insert`). Used to index rich-text content (e.g. sermons) as words rather
+/// than raw JSON. Falls back to returning the input unchanged if it is not
+/// valid Delta JSON.
+String deltaToPlainText(String deltaJson) {
+  if (deltaJson.isEmpty) return deltaJson;
+  try {
+    final decoded = jsonDecode(deltaJson);
+    if (decoded is! List) return deltaJson;
+    final buffer = StringBuffer();
+    for (final op in decoded) {
+      if (op is Map && op['insert'] is String) {
+        buffer.write(op['insert']);
+      }
+    }
+    return buffer.toString().replaceAll(_whitespacePattern, ' ').trim();
+  } catch (_) {
+    return deltaJson;
+  }
 }

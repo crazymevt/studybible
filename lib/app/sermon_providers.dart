@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import 'package:drift/drift.dart' as drift;
 import '../data/user_store.dart';
+import '../data/fts_text.dart';
 import 'tag_providers.dart';
 import 'user_providers.dart';
 import 'sync_service.dart';
@@ -37,6 +38,7 @@ class SermonActionNotifier {
   Future<Sermon> createSermon(String title, {String? series, String? content}) async {
     final now = DateTime.now().millisecondsSinceEpoch;
     final deviceId = await _ref.read(deviceIdProvider.future);
+    final effectiveContent = content ?? '[{"insert":"\\n"}]';
     final sermon = SermonsCompanion.insert(
       id: const Uuid().v4(),
       createdAt: now,
@@ -44,7 +46,8 @@ class SermonActionNotifier {
       deviceId: deviceId,
       title: title,
       series: drift.Value(series),
-      content: content ?? '[{"insert":"\\n"}]',
+      content: effectiveContent,
+      contentPlain: drift.Value(deltaToPlainText(effectiveContent)),
     );
     await _store.into(_store.sermons).insert(sermon);
     _ref.read(achievementServiceProvider).evaluateAchievements();
@@ -59,6 +62,9 @@ class SermonActionNotifier {
         title: title != null ? drift.Value(title) : const drift.Value.absent(),
         series: series != null ? drift.Value(series) : const drift.Value.absent(),
         content: content != null ? drift.Value(content) : const drift.Value.absent(),
+        contentPlain: content != null
+            ? drift.Value(deltaToPlainText(content))
+            : const drift.Value.absent(),
       ),
     );
   }

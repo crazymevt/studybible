@@ -6260,6 +6260,17 @@ class $SermonsTable extends Sermons with TableInfo<$SermonsTable, Sermon> {
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _contentPlainMeta = const VerificationMeta(
+    'contentPlain',
+  );
+  @override
+  late final GeneratedColumn<String> contentPlain = GeneratedColumn<String>(
+    'content_plain',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -6270,6 +6281,7 @@ class $SermonsTable extends Sermons with TableInfo<$SermonsTable, Sermon> {
     title,
     series,
     content,
+    contentPlain,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -6340,6 +6352,15 @@ class $SermonsTable extends Sermons with TableInfo<$SermonsTable, Sermon> {
     } else if (isInserting) {
       context.missing(_contentMeta);
     }
+    if (data.containsKey('content_plain')) {
+      context.handle(
+        _contentPlainMeta,
+        contentPlain.isAcceptableOrUnknown(
+          data['content_plain']!,
+          _contentPlainMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -6381,6 +6402,10 @@ class $SermonsTable extends Sermons with TableInfo<$SermonsTable, Sermon> {
         DriftSqlType.string,
         data['${effectivePrefix}content'],
       )!,
+      contentPlain: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}content_plain'],
+      ),
     );
   }
 
@@ -6399,6 +6424,7 @@ class Sermon extends DataClass implements Insertable<Sermon> {
   final String title;
   final String? series;
   final String content;
+  final String? contentPlain;
   const Sermon({
     required this.id,
     required this.createdAt,
@@ -6408,6 +6434,7 @@ class Sermon extends DataClass implements Insertable<Sermon> {
     required this.title,
     this.series,
     required this.content,
+    this.contentPlain,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -6422,6 +6449,9 @@ class Sermon extends DataClass implements Insertable<Sermon> {
       map['series'] = Variable<String>(series);
     }
     map['content'] = Variable<String>(content);
+    if (!nullToAbsent || contentPlain != null) {
+      map['content_plain'] = Variable<String>(contentPlain);
+    }
     return map;
   }
 
@@ -6437,6 +6467,9 @@ class Sermon extends DataClass implements Insertable<Sermon> {
           ? const Value.absent()
           : Value(series),
       content: Value(content),
+      contentPlain: contentPlain == null && nullToAbsent
+          ? const Value.absent()
+          : Value(contentPlain),
     );
   }
 
@@ -6454,6 +6487,7 @@ class Sermon extends DataClass implements Insertable<Sermon> {
       title: serializer.fromJson<String>(json['title']),
       series: serializer.fromJson<String?>(json['series']),
       content: serializer.fromJson<String>(json['content']),
+      contentPlain: serializer.fromJson<String?>(json['contentPlain']),
     );
   }
   @override
@@ -6468,6 +6502,7 @@ class Sermon extends DataClass implements Insertable<Sermon> {
       'title': serializer.toJson<String>(title),
       'series': serializer.toJson<String?>(series),
       'content': serializer.toJson<String>(content),
+      'contentPlain': serializer.toJson<String?>(contentPlain),
     };
   }
 
@@ -6480,6 +6515,7 @@ class Sermon extends DataClass implements Insertable<Sermon> {
     String? title,
     Value<String?> series = const Value.absent(),
     String? content,
+    Value<String?> contentPlain = const Value.absent(),
   }) => Sermon(
     id: id ?? this.id,
     createdAt: createdAt ?? this.createdAt,
@@ -6489,6 +6525,7 @@ class Sermon extends DataClass implements Insertable<Sermon> {
     title: title ?? this.title,
     series: series.present ? series.value : this.series,
     content: content ?? this.content,
+    contentPlain: contentPlain.present ? contentPlain.value : this.contentPlain,
   );
   Sermon copyWithCompanion(SermonsCompanion data) {
     return Sermon(
@@ -6500,6 +6537,9 @@ class Sermon extends DataClass implements Insertable<Sermon> {
       title: data.title.present ? data.title.value : this.title,
       series: data.series.present ? data.series.value : this.series,
       content: data.content.present ? data.content.value : this.content,
+      contentPlain: data.contentPlain.present
+          ? data.contentPlain.value
+          : this.contentPlain,
     );
   }
 
@@ -6513,7 +6553,8 @@ class Sermon extends DataClass implements Insertable<Sermon> {
           ..write('deleted: $deleted, ')
           ..write('title: $title, ')
           ..write('series: $series, ')
-          ..write('content: $content')
+          ..write('content: $content, ')
+          ..write('contentPlain: $contentPlain')
           ..write(')'))
         .toString();
   }
@@ -6528,6 +6569,7 @@ class Sermon extends DataClass implements Insertable<Sermon> {
     title,
     series,
     content,
+    contentPlain,
   );
   @override
   bool operator ==(Object other) =>
@@ -6540,7 +6582,8 @@ class Sermon extends DataClass implements Insertable<Sermon> {
           other.deleted == this.deleted &&
           other.title == this.title &&
           other.series == this.series &&
-          other.content == this.content);
+          other.content == this.content &&
+          other.contentPlain == this.contentPlain);
 }
 
 class SermonsCompanion extends UpdateCompanion<Sermon> {
@@ -6552,6 +6595,7 @@ class SermonsCompanion extends UpdateCompanion<Sermon> {
   final Value<String> title;
   final Value<String?> series;
   final Value<String> content;
+  final Value<String?> contentPlain;
   final Value<int> rowid;
   const SermonsCompanion({
     this.id = const Value.absent(),
@@ -6562,6 +6606,7 @@ class SermonsCompanion extends UpdateCompanion<Sermon> {
     this.title = const Value.absent(),
     this.series = const Value.absent(),
     this.content = const Value.absent(),
+    this.contentPlain = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   SermonsCompanion.insert({
@@ -6573,6 +6618,7 @@ class SermonsCompanion extends UpdateCompanion<Sermon> {
     required String title,
     this.series = const Value.absent(),
     required String content,
+    this.contentPlain = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        createdAt = Value(createdAt),
@@ -6589,6 +6635,7 @@ class SermonsCompanion extends UpdateCompanion<Sermon> {
     Expression<String>? title,
     Expression<String>? series,
     Expression<String>? content,
+    Expression<String>? contentPlain,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -6600,6 +6647,7 @@ class SermonsCompanion extends UpdateCompanion<Sermon> {
       if (title != null) 'title': title,
       if (series != null) 'series': series,
       if (content != null) 'content': content,
+      if (contentPlain != null) 'content_plain': contentPlain,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -6613,6 +6661,7 @@ class SermonsCompanion extends UpdateCompanion<Sermon> {
     Value<String>? title,
     Value<String?>? series,
     Value<String>? content,
+    Value<String?>? contentPlain,
     Value<int>? rowid,
   }) {
     return SermonsCompanion(
@@ -6624,6 +6673,7 @@ class SermonsCompanion extends UpdateCompanion<Sermon> {
       title: title ?? this.title,
       series: series ?? this.series,
       content: content ?? this.content,
+      contentPlain: contentPlain ?? this.contentPlain,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -6655,6 +6705,9 @@ class SermonsCompanion extends UpdateCompanion<Sermon> {
     if (content.present) {
       map['content'] = Variable<String>(content.value);
     }
+    if (contentPlain.present) {
+      map['content_plain'] = Variable<String>(contentPlain.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -6672,6 +6725,7 @@ class SermonsCompanion extends UpdateCompanion<Sermon> {
           ..write('title: $title, ')
           ..write('series: $series, ')
           ..write('content: $content, ')
+          ..write('contentPlain: $contentPlain, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -10716,6 +10770,7 @@ typedef $$SermonsTableCreateCompanionBuilder =
       required String title,
       Value<String?> series,
       required String content,
+      Value<String?> contentPlain,
       Value<int> rowid,
     });
 typedef $$SermonsTableUpdateCompanionBuilder =
@@ -10728,6 +10783,7 @@ typedef $$SermonsTableUpdateCompanionBuilder =
       Value<String> title,
       Value<String?> series,
       Value<String> content,
+      Value<String?> contentPlain,
       Value<int> rowid,
     });
 
@@ -10777,6 +10833,11 @@ class $$SermonsTableFilterComposer
 
   ColumnFilters<String> get content => $composableBuilder(
     column: $table.content,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get contentPlain => $composableBuilder(
+    column: $table.contentPlain,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -10829,6 +10890,11 @@ class $$SermonsTableOrderingComposer
     column: $table.content,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get contentPlain => $composableBuilder(
+    column: $table.contentPlain,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$SermonsTableAnnotationComposer
@@ -10863,6 +10929,11 @@ class $$SermonsTableAnnotationComposer
 
   GeneratedColumn<String> get content =>
       $composableBuilder(column: $table.content, builder: (column) => column);
+
+  GeneratedColumn<String> get contentPlain => $composableBuilder(
+    column: $table.contentPlain,
+    builder: (column) => column,
+  );
 }
 
 class $$SermonsTableTableManager
@@ -10901,6 +10972,7 @@ class $$SermonsTableTableManager
                 Value<String> title = const Value.absent(),
                 Value<String?> series = const Value.absent(),
                 Value<String> content = const Value.absent(),
+                Value<String?> contentPlain = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => SermonsCompanion(
                 id: id,
@@ -10911,6 +10983,7 @@ class $$SermonsTableTableManager
                 title: title,
                 series: series,
                 content: content,
+                contentPlain: contentPlain,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -10923,6 +10996,7 @@ class $$SermonsTableTableManager
                 required String title,
                 Value<String?> series = const Value.absent(),
                 required String content,
+                Value<String?> contentPlain = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => SermonsCompanion.insert(
                 id: id,
@@ -10933,6 +11007,7 @@ class $$SermonsTableTableManager
                 title: title,
                 series: series,
                 content: content,
+                contentPlain: contentPlain,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

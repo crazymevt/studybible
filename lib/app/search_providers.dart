@@ -318,15 +318,14 @@ final globalSearchResultsProvider = FutureProvider<List<SearchResult>>((
         final sTitle = row.readNullable<String>('sermon_title') ?? 'Sermon';
         final sSeries = row.readNullable<String>('sermon_series');
         final displayTitle = sSeries != null ? '$sTitle ($sSeries)' : sTitle;
-        
-        // Clean up delta JSON tags for textContent snippet
-        final cleanText = text.replaceAll(RegExp(r'\{[^\}]+\}'), '').replaceAll(RegExp(r'[\[\]\\n"insert:]'), '').trim();
 
+        // user_search now indexes plain text for sermons, so the snippet is
+        // already clean — no Delta JSON to strip.
         results.add(
           SearchResult(
             type: type,
             referenceId: refId,
-            textContent: cleanText.isEmpty ? text : cleanText,
+            textContent: text.trim(),
             title: 'Sermon: $displayTitle',
           ),
         );

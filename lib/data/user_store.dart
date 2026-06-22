@@ -5,6 +5,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 
 import 'tables/user_tables.dart';
+import 'fts_text.dart';
 
 part 'user_store.g.dart';
 
@@ -31,7 +32,7 @@ class UserStore extends _$UserStore {
   UserStore([QueryExecutor? e]) : super(e ?? _openConnection());
 
   @override
-  int get schemaVersion => 12;
+  int get schemaVersion => 13;
 
   @override
   MigrationStrategy get migration {
@@ -58,12 +59,12 @@ class UserStore extends _$UserStore {
         ''');
         await customStatement('''
           CREATE TRIGGER IF NOT EXISTS sermons_ai AFTER INSERT ON sermons BEGIN
-            INSERT INTO user_search(type, reference_id, text_content) VALUES ('sermon', new.id, new.title || ' ' || new.series || ' ' || new.content);
+            INSERT INTO user_search(type, reference_id, text_content) VALUES ('sermon', new.id, new.title || ' ' || COALESCE(new.series, '') || ' ' || COALESCE(new.content_plain, ''));
           END;
         ''');
         await customStatement('''
           CREATE TRIGGER IF NOT EXISTS sermons_au AFTER UPDATE ON sermons BEGIN
-            UPDATE user_search SET text_content = new.title || ' ' || new.series || ' ' || new.content WHERE type = 'sermon' AND reference_id = new.id;
+            UPDATE user_search SET text_content = new.title || ' ' || COALESCE(new.series, '') || ' ' || COALESCE(new.content_plain, '') WHERE type = 'sermon' AND reference_id = new.id;
           END;
         ''');
         await customStatement('''
@@ -255,6 +256,45 @@ class UserStore extends _$UserStore {
           await customStatement('''
             INSERT INTO user_search(type, reference_id, text_content)
             SELECT 'prayer', id, name || ' ' || description FROM prayers WHERE deleted = 0;
+          ''');
+        }
+        if (from < 13) {
+          // Sermons are rich text (Quill Delta JSON). Index a plain-text
+          // projection instead of the raw JSON so the search index/snippets
+          // aren't polluted with markup.
+          await m.addColumn(sermons, sermons.contentPlain);
+
+          // Drop the sermon triggers so the backfill below doesn't fire them,
+          // then recreate them to index content_plain.
+          await customStatement('DROP TRIGGER IF EXISTS sermons_ai;');
+          await customStatement('DROP TRIGGER IF EXISTS sermons_au;');
+
+          // Backfill content_plain for existing sermons (Delta -> plain text).
+          final existingSermons =
+              await customSelect('SELECT id, content FROM sermons').get();
+          for (final row in existingSermons) {
+            await customStatement('UPDATE sermons SET content_plain = ? WHERE id = ?', [
+              deltaToPlainText(row.read<String>('content')),
+              row.read<String>('id'),
+            ]);
+          }
+
+          await customStatement('''
+            CREATE TRIGGER IF NOT EXISTS sermons_ai AFTER INSERT ON sermons BEGIN
+              INSERT INTO user_search(type, reference_id, text_content) VALUES ('sermon', new.id, new.title || ' ' || COALESCE(new.series, '') || ' ' || COALESCE(new.content_plain, ''));
+            END;
+          ''');
+          await customStatement('''
+            CREATE TRIGGER IF NOT EXISTS sermons_au AFTER UPDATE ON sermons BEGIN
+              UPDATE user_search SET text_content = new.title || ' ' || COALESCE(new.series, '') || ' ' || COALESCE(new.content_plain, '') WHERE type = 'sermon' AND reference_id = new.id;
+            END;
+          ''');
+
+          // Re-index existing sermons with the plain text.
+          await customStatement("DELETE FROM user_search WHERE type = 'sermon';");
+          await customStatement('''
+            INSERT INTO user_search(type, reference_id, text_content)
+            SELECT 'sermon', id, title || ' ' || COALESCE(series, '') || ' ' || COALESCE(content_plain, '') FROM sermons WHERE deleted = 0;
           ''');
         }
       },
