@@ -139,6 +139,27 @@ final appShowStrongNumbersProvider =
       () => AppShowStrongNumbersNotifier(),
     );
 
+/// When true, chapters are only marked read when the user taps the "Mark
+/// Chapter Read" button. When false (the default), a chapter is marked read
+/// automatically after it has been on screen for a few seconds.
+class ManualChapterReadNotifier extends Notifier<bool> {
+  @override
+  bool build() {
+    final prefs = ref.watch(sharedPreferencesProvider);
+    return prefs.getBool('manualChapterRead') ?? false;
+  }
+
+  void set(bool value) {
+    state = value;
+    ref.read(sharedPreferencesProvider).setBool('manualChapterRead', value);
+  }
+}
+
+final manualChapterReadProvider =
+    NotifierProvider<ManualChapterReadNotifier, bool>(
+      () => ManualChapterReadNotifier(),
+    );
+
 class AppModuleNotifier extends Notifier<AppModule> {
   @override
   AppModule build() {

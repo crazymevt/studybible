@@ -129,6 +129,10 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
     _trackingChapter = chapter;
     _chapterReadTimer?.cancel();
 
+    // In manual mode the chapter is marked read via the button in
+    // ChapterNavigationFooter, so skip the auto timer.
+    if (ref.read(manualChapterReadProvider)) return;
+
     // Start a 5-second timer to mark the chapter as read
     _chapterReadTimer = Timer(const Duration(seconds: 5), () {
       if (mounted) {

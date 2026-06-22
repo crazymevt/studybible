@@ -512,6 +512,17 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               ref.read(appShowStrongNumbersProvider.notifier).set(value);
             },
           ),
+          SwitchListTile(
+            title: const Text('Mark chapters read manually'),
+            subtitle: const Text(
+              'Off: chapters are marked read automatically after a few seconds. '
+              'On: tap "Mark Chapter Read" at the bottom of the chapter.',
+            ),
+            value: ref.watch(manualChapterReadProvider),
+            onChanged: (bool value) {
+              ref.read(manualChapterReadProvider.notifier).set(value);
+            },
+          ),
           ListTile(
             title: const Text('Subheadings Source'),
             subtitle: const Text('Select which module to use for inline subheadings'),
