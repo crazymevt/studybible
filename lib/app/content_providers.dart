@@ -177,6 +177,12 @@ final chapterSubheadingsProvider = FutureProvider.family<Map<int, List<String>>,
   return map;
 });
 
+/// The active versions filtered to those actually installed, falling back to
+/// the first installed version when none are valid.
+///
+/// Pure derivation — it must not write back to [activeVersionsProvider]. The
+/// stored preference is self-healed by [ActiveVersionsNotifier] instead;
+/// mutating a watched dependency here threw "setState() called during build".
 final validActiveVersionsProvider = FutureProvider<List<String>>((ref) async {
   final activeVersions = ref.watch(activeVersionsProvider);
   final installedVersions = await ref.watch(versionsProvider.future);
@@ -187,21 +193,7 @@ final validActiveVersionsProvider = FutureProvider<List<String>>((ref) async {
       .where((av) => installedVersions.any((iv) => iv.id == av))
       .toList();
 
-  List<String> finalVersions = valid;
-  if (valid.isEmpty) {
-    finalVersions = [installedVersions.first.id];
-  }
-
-  if (finalVersions.length != activeVersions.length ||
-      !const IterableEquality().equals(finalVersions, activeVersions)) {
-    Future.microtask(() {
-      if (ref.exists(activeVersionsProvider)) {
-        ref.read(activeVersionsProvider.notifier).set(finalVersions);
-      }
-    });
-  }
-
-  return finalVersions;
+  return valid.isEmpty ? [installedVersions.first.id] : valid;
 });
 
 final parallelVersesProvider = FutureProvider<Map<String, List<Verse>>>((
