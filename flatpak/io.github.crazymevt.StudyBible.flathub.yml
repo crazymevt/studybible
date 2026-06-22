@@ -1,0 +1,56 @@
+# Flathub submission manifest for Study Bible.
+#
+# This is the variant submitted to github.com/flathub/flathub. Unlike the local
+# manifest (io.github.crazymevt.StudyBible.yml, which builds from the freshly
+# compiled ./build bundle via a `dir` source), Flathub's buildbot has no network
+# and cannot run `flutter build`, so it consumes a PREBUILT release tarball
+# pinned by sha256.
+#
+# Per release:
+#   1. Cut a release (tag) — .github/workflows/release.yml publishes
+#      StudyBible-Linux.tar.gz.
+#   2. Update `url` (tag) and `sha256` below to that asset, e.g.:
+#        sha256sum StudyBible-Linux.tar.gz
+#   3. Commit to the flathub/io.github.crazymevt.StudyBible repo.
+#   (Once on Flathub, flatpak-external-data-checker can automate steps 1-3.)
+#
+# Keep finish-args / runtime / build-commands in sync with the local manifest.
+
+app-id: io.github.crazymevt.StudyBible
+runtime: org.gnome.Platform
+runtime-version: '47'
+sdk: org.gnome.Sdk
+command: StudyBible
+
+finish-args:
+  - --socket=wayland
+  - --socket=fallback-x11
+  - --share=ipc
+  - --device=dri
+  - --socket=pulseaudio
+  - --share=network
+  # File access (sync folder, imports) is portal-mediated; no static filesystem grant.
+
+modules:
+  - name: studybible
+    buildsystem: simple
+    build-commands:
+      - mkdir -p /app/studybible
+      - cp -r bundle/* /app/studybible/
+      - mkdir -p /app/bin
+      - ln -s /app/studybible/StudyBible /app/bin/StudyBible
+      - install -Dm644 io.github.crazymevt.StudyBible.desktop /app/share/applications/io.github.crazymevt.StudyBible.desktop
+      - install -Dm644 io.github.crazymevt.StudyBible.metainfo.xml /app/share/metainfo/io.github.crazymevt.StudyBible.metainfo.xml
+      - install -Dm644 io.github.crazymevt.StudyBible.png /app/share/icons/hicolor/512x512/apps/io.github.crazymevt.StudyBible.png
+    sources:
+      - type: archive
+        # TODO: point at a published release and pin its checksum before submitting.
+        url: https://github.com/crazymevt/StudyBible/releases/download/REPLACE_WITH_TAG/StudyBible-Linux.tar.gz
+        sha256: 0000000000000000000000000000000000000000000000000000000000000000
+        dest: bundle
+      - type: file
+        path: io.github.crazymevt.StudyBible.desktop
+      - type: file
+        path: io.github.crazymevt.StudyBible.metainfo.xml
+      - type: file
+        path: io.github.crazymevt.StudyBible.png

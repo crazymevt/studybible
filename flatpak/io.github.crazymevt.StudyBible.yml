@@ -8,14 +8,10 @@
 #   flutter build linux --release
 # then this manifest copies build/linux/x64/release/bundle into /app.
 #
-# For FLATHUB: swap the `studybible` module's source from the local `dir`
-# below to the released tarball, pinned by sha256, e.g.
-#   sources:
-#     - type: archive
-#       url: https://github.com/crazymevt/StudyBible/releases/download/<tag>/StudyBible-Linux.tar.gz
-#       sha256: <checksum>
-#       dest: bundle
-# (Flathub builds on its own buildbot and cannot run `flutter build`.)
+# This manifest is for local builds and CI (the user-downloadable .flatpak).
+# For FLATHUB use the companion io.github.crazymevt.StudyBible.flathub.yml,
+# which consumes a released tarball pinned by sha256 (Flathub's buildbot has no
+# network and cannot run `flutter build`). Keep the two in sync.
 
 app-id: io.github.crazymevt.StudyBible
 runtime: org.gnome.Platform
