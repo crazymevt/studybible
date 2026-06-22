@@ -60,10 +60,11 @@ Remaining, in order:
 1. [ ] **Cut a release** that includes the file_selector + persistence fixes, so
        a current `StudyBible-Linux.tar.gz` exists (run `./scripts/release.sh`,
        push the tag — `release.yml` publishes the asset).
-2. [ ] **Pin the tarball** in `io.github.crazymevt.StudyBible.flathub.yml`:
-       set the `url` to that release's `StudyBible-Linux.tar.gz` and the `sha256`
-       to its checksum (`sha256sum StudyBible-Linux.tar.gz`). Replace the
-       `REPLACE_WITH_TAG` / zeroed-sha placeholders.
+2. [ ] **Pin the tarball** — one command (downloads the asset, computes the
+       checksum, fills in `url` + `sha256`):
+       ```bash
+       flatpak/pin-flathub.sh <tag>
+       ```
 3. [ ] **Final local validation:**
        ```bash
        appstreamcli validate io.github.crazymevt.StudyBible.metainfo.xml
@@ -73,8 +74,9 @@ Remaining, in order:
 4. [ ] **Fork & PR** the manifest to
        [`flathub/flathub`](https://github.com/flathub/flathub) (new-submissions
        process). Reviewers check the app id, license, permissions, and metadata.
-5. [ ] **After acceptance** you get a `flathub/io.github.crazymevt.StudyBible`
-       repo. Each future release = bump the `url` + `sha256` there. Enable
-       `flatpak-external-data-checker` to auto-PR those bumps.
+5. [x] **After acceptance** — per-release bumps are automated: the manifest's
+       `x-checker-data` lets Flathub's `flatpak-external-data-checker` auto-PR a
+       new `url` + `sha256` whenever a GitHub release publishes the asset. (You
+       just merge the bot's PR.)
 
 Reference: <https://docs.flathub.org/docs/for-app-authors/submission>.

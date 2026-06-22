@@ -44,10 +44,17 @@ modules:
       - install -Dm644 io.github.crazymevt.StudyBible.png /app/share/icons/hicolor/512x512/apps/io.github.crazymevt.StudyBible.png
     sources:
       - type: archive
-        # TODO: point at a published release and pin its checksum before submitting.
+        # Pin with ./pin-flathub.sh <tag> (fills in url + sha256 below).
         url: https://github.com/crazymevt/StudyBible/releases/download/REPLACE_WITH_TAG/StudyBible-Linux.tar.gz
         sha256: 0000000000000000000000000000000000000000000000000000000000000000
         dest: bundle
+        # Once on Flathub, flatpak-external-data-checker uses this to auto-PR
+        # version bumps when a new GitHub release publishes the asset.
+        x-checker-data:
+          type: json
+          url: https://api.github.com/repos/crazymevt/StudyBible/releases/latest
+          version-query: .tag_name
+          url-query: '.assets[] | select(.name == "StudyBible-Linux.tar.gz") | .browser_download_url'
       - type: file
         path: io.github.crazymevt.StudyBible.desktop
       - type: file
