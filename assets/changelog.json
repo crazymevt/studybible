@@ -1,5 +1,17 @@
 [
   {
+    "version": "26.6.22+6",
+    "date": "2026-06-22",
+    "features": [
+      {
+        "category": "Updates",
+        "title": "feat(dashboard): add manual sync button to dashboard app bar",
+        "description": "",
+        "icon": "update"
+      }
+    ]
+  },
+  {
     "version": "26.6.22+5",
     "date": "2026-06-22",
     "features": [
