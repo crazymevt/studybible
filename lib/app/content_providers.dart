@@ -14,6 +14,11 @@ import 'package:collection/collection.dart';
 import '../data/importer/cross_reference_importer.dart';
 import 'package:flutter/widgets.dart';
 
+// Guards the one-time cross-reference import so it is scheduled at most once
+// per process, even if this provider is rebuilt — two concurrent imports race
+// on the database and the shared temp file.
+bool _crossRefImportStarted = false;
+
 final contentStoreProvider = Provider<ContentStore>((ref) {
   final store = ContentStore();
 
@@ -24,14 +29,17 @@ final contentStoreProvider = Provider<ContentStore>((ref) {
 
   // Defer the (potentially large) first-install cross-reference import until
   // after the first frame so it doesn't contend with startup DB access.
-  WidgetsBinding.instance.addPostFrameCallback((_) async {
-    try {
-      final importer = CrossReferenceImporter(store);
-      await importer.importIfEmpty();
-    } catch (e) {
-      debugPrint('Failed to import cross references: $e');
-    }
-  });
+  if (!_crossRefImportStarted) {
+    _crossRefImportStarted = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      try {
+        final importer = CrossReferenceImporter(store);
+        await importer.importIfEmpty();
+      } catch (e) {
+        debugPrint('Failed to import cross references: $e');
+      }
+    });
+  }
 
   return store;
 });
