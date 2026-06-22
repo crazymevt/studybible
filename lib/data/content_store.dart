@@ -5,6 +5,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 
 import 'tables/content_tables.dart';
+import 'fts_text.dart';
 
 part 'content_store.g.dart';
 
@@ -36,6 +37,11 @@ class ContentStore extends _$ContentStore {
         await m.createAll();
         await customStatement('''
           CREATE VIRTUAL TABLE IF NOT EXISTS content_search USING fts5(type UNINDEXED, reference_id UNINDEXED, text_content);
+        ''');
+        // content_vocab powers word autocomplete; without this, fresh installs
+        // (which only run onCreate, not onUpgrade) would have no vocabulary.
+        await customStatement('''
+          CREATE VIRTUAL TABLE IF NOT EXISTS content_vocab USING fts5vocab(content_search, 'row');
         ''');
       },
       onUpgrade: (Migrator m, int from, int to) async {
@@ -145,6 +151,78 @@ class ContentStore extends _$ContentStore {
       )..where((d) => d.devotionalId.equals(id))).go();
       await (delete(devotionals)..where((d) => d.id.equals(id))).go();
     });
+  }
+
+  /// Indexes a freshly-imported HTML content type ('commentary' or
+  /// 'devotional') into the search index with markup stripped. [table] and
+  /// [fkColumn] are internal constants, never user input.
+  Future<void> indexStrippedEntries(
+    String type,
+    String table,
+    String fkColumn,
+    int fkValue,
+  ) async {
+    final rows = await customSelect(
+      'SELECT id, text_content AS t FROM $table WHERE $fkColumn = ?',
+      variables: [Variable.withInt(fkValue)],
+    ).get();
+    await _insertStrippedRows(type, rows);
+  }
+
+  /// Rebuilds the entire full-text search index from the source tables,
+  /// stripping markup from HTML content types. Safe to run on demand to clean
+  /// an index that was populated before markup stripping existed.
+  Future<void> rebuildSearchIndex() async {
+    await transaction(() async {
+      await customStatement('DELETE FROM content_search');
+      // Plain-text types: fast bulk insert, no stripping needed.
+      await customStatement(
+        "INSERT INTO content_search(type, reference_id, text_content) "
+        "SELECT 'verse', id, text_content FROM verses",
+      );
+      await customStatement(
+        "INSERT INTO content_search(type, reference_id, text_content) "
+        "SELECT 'dictionary', id, word FROM dictionary_entries",
+      );
+      // HTML types: strip markup before indexing.
+      await _insertStrippedRows(
+        'commentary',
+        await customSelect(
+          'SELECT id, text_content AS t FROM commentary_entries',
+        ).get(),
+      );
+      await _insertStrippedRows(
+        'devotional',
+        await customSelect(
+          'SELECT id, text_content AS t FROM devotional_entries',
+        ).get(),
+      );
+    });
+  }
+
+  /// Strips markup from each row's `t` column and inserts (type, id, text) into
+  /// content_search in chunked multi-row statements (kept well under SQLite's
+  /// bound-variable limit).
+  Future<void> _insertStrippedRows(String type, List<QueryRow> rows) async {
+    const chunkSize = 200;
+    for (var i = 0; i < rows.length; i += chunkSize) {
+      final end = (i + chunkSize < rows.length) ? i + chunkSize : rows.length;
+      final chunk = rows.sublist(i, end);
+      final placeholders = List.filled(chunk.length, '(?, ?, ?)').join(', ');
+      final args = <Variable>[];
+      for (final row in chunk) {
+        args.add(Variable.withString(type));
+        args.add(Variable.withInt(row.read<int>('id')));
+        args.add(
+          Variable.withString(stripMarkupForIndex(row.read<String>('t'))),
+        );
+      }
+      await customInsert(
+        'INSERT INTO content_search(type, reference_id, text_content) '
+        'VALUES $placeholders',
+        variables: args,
+      );
+    }
   }
 }
 

@@ -407,15 +407,12 @@ class MyBibleImporter {
         }
       });
 
-      // Update FTS5 index for this commentary
-      await store.customStatement(
-        '''
-        INSERT INTO content_search(type, reference_id, text_content)
-        SELECT 'commentary', id, text_content
-        FROM commentary_entries
-        WHERE commentary_id = ?
-      ''',
-        [commentaryId],
+      // Update FTS5 index for this commentary (HTML content: strip markup).
+      await store.indexStrippedEntries(
+        'commentary',
+        'commentary_entries',
+        'commentary_id',
+        commentaryId,
       );
     } finally {
       db.close();
@@ -519,15 +516,12 @@ class MyBibleImporter {
         }
       });
 
-      // Update FTS5 index for this devotional
-      await store.customStatement(
-        '''
-        INSERT INTO content_search(type, reference_id, text_content)
-        SELECT 'devotional', id, text_content
-        FROM devotional_entries
-        WHERE devotional_id = ?
-      ''',
-        [devotionalId],
+      // Update FTS5 index for this devotional (HTML content: strip markup).
+      await store.indexStrippedEntries(
+        'devotional',
+        'devotional_entries',
+        'devotional_id',
+        devotionalId,
       );
     } finally {
       db.close();
