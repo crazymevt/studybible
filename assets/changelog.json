@@ -1,5 +1,17 @@
 [
   {
+    "version": "26.6.22+7",
+    "date": "2026-06-22",
+    "features": [
+      {
+        "category": "Updates",
+        "title": "fix(restore): avoid redundant temp copy on desktop restore",
+        "description": "",
+        "icon": "update"
+      }
+    ]
+  },
+  {
     "version": "26.6.22+6",
     "date": "2026-06-22",
     "features": [
