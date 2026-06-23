@@ -33,40 +33,31 @@ class VerseActionBar extends ConsumerWidget {
 
     final actions = _buildActions(context, ref, onBarColor);
 
-    // On narrow screens, stack swatches above actions so nothing scrolls
-    // off-screen and becomes undiscoverable. On wide screens a single
-    // horizontal row reads better.
-    final Widget content = context.isWideLayout
-        ? Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              for (final s in swatches) ...[s, const SizedBox(width: 8)],
-              const SizedBox(width: 8),
-              Container(width: 1, height: 24, color: onBarColor.withValues(alpha: 0.24)),
-              const SizedBox(width: 16),
-              for (final a in actions) ...[a, const SizedBox(width: 12)],
-            ],
-          )
-        : Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Wrap(
-                alignment: WrapAlignment.center,
-                spacing: 12,
-                runSpacing: 8,
-                children: swatches,
-              ),
-              const SizedBox(height: 8),
-              Divider(height: 1, color: onBarColor.withValues(alpha: 0.24)),
-              const SizedBox(height: 8),
-              Wrap(
-                alignment: WrapAlignment.center,
-                spacing: 8,
-                runSpacing: 4,
-                children: actions,
-              ),
-            ],
-          );
+    // Stack swatches above actions, each in a Wrap, so the bar adapts to the
+    // width actually available (the reader pane, not the whole window) and
+    // never overflows or scrolls actions off-screen where they'd be
+    // undiscoverable.
+    final Widget content = Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Wrap(
+          alignment: WrapAlignment.center,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          spacing: 8,
+          runSpacing: 4,
+          children: swatches,
+        ),
+        const SizedBox(height: 8),
+        Divider(height: 1, color: onBarColor.withValues(alpha: 0.24)),
+        const SizedBox(height: 8),
+        Wrap(
+          alignment: WrapAlignment.center,
+          spacing: 8,
+          runSpacing: 4,
+          children: actions,
+        ),
+      ],
+    );
 
     return Material(
       elevation: 12.0,
