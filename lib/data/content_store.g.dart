@@ -4098,6 +4098,1063 @@ class DevotionalEntriesCompanion extends UpdateCompanion<DevotionalEntry> {
   }
 }
 
+class $TopicsTable extends Topics with TableInfo<$TopicsTable, Topic> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $TopicsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _sectionMeta = const VerificationMeta(
+    'section',
+  );
+  @override
+  late final GeneratedColumn<String> section = GeneratedColumn<String>(
+    'section',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, name, section];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'topics';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<Topic> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('section')) {
+      context.handle(
+        _sectionMeta,
+        section.isAcceptableOrUnknown(data['section']!, _sectionMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_sectionMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  Topic map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return Topic(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      section: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}section'],
+      )!,
+    );
+  }
+
+  @override
+  $TopicsTable createAlias(String alias) {
+    return $TopicsTable(attachedDatabase, alias);
+  }
+}
+
+class Topic extends DataClass implements Insertable<Topic> {
+  final int id;
+  final String name;
+  final String section;
+  const Topic({required this.id, required this.name, required this.section});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['name'] = Variable<String>(name);
+    map['section'] = Variable<String>(section);
+    return map;
+  }
+
+  TopicsCompanion toCompanion(bool nullToAbsent) {
+    return TopicsCompanion(
+      id: Value(id),
+      name: Value(name),
+      section: Value(section),
+    );
+  }
+
+  factory Topic.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return Topic(
+      id: serializer.fromJson<int>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+      section: serializer.fromJson<String>(json['section']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'name': serializer.toJson<String>(name),
+      'section': serializer.toJson<String>(section),
+    };
+  }
+
+  Topic copyWith({int? id, String? name, String? section}) => Topic(
+    id: id ?? this.id,
+    name: name ?? this.name,
+    section: section ?? this.section,
+  );
+  Topic copyWithCompanion(TopicsCompanion data) {
+    return Topic(
+      id: data.id.present ? data.id.value : this.id,
+      name: data.name.present ? data.name.value : this.name,
+      section: data.section.present ? data.section.value : this.section,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('Topic(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('section: $section')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, name, section);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is Topic &&
+          other.id == this.id &&
+          other.name == this.name &&
+          other.section == this.section);
+}
+
+class TopicsCompanion extends UpdateCompanion<Topic> {
+  final Value<int> id;
+  final Value<String> name;
+  final Value<String> section;
+  const TopicsCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+    this.section = const Value.absent(),
+  });
+  TopicsCompanion.insert({
+    this.id = const Value.absent(),
+    required String name,
+    required String section,
+  }) : name = Value(name),
+       section = Value(section);
+  static Insertable<Topic> custom({
+    Expression<int>? id,
+    Expression<String>? name,
+    Expression<String>? section,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+      if (section != null) 'section': section,
+    });
+  }
+
+  TopicsCompanion copyWith({
+    Value<int>? id,
+    Value<String>? name,
+    Value<String>? section,
+  }) {
+    return TopicsCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      section: section ?? this.section,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (section.present) {
+      map['section'] = Variable<String>(section.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TopicsCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('section: $section')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $TopicEntriesTable extends TopicEntries
+    with TableInfo<$TopicEntriesTable, TopicEntry> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $TopicEntriesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _topicIdMeta = const VerificationMeta(
+    'topicId',
+  );
+  @override
+  late final GeneratedColumn<int> topicId = GeneratedColumn<int>(
+    'topic_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES topics (id)',
+    ),
+  );
+  static const VerificationMeta _ordinalMeta = const VerificationMeta(
+    'ordinal',
+  );
+  @override
+  late final GeneratedColumn<int> ordinal = GeneratedColumn<int>(
+    'ordinal',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _descriptionMeta = const VerificationMeta(
+    'description',
+  );
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+    'description',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _seeAlsoMeta = const VerificationMeta(
+    'seeAlso',
+  );
+  @override
+  late final GeneratedColumn<String> seeAlso = GeneratedColumn<String>(
+    'see_also',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    topicId,
+    ordinal,
+    description,
+    seeAlso,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'topic_entries';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<TopicEntry> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('topic_id')) {
+      context.handle(
+        _topicIdMeta,
+        topicId.isAcceptableOrUnknown(data['topic_id']!, _topicIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_topicIdMeta);
+    }
+    if (data.containsKey('ordinal')) {
+      context.handle(
+        _ordinalMeta,
+        ordinal.isAcceptableOrUnknown(data['ordinal']!, _ordinalMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_ordinalMeta);
+    }
+    if (data.containsKey('description')) {
+      context.handle(
+        _descriptionMeta,
+        description.isAcceptableOrUnknown(
+          data['description']!,
+          _descriptionMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_descriptionMeta);
+    }
+    if (data.containsKey('see_also')) {
+      context.handle(
+        _seeAlsoMeta,
+        seeAlso.isAcceptableOrUnknown(data['see_also']!, _seeAlsoMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  TopicEntry map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return TopicEntry(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      topicId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}topic_id'],
+      )!,
+      ordinal: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}ordinal'],
+      )!,
+      description: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}description'],
+      )!,
+      seeAlso: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}see_also'],
+      ),
+    );
+  }
+
+  @override
+  $TopicEntriesTable createAlias(String alias) {
+    return $TopicEntriesTable(attachedDatabase, alias);
+  }
+}
+
+class TopicEntry extends DataClass implements Insertable<TopicEntry> {
+  final int id;
+  final int topicId;
+  final int ordinal;
+  final String description;
+  final String? seeAlso;
+  const TopicEntry({
+    required this.id,
+    required this.topicId,
+    required this.ordinal,
+    required this.description,
+    this.seeAlso,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['topic_id'] = Variable<int>(topicId);
+    map['ordinal'] = Variable<int>(ordinal);
+    map['description'] = Variable<String>(description);
+    if (!nullToAbsent || seeAlso != null) {
+      map['see_also'] = Variable<String>(seeAlso);
+    }
+    return map;
+  }
+
+  TopicEntriesCompanion toCompanion(bool nullToAbsent) {
+    return TopicEntriesCompanion(
+      id: Value(id),
+      topicId: Value(topicId),
+      ordinal: Value(ordinal),
+      description: Value(description),
+      seeAlso: seeAlso == null && nullToAbsent
+          ? const Value.absent()
+          : Value(seeAlso),
+    );
+  }
+
+  factory TopicEntry.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return TopicEntry(
+      id: serializer.fromJson<int>(json['id']),
+      topicId: serializer.fromJson<int>(json['topicId']),
+      ordinal: serializer.fromJson<int>(json['ordinal']),
+      description: serializer.fromJson<String>(json['description']),
+      seeAlso: serializer.fromJson<String?>(json['seeAlso']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'topicId': serializer.toJson<int>(topicId),
+      'ordinal': serializer.toJson<int>(ordinal),
+      'description': serializer.toJson<String>(description),
+      'seeAlso': serializer.toJson<String?>(seeAlso),
+    };
+  }
+
+  TopicEntry copyWith({
+    int? id,
+    int? topicId,
+    int? ordinal,
+    String? description,
+    Value<String?> seeAlso = const Value.absent(),
+  }) => TopicEntry(
+    id: id ?? this.id,
+    topicId: topicId ?? this.topicId,
+    ordinal: ordinal ?? this.ordinal,
+    description: description ?? this.description,
+    seeAlso: seeAlso.present ? seeAlso.value : this.seeAlso,
+  );
+  TopicEntry copyWithCompanion(TopicEntriesCompanion data) {
+    return TopicEntry(
+      id: data.id.present ? data.id.value : this.id,
+      topicId: data.topicId.present ? data.topicId.value : this.topicId,
+      ordinal: data.ordinal.present ? data.ordinal.value : this.ordinal,
+      description: data.description.present
+          ? data.description.value
+          : this.description,
+      seeAlso: data.seeAlso.present ? data.seeAlso.value : this.seeAlso,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TopicEntry(')
+          ..write('id: $id, ')
+          ..write('topicId: $topicId, ')
+          ..write('ordinal: $ordinal, ')
+          ..write('description: $description, ')
+          ..write('seeAlso: $seeAlso')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, topicId, ordinal, description, seeAlso);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is TopicEntry &&
+          other.id == this.id &&
+          other.topicId == this.topicId &&
+          other.ordinal == this.ordinal &&
+          other.description == this.description &&
+          other.seeAlso == this.seeAlso);
+}
+
+class TopicEntriesCompanion extends UpdateCompanion<TopicEntry> {
+  final Value<int> id;
+  final Value<int> topicId;
+  final Value<int> ordinal;
+  final Value<String> description;
+  final Value<String?> seeAlso;
+  const TopicEntriesCompanion({
+    this.id = const Value.absent(),
+    this.topicId = const Value.absent(),
+    this.ordinal = const Value.absent(),
+    this.description = const Value.absent(),
+    this.seeAlso = const Value.absent(),
+  });
+  TopicEntriesCompanion.insert({
+    this.id = const Value.absent(),
+    required int topicId,
+    required int ordinal,
+    required String description,
+    this.seeAlso = const Value.absent(),
+  }) : topicId = Value(topicId),
+       ordinal = Value(ordinal),
+       description = Value(description);
+  static Insertable<TopicEntry> custom({
+    Expression<int>? id,
+    Expression<int>? topicId,
+    Expression<int>? ordinal,
+    Expression<String>? description,
+    Expression<String>? seeAlso,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (topicId != null) 'topic_id': topicId,
+      if (ordinal != null) 'ordinal': ordinal,
+      if (description != null) 'description': description,
+      if (seeAlso != null) 'see_also': seeAlso,
+    });
+  }
+
+  TopicEntriesCompanion copyWith({
+    Value<int>? id,
+    Value<int>? topicId,
+    Value<int>? ordinal,
+    Value<String>? description,
+    Value<String?>? seeAlso,
+  }) {
+    return TopicEntriesCompanion(
+      id: id ?? this.id,
+      topicId: topicId ?? this.topicId,
+      ordinal: ordinal ?? this.ordinal,
+      description: description ?? this.description,
+      seeAlso: seeAlso ?? this.seeAlso,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (topicId.present) {
+      map['topic_id'] = Variable<int>(topicId.value);
+    }
+    if (ordinal.present) {
+      map['ordinal'] = Variable<int>(ordinal.value);
+    }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (seeAlso.present) {
+      map['see_also'] = Variable<String>(seeAlso.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TopicEntriesCompanion(')
+          ..write('id: $id, ')
+          ..write('topicId: $topicId, ')
+          ..write('ordinal: $ordinal, ')
+          ..write('description: $description, ')
+          ..write('seeAlso: $seeAlso')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $TopicReferencesTable extends TopicReferences
+    with TableInfo<$TopicReferencesTable, TopicReference> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $TopicReferencesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _topicIdMeta = const VerificationMeta(
+    'topicId',
+  );
+  @override
+  late final GeneratedColumn<int> topicId = GeneratedColumn<int>(
+    'topic_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES topics (id)',
+    ),
+  );
+  static const VerificationMeta _entryIdMeta = const VerificationMeta(
+    'entryId',
+  );
+  @override
+  late final GeneratedColumn<int> entryId = GeneratedColumn<int>(
+    'entry_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES topic_entries (id)',
+    ),
+  );
+  static const VerificationMeta _bookNameMeta = const VerificationMeta(
+    'bookName',
+  );
+  @override
+  late final GeneratedColumn<String> bookName = GeneratedColumn<String>(
+    'book_name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _chapterMeta = const VerificationMeta(
+    'chapter',
+  );
+  @override
+  late final GeneratedColumn<int> chapter = GeneratedColumn<int>(
+    'chapter',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _verseMeta = const VerificationMeta('verse');
+  @override
+  late final GeneratedColumn<int> verse = GeneratedColumn<int>(
+    'verse',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _verseEndMeta = const VerificationMeta(
+    'verseEnd',
+  );
+  @override
+  late final GeneratedColumn<int> verseEnd = GeneratedColumn<int>(
+    'verse_end',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    topicId,
+    entryId,
+    bookName,
+    chapter,
+    verse,
+    verseEnd,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'topic_references';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<TopicReference> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('topic_id')) {
+      context.handle(
+        _topicIdMeta,
+        topicId.isAcceptableOrUnknown(data['topic_id']!, _topicIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_topicIdMeta);
+    }
+    if (data.containsKey('entry_id')) {
+      context.handle(
+        _entryIdMeta,
+        entryId.isAcceptableOrUnknown(data['entry_id']!, _entryIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_entryIdMeta);
+    }
+    if (data.containsKey('book_name')) {
+      context.handle(
+        _bookNameMeta,
+        bookName.isAcceptableOrUnknown(data['book_name']!, _bookNameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_bookNameMeta);
+    }
+    if (data.containsKey('chapter')) {
+      context.handle(
+        _chapterMeta,
+        chapter.isAcceptableOrUnknown(data['chapter']!, _chapterMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_chapterMeta);
+    }
+    if (data.containsKey('verse')) {
+      context.handle(
+        _verseMeta,
+        verse.isAcceptableOrUnknown(data['verse']!, _verseMeta),
+      );
+    }
+    if (data.containsKey('verse_end')) {
+      context.handle(
+        _verseEndMeta,
+        verseEnd.isAcceptableOrUnknown(data['verse_end']!, _verseEndMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  TopicReference map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return TopicReference(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      topicId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}topic_id'],
+      )!,
+      entryId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}entry_id'],
+      )!,
+      bookName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}book_name'],
+      )!,
+      chapter: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}chapter'],
+      )!,
+      verse: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}verse'],
+      ),
+      verseEnd: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}verse_end'],
+      ),
+    );
+  }
+
+  @override
+  $TopicReferencesTable createAlias(String alias) {
+    return $TopicReferencesTable(attachedDatabase, alias);
+  }
+}
+
+class TopicReference extends DataClass implements Insertable<TopicReference> {
+  final int id;
+  final int topicId;
+  final int entryId;
+  final String bookName;
+  final int chapter;
+  final int? verse;
+  final int? verseEnd;
+  const TopicReference({
+    required this.id,
+    required this.topicId,
+    required this.entryId,
+    required this.bookName,
+    required this.chapter,
+    this.verse,
+    this.verseEnd,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['topic_id'] = Variable<int>(topicId);
+    map['entry_id'] = Variable<int>(entryId);
+    map['book_name'] = Variable<String>(bookName);
+    map['chapter'] = Variable<int>(chapter);
+    if (!nullToAbsent || verse != null) {
+      map['verse'] = Variable<int>(verse);
+    }
+    if (!nullToAbsent || verseEnd != null) {
+      map['verse_end'] = Variable<int>(verseEnd);
+    }
+    return map;
+  }
+
+  TopicReferencesCompanion toCompanion(bool nullToAbsent) {
+    return TopicReferencesCompanion(
+      id: Value(id),
+      topicId: Value(topicId),
+      entryId: Value(entryId),
+      bookName: Value(bookName),
+      chapter: Value(chapter),
+      verse: verse == null && nullToAbsent
+          ? const Value.absent()
+          : Value(verse),
+      verseEnd: verseEnd == null && nullToAbsent
+          ? const Value.absent()
+          : Value(verseEnd),
+    );
+  }
+
+  factory TopicReference.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return TopicReference(
+      id: serializer.fromJson<int>(json['id']),
+      topicId: serializer.fromJson<int>(json['topicId']),
+      entryId: serializer.fromJson<int>(json['entryId']),
+      bookName: serializer.fromJson<String>(json['bookName']),
+      chapter: serializer.fromJson<int>(json['chapter']),
+      verse: serializer.fromJson<int?>(json['verse']),
+      verseEnd: serializer.fromJson<int?>(json['verseEnd']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'topicId': serializer.toJson<int>(topicId),
+      'entryId': serializer.toJson<int>(entryId),
+      'bookName': serializer.toJson<String>(bookName),
+      'chapter': serializer.toJson<int>(chapter),
+      'verse': serializer.toJson<int?>(verse),
+      'verseEnd': serializer.toJson<int?>(verseEnd),
+    };
+  }
+
+  TopicReference copyWith({
+    int? id,
+    int? topicId,
+    int? entryId,
+    String? bookName,
+    int? chapter,
+    Value<int?> verse = const Value.absent(),
+    Value<int?> verseEnd = const Value.absent(),
+  }) => TopicReference(
+    id: id ?? this.id,
+    topicId: topicId ?? this.topicId,
+    entryId: entryId ?? this.entryId,
+    bookName: bookName ?? this.bookName,
+    chapter: chapter ?? this.chapter,
+    verse: verse.present ? verse.value : this.verse,
+    verseEnd: verseEnd.present ? verseEnd.value : this.verseEnd,
+  );
+  TopicReference copyWithCompanion(TopicReferencesCompanion data) {
+    return TopicReference(
+      id: data.id.present ? data.id.value : this.id,
+      topicId: data.topicId.present ? data.topicId.value : this.topicId,
+      entryId: data.entryId.present ? data.entryId.value : this.entryId,
+      bookName: data.bookName.present ? data.bookName.value : this.bookName,
+      chapter: data.chapter.present ? data.chapter.value : this.chapter,
+      verse: data.verse.present ? data.verse.value : this.verse,
+      verseEnd: data.verseEnd.present ? data.verseEnd.value : this.verseEnd,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TopicReference(')
+          ..write('id: $id, ')
+          ..write('topicId: $topicId, ')
+          ..write('entryId: $entryId, ')
+          ..write('bookName: $bookName, ')
+          ..write('chapter: $chapter, ')
+          ..write('verse: $verse, ')
+          ..write('verseEnd: $verseEnd')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, topicId, entryId, bookName, chapter, verse, verseEnd);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is TopicReference &&
+          other.id == this.id &&
+          other.topicId == this.topicId &&
+          other.entryId == this.entryId &&
+          other.bookName == this.bookName &&
+          other.chapter == this.chapter &&
+          other.verse == this.verse &&
+          other.verseEnd == this.verseEnd);
+}
+
+class TopicReferencesCompanion extends UpdateCompanion<TopicReference> {
+  final Value<int> id;
+  final Value<int> topicId;
+  final Value<int> entryId;
+  final Value<String> bookName;
+  final Value<int> chapter;
+  final Value<int?> verse;
+  final Value<int?> verseEnd;
+  const TopicReferencesCompanion({
+    this.id = const Value.absent(),
+    this.topicId = const Value.absent(),
+    this.entryId = const Value.absent(),
+    this.bookName = const Value.absent(),
+    this.chapter = const Value.absent(),
+    this.verse = const Value.absent(),
+    this.verseEnd = const Value.absent(),
+  });
+  TopicReferencesCompanion.insert({
+    this.id = const Value.absent(),
+    required int topicId,
+    required int entryId,
+    required String bookName,
+    required int chapter,
+    this.verse = const Value.absent(),
+    this.verseEnd = const Value.absent(),
+  }) : topicId = Value(topicId),
+       entryId = Value(entryId),
+       bookName = Value(bookName),
+       chapter = Value(chapter);
+  static Insertable<TopicReference> custom({
+    Expression<int>? id,
+    Expression<int>? topicId,
+    Expression<int>? entryId,
+    Expression<String>? bookName,
+    Expression<int>? chapter,
+    Expression<int>? verse,
+    Expression<int>? verseEnd,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (topicId != null) 'topic_id': topicId,
+      if (entryId != null) 'entry_id': entryId,
+      if (bookName != null) 'book_name': bookName,
+      if (chapter != null) 'chapter': chapter,
+      if (verse != null) 'verse': verse,
+      if (verseEnd != null) 'verse_end': verseEnd,
+    });
+  }
+
+  TopicReferencesCompanion copyWith({
+    Value<int>? id,
+    Value<int>? topicId,
+    Value<int>? entryId,
+    Value<String>? bookName,
+    Value<int>? chapter,
+    Value<int?>? verse,
+    Value<int?>? verseEnd,
+  }) {
+    return TopicReferencesCompanion(
+      id: id ?? this.id,
+      topicId: topicId ?? this.topicId,
+      entryId: entryId ?? this.entryId,
+      bookName: bookName ?? this.bookName,
+      chapter: chapter ?? this.chapter,
+      verse: verse ?? this.verse,
+      verseEnd: verseEnd ?? this.verseEnd,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (topicId.present) {
+      map['topic_id'] = Variable<int>(topicId.value);
+    }
+    if (entryId.present) {
+      map['entry_id'] = Variable<int>(entryId.value);
+    }
+    if (bookName.present) {
+      map['book_name'] = Variable<String>(bookName.value);
+    }
+    if (chapter.present) {
+      map['chapter'] = Variable<int>(chapter.value);
+    }
+    if (verse.present) {
+      map['verse'] = Variable<int>(verse.value);
+    }
+    if (verseEnd.present) {
+      map['verse_end'] = Variable<int>(verseEnd.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TopicReferencesCompanion(')
+          ..write('id: $id, ')
+          ..write('topicId: $topicId, ')
+          ..write('entryId: $entryId, ')
+          ..write('bookName: $bookName, ')
+          ..write('chapter: $chapter, ')
+          ..write('verse: $verse, ')
+          ..write('verseEnd: $verseEnd')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$ContentStore extends GeneratedDatabase {
   _$ContentStore(QueryExecutor e) : super(e);
   $ContentStoreManager get managers => $ContentStoreManager(this);
@@ -4117,6 +5174,15 @@ abstract class _$ContentStore extends GeneratedDatabase {
   late final $DevotionalsTable devotionals = $DevotionalsTable(this);
   late final $DevotionalEntriesTable devotionalEntries =
       $DevotionalEntriesTable(this);
+  late final $TopicsTable topics = $TopicsTable(this);
+  late final $TopicEntriesTable topicEntries = $TopicEntriesTable(this);
+  late final $TopicReferencesTable topicReferences = $TopicReferencesTable(
+    this,
+  );
+  late final Index idxTopicRefLocation = Index(
+    'idx_topic_ref_location',
+    'CREATE INDEX idx_topic_ref_location ON topic_references (book_name, chapter)',
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -4133,6 +5199,10 @@ abstract class _$ContentStore extends GeneratedDatabase {
     subheadings,
     devotionals,
     devotionalEntries,
+    topics,
+    topicEntries,
+    topicReferences,
+    idxTopicRefLocation,
   ];
 }
 
@@ -7725,6 +8795,1210 @@ typedef $$DevotionalEntriesTableProcessedTableManager =
       DevotionalEntry,
       PrefetchHooks Function({bool devotionalId})
     >;
+typedef $$TopicsTableCreateCompanionBuilder =
+    TopicsCompanion Function({
+      Value<int> id,
+      required String name,
+      required String section,
+    });
+typedef $$TopicsTableUpdateCompanionBuilder =
+    TopicsCompanion Function({
+      Value<int> id,
+      Value<String> name,
+      Value<String> section,
+    });
+
+final class $$TopicsTableReferences
+    extends BaseReferences<_$ContentStore, $TopicsTable, Topic> {
+  $$TopicsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static MultiTypedResultKey<$TopicEntriesTable, List<TopicEntry>>
+  _topicEntriesRefsTable(_$ContentStore db) => MultiTypedResultKey.fromTable(
+    db.topicEntries,
+    aliasName: 'topics__id__topic_entries__topic_id',
+  );
+
+  $$TopicEntriesTableProcessedTableManager get topicEntriesRefs {
+    final manager = $$TopicEntriesTableTableManager(
+      $_db,
+      $_db.topicEntries,
+    ).filter((f) => f.topicId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_topicEntriesRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$TopicReferencesTable, List<TopicReference>>
+  _topicReferencesRefsTable(_$ContentStore db) => MultiTypedResultKey.fromTable(
+    db.topicReferences,
+    aliasName: 'topics__id__topic_references__topic_id',
+  );
+
+  $$TopicReferencesTableProcessedTableManager get topicReferencesRefs {
+    final manager = $$TopicReferencesTableTableManager(
+      $_db,
+      $_db.topicReferences,
+    ).filter((f) => f.topicId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _topicReferencesRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
+
+class $$TopicsTableFilterComposer
+    extends Composer<_$ContentStore, $TopicsTable> {
+  $$TopicsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get section => $composableBuilder(
+    column: $table.section,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  Expression<bool> topicEntriesRefs(
+    Expression<bool> Function($$TopicEntriesTableFilterComposer f) f,
+  ) {
+    final $$TopicEntriesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.topicEntries,
+      getReferencedColumn: (t) => t.topicId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TopicEntriesTableFilterComposer(
+            $db: $db,
+            $table: $db.topicEntries,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> topicReferencesRefs(
+    Expression<bool> Function($$TopicReferencesTableFilterComposer f) f,
+  ) {
+    final $$TopicReferencesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.topicReferences,
+      getReferencedColumn: (t) => t.topicId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TopicReferencesTableFilterComposer(
+            $db: $db,
+            $table: $db.topicReferences,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$TopicsTableOrderingComposer
+    extends Composer<_$ContentStore, $TopicsTable> {
+  $$TopicsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get section => $composableBuilder(
+    column: $table.section,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$TopicsTableAnnotationComposer
+    extends Composer<_$ContentStore, $TopicsTable> {
+  $$TopicsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get section =>
+      $composableBuilder(column: $table.section, builder: (column) => column);
+
+  Expression<T> topicEntriesRefs<T extends Object>(
+    Expression<T> Function($$TopicEntriesTableAnnotationComposer a) f,
+  ) {
+    final $$TopicEntriesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.topicEntries,
+      getReferencedColumn: (t) => t.topicId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TopicEntriesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.topicEntries,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<T> topicReferencesRefs<T extends Object>(
+    Expression<T> Function($$TopicReferencesTableAnnotationComposer a) f,
+  ) {
+    final $$TopicReferencesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.topicReferences,
+      getReferencedColumn: (t) => t.topicId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TopicReferencesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.topicReferences,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$TopicsTableTableManager
+    extends
+        RootTableManager<
+          _$ContentStore,
+          $TopicsTable,
+          Topic,
+          $$TopicsTableFilterComposer,
+          $$TopicsTableOrderingComposer,
+          $$TopicsTableAnnotationComposer,
+          $$TopicsTableCreateCompanionBuilder,
+          $$TopicsTableUpdateCompanionBuilder,
+          (Topic, $$TopicsTableReferences),
+          Topic,
+          PrefetchHooks Function({
+            bool topicEntriesRefs,
+            bool topicReferencesRefs,
+          })
+        > {
+  $$TopicsTableTableManager(_$ContentStore db, $TopicsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$TopicsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$TopicsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$TopicsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<String> section = const Value.absent(),
+              }) => TopicsCompanion(id: id, name: name, section: section),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String name,
+                required String section,
+              }) =>
+                  TopicsCompanion.insert(id: id, name: name, section: section),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) =>
+                    (e.readTable(table), $$TopicsTableReferences(db, table, e)),
+              )
+              .toList(),
+          prefetchHooksCallback:
+              ({topicEntriesRefs = false, topicReferencesRefs = false}) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (topicEntriesRefs) db.topicEntries,
+                    if (topicReferencesRefs) db.topicReferences,
+                  ],
+                  addJoins: null,
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (topicEntriesRefs)
+                        await $_getPrefetchedData<
+                          Topic,
+                          $TopicsTable,
+                          TopicEntry
+                        >(
+                          currentTable: table,
+                          referencedTable: $$TopicsTableReferences
+                              ._topicEntriesRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$TopicsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).topicEntriesRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.topicId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (topicReferencesRefs)
+                        await $_getPrefetchedData<
+                          Topic,
+                          $TopicsTable,
+                          TopicReference
+                        >(
+                          currentTable: table,
+                          referencedTable: $$TopicsTableReferences
+                              ._topicReferencesRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$TopicsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).topicReferencesRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.topicId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
+              },
+        ),
+      );
+}
+
+typedef $$TopicsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$ContentStore,
+      $TopicsTable,
+      Topic,
+      $$TopicsTableFilterComposer,
+      $$TopicsTableOrderingComposer,
+      $$TopicsTableAnnotationComposer,
+      $$TopicsTableCreateCompanionBuilder,
+      $$TopicsTableUpdateCompanionBuilder,
+      (Topic, $$TopicsTableReferences),
+      Topic,
+      PrefetchHooks Function({bool topicEntriesRefs, bool topicReferencesRefs})
+    >;
+typedef $$TopicEntriesTableCreateCompanionBuilder =
+    TopicEntriesCompanion Function({
+      Value<int> id,
+      required int topicId,
+      required int ordinal,
+      required String description,
+      Value<String?> seeAlso,
+    });
+typedef $$TopicEntriesTableUpdateCompanionBuilder =
+    TopicEntriesCompanion Function({
+      Value<int> id,
+      Value<int> topicId,
+      Value<int> ordinal,
+      Value<String> description,
+      Value<String?> seeAlso,
+    });
+
+final class $$TopicEntriesTableReferences
+    extends BaseReferences<_$ContentStore, $TopicEntriesTable, TopicEntry> {
+  $$TopicEntriesTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $TopicsTable _topicIdTable(_$ContentStore db) =>
+      db.topics.createAlias('topic_entries__topic_id__topics__id');
+
+  $$TopicsTableProcessedTableManager get topicId {
+    final $_column = $_itemColumn<int>('topic_id')!;
+
+    final manager = $$TopicsTableTableManager(
+      $_db,
+      $_db.topics,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_topicIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static MultiTypedResultKey<$TopicReferencesTable, List<TopicReference>>
+  _topicReferencesRefsTable(_$ContentStore db) => MultiTypedResultKey.fromTable(
+    db.topicReferences,
+    aliasName: 'topic_entries__id__topic_references__entry_id',
+  );
+
+  $$TopicReferencesTableProcessedTableManager get topicReferencesRefs {
+    final manager = $$TopicReferencesTableTableManager(
+      $_db,
+      $_db.topicReferences,
+    ).filter((f) => f.entryId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _topicReferencesRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
+
+class $$TopicEntriesTableFilterComposer
+    extends Composer<_$ContentStore, $TopicEntriesTable> {
+  $$TopicEntriesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get ordinal => $composableBuilder(
+    column: $table.ordinal,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get seeAlso => $composableBuilder(
+    column: $table.seeAlso,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$TopicsTableFilterComposer get topicId {
+    final $$TopicsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.topicId,
+      referencedTable: $db.topics,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TopicsTableFilterComposer(
+            $db: $db,
+            $table: $db.topics,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  Expression<bool> topicReferencesRefs(
+    Expression<bool> Function($$TopicReferencesTableFilterComposer f) f,
+  ) {
+    final $$TopicReferencesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.topicReferences,
+      getReferencedColumn: (t) => t.entryId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TopicReferencesTableFilterComposer(
+            $db: $db,
+            $table: $db.topicReferences,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$TopicEntriesTableOrderingComposer
+    extends Composer<_$ContentStore, $TopicEntriesTable> {
+  $$TopicEntriesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get ordinal => $composableBuilder(
+    column: $table.ordinal,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get seeAlso => $composableBuilder(
+    column: $table.seeAlso,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$TopicsTableOrderingComposer get topicId {
+    final $$TopicsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.topicId,
+      referencedTable: $db.topics,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TopicsTableOrderingComposer(
+            $db: $db,
+            $table: $db.topics,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$TopicEntriesTableAnnotationComposer
+    extends Composer<_$ContentStore, $TopicEntriesTable> {
+  $$TopicEntriesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get ordinal =>
+      $composableBuilder(column: $table.ordinal, builder: (column) => column);
+
+  GeneratedColumn<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get seeAlso =>
+      $composableBuilder(column: $table.seeAlso, builder: (column) => column);
+
+  $$TopicsTableAnnotationComposer get topicId {
+    final $$TopicsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.topicId,
+      referencedTable: $db.topics,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TopicsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.topics,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  Expression<T> topicReferencesRefs<T extends Object>(
+    Expression<T> Function($$TopicReferencesTableAnnotationComposer a) f,
+  ) {
+    final $$TopicReferencesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.topicReferences,
+      getReferencedColumn: (t) => t.entryId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TopicReferencesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.topicReferences,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$TopicEntriesTableTableManager
+    extends
+        RootTableManager<
+          _$ContentStore,
+          $TopicEntriesTable,
+          TopicEntry,
+          $$TopicEntriesTableFilterComposer,
+          $$TopicEntriesTableOrderingComposer,
+          $$TopicEntriesTableAnnotationComposer,
+          $$TopicEntriesTableCreateCompanionBuilder,
+          $$TopicEntriesTableUpdateCompanionBuilder,
+          (TopicEntry, $$TopicEntriesTableReferences),
+          TopicEntry,
+          PrefetchHooks Function({bool topicId, bool topicReferencesRefs})
+        > {
+  $$TopicEntriesTableTableManager(_$ContentStore db, $TopicEntriesTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$TopicEntriesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$TopicEntriesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$TopicEntriesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> topicId = const Value.absent(),
+                Value<int> ordinal = const Value.absent(),
+                Value<String> description = const Value.absent(),
+                Value<String?> seeAlso = const Value.absent(),
+              }) => TopicEntriesCompanion(
+                id: id,
+                topicId: topicId,
+                ordinal: ordinal,
+                description: description,
+                seeAlso: seeAlso,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int topicId,
+                required int ordinal,
+                required String description,
+                Value<String?> seeAlso = const Value.absent(),
+              }) => TopicEntriesCompanion.insert(
+                id: id,
+                topicId: topicId,
+                ordinal: ordinal,
+                description: description,
+                seeAlso: seeAlso,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$TopicEntriesTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback:
+              ({topicId = false, topicReferencesRefs = false}) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (topicReferencesRefs) db.topicReferences,
+                  ],
+                  addJoins:
+                      <
+                        T extends TableManagerState<
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic
+                        >
+                      >(state) {
+                        if (topicId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.topicId,
+                                    referencedTable:
+                                        $$TopicEntriesTableReferences
+                                            ._topicIdTable(db),
+                                    referencedColumn:
+                                        $$TopicEntriesTableReferences
+                                            ._topicIdTable(db)
+                                            .id,
+                                  )
+                                  as T;
+                        }
+
+                        return state;
+                      },
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (topicReferencesRefs)
+                        await $_getPrefetchedData<
+                          TopicEntry,
+                          $TopicEntriesTable,
+                          TopicReference
+                        >(
+                          currentTable: table,
+                          referencedTable: $$TopicEntriesTableReferences
+                              ._topicReferencesRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$TopicEntriesTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).topicReferencesRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.entryId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
+              },
+        ),
+      );
+}
+
+typedef $$TopicEntriesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$ContentStore,
+      $TopicEntriesTable,
+      TopicEntry,
+      $$TopicEntriesTableFilterComposer,
+      $$TopicEntriesTableOrderingComposer,
+      $$TopicEntriesTableAnnotationComposer,
+      $$TopicEntriesTableCreateCompanionBuilder,
+      $$TopicEntriesTableUpdateCompanionBuilder,
+      (TopicEntry, $$TopicEntriesTableReferences),
+      TopicEntry,
+      PrefetchHooks Function({bool topicId, bool topicReferencesRefs})
+    >;
+typedef $$TopicReferencesTableCreateCompanionBuilder =
+    TopicReferencesCompanion Function({
+      Value<int> id,
+      required int topicId,
+      required int entryId,
+      required String bookName,
+      required int chapter,
+      Value<int?> verse,
+      Value<int?> verseEnd,
+    });
+typedef $$TopicReferencesTableUpdateCompanionBuilder =
+    TopicReferencesCompanion Function({
+      Value<int> id,
+      Value<int> topicId,
+      Value<int> entryId,
+      Value<String> bookName,
+      Value<int> chapter,
+      Value<int?> verse,
+      Value<int?> verseEnd,
+    });
+
+final class $$TopicReferencesTableReferences
+    extends
+        BaseReferences<_$ContentStore, $TopicReferencesTable, TopicReference> {
+  $$TopicReferencesTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $TopicsTable _topicIdTable(_$ContentStore db) =>
+      db.topics.createAlias('topic_references__topic_id__topics__id');
+
+  $$TopicsTableProcessedTableManager get topicId {
+    final $_column = $_itemColumn<int>('topic_id')!;
+
+    final manager = $$TopicsTableTableManager(
+      $_db,
+      $_db.topics,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_topicIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $TopicEntriesTable _entryIdTable(_$ContentStore db) => db.topicEntries
+      .createAlias('topic_references__entry_id__topic_entries__id');
+
+  $$TopicEntriesTableProcessedTableManager get entryId {
+    final $_column = $_itemColumn<int>('entry_id')!;
+
+    final manager = $$TopicEntriesTableTableManager(
+      $_db,
+      $_db.topicEntries,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_entryIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$TopicReferencesTableFilterComposer
+    extends Composer<_$ContentStore, $TopicReferencesTable> {
+  $$TopicReferencesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get bookName => $composableBuilder(
+    column: $table.bookName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get chapter => $composableBuilder(
+    column: $table.chapter,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get verse => $composableBuilder(
+    column: $table.verse,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get verseEnd => $composableBuilder(
+    column: $table.verseEnd,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$TopicsTableFilterComposer get topicId {
+    final $$TopicsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.topicId,
+      referencedTable: $db.topics,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TopicsTableFilterComposer(
+            $db: $db,
+            $table: $db.topics,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$TopicEntriesTableFilterComposer get entryId {
+    final $$TopicEntriesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.entryId,
+      referencedTable: $db.topicEntries,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TopicEntriesTableFilterComposer(
+            $db: $db,
+            $table: $db.topicEntries,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$TopicReferencesTableOrderingComposer
+    extends Composer<_$ContentStore, $TopicReferencesTable> {
+  $$TopicReferencesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get bookName => $composableBuilder(
+    column: $table.bookName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get chapter => $composableBuilder(
+    column: $table.chapter,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get verse => $composableBuilder(
+    column: $table.verse,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get verseEnd => $composableBuilder(
+    column: $table.verseEnd,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$TopicsTableOrderingComposer get topicId {
+    final $$TopicsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.topicId,
+      referencedTable: $db.topics,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TopicsTableOrderingComposer(
+            $db: $db,
+            $table: $db.topics,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$TopicEntriesTableOrderingComposer get entryId {
+    final $$TopicEntriesTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.entryId,
+      referencedTable: $db.topicEntries,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TopicEntriesTableOrderingComposer(
+            $db: $db,
+            $table: $db.topicEntries,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$TopicReferencesTableAnnotationComposer
+    extends Composer<_$ContentStore, $TopicReferencesTable> {
+  $$TopicReferencesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get bookName =>
+      $composableBuilder(column: $table.bookName, builder: (column) => column);
+
+  GeneratedColumn<int> get chapter =>
+      $composableBuilder(column: $table.chapter, builder: (column) => column);
+
+  GeneratedColumn<int> get verse =>
+      $composableBuilder(column: $table.verse, builder: (column) => column);
+
+  GeneratedColumn<int> get verseEnd =>
+      $composableBuilder(column: $table.verseEnd, builder: (column) => column);
+
+  $$TopicsTableAnnotationComposer get topicId {
+    final $$TopicsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.topicId,
+      referencedTable: $db.topics,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TopicsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.topics,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$TopicEntriesTableAnnotationComposer get entryId {
+    final $$TopicEntriesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.entryId,
+      referencedTable: $db.topicEntries,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TopicEntriesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.topicEntries,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$TopicReferencesTableTableManager
+    extends
+        RootTableManager<
+          _$ContentStore,
+          $TopicReferencesTable,
+          TopicReference,
+          $$TopicReferencesTableFilterComposer,
+          $$TopicReferencesTableOrderingComposer,
+          $$TopicReferencesTableAnnotationComposer,
+          $$TopicReferencesTableCreateCompanionBuilder,
+          $$TopicReferencesTableUpdateCompanionBuilder,
+          (TopicReference, $$TopicReferencesTableReferences),
+          TopicReference,
+          PrefetchHooks Function({bool topicId, bool entryId})
+        > {
+  $$TopicReferencesTableTableManager(
+    _$ContentStore db,
+    $TopicReferencesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$TopicReferencesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$TopicReferencesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$TopicReferencesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> topicId = const Value.absent(),
+                Value<int> entryId = const Value.absent(),
+                Value<String> bookName = const Value.absent(),
+                Value<int> chapter = const Value.absent(),
+                Value<int?> verse = const Value.absent(),
+                Value<int?> verseEnd = const Value.absent(),
+              }) => TopicReferencesCompanion(
+                id: id,
+                topicId: topicId,
+                entryId: entryId,
+                bookName: bookName,
+                chapter: chapter,
+                verse: verse,
+                verseEnd: verseEnd,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int topicId,
+                required int entryId,
+                required String bookName,
+                required int chapter,
+                Value<int?> verse = const Value.absent(),
+                Value<int?> verseEnd = const Value.absent(),
+              }) => TopicReferencesCompanion.insert(
+                id: id,
+                topicId: topicId,
+                entryId: entryId,
+                bookName: bookName,
+                chapter: chapter,
+                verse: verse,
+                verseEnd: verseEnd,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$TopicReferencesTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({topicId = false, entryId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (topicId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.topicId,
+                                referencedTable:
+                                    $$TopicReferencesTableReferences
+                                        ._topicIdTable(db),
+                                referencedColumn:
+                                    $$TopicReferencesTableReferences
+                                        ._topicIdTable(db)
+                                        .id,
+                              )
+                              as T;
+                    }
+                    if (entryId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.entryId,
+                                referencedTable:
+                                    $$TopicReferencesTableReferences
+                                        ._entryIdTable(db),
+                                referencedColumn:
+                                    $$TopicReferencesTableReferences
+                                        ._entryIdTable(db)
+                                        .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$TopicReferencesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$ContentStore,
+      $TopicReferencesTable,
+      TopicReference,
+      $$TopicReferencesTableFilterComposer,
+      $$TopicReferencesTableOrderingComposer,
+      $$TopicReferencesTableAnnotationComposer,
+      $$TopicReferencesTableCreateCompanionBuilder,
+      $$TopicReferencesTableUpdateCompanionBuilder,
+      (TopicReference, $$TopicReferencesTableReferences),
+      TopicReference,
+      PrefetchHooks Function({bool topicId, bool entryId})
+    >;
 
 class $ContentStoreManager {
   final _$ContentStore _db;
@@ -7751,4 +10025,10 @@ class $ContentStoreManager {
       $$DevotionalsTableTableManager(_db, _db.devotionals);
   $$DevotionalEntriesTableTableManager get devotionalEntries =>
       $$DevotionalEntriesTableTableManager(_db, _db.devotionalEntries);
+  $$TopicsTableTableManager get topics =>
+      $$TopicsTableTableManager(_db, _db.topics);
+  $$TopicEntriesTableTableManager get topicEntries =>
+      $$TopicEntriesTableTableManager(_db, _db.topicEntries);
+  $$TopicReferencesTableTableManager get topicReferences =>
+      $$TopicReferencesTableTableManager(_db, _db.topicReferences);
 }

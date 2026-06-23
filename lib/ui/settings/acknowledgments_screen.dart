@@ -58,6 +58,12 @@ class AcknowledgmentsScreen extends StatelessWidget {
             url: 'https://www.openbible.info/',
           ),
           _buildCredit(
+            title: "Nave's Topical Bible",
+            subtitle:
+                "Public-domain topical index, via the BradyStephenson/bible-data dataset (CC-BY 4.0).",
+            url: 'https://github.com/BradyStephenson/bible-data',
+          ),
+          _buildCredit(
             title: 'Berean Study Bible',
             subtitle: 'Public domain Bible text and audio resources.',
             url: 'https://berean.bible/',

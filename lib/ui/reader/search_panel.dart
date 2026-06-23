@@ -10,6 +10,8 @@ import '../../app/sermon_providers.dart';
 import 'dictionary_panel.dart';
 import 'commentary_panel.dart';
 import 'notes_panel.dart';
+import 'topics_panel.dart';
+import '../../app/topic_providers.dart';
 import '../../app/user_providers.dart';
 import '../sermons/sermon_editor_screen.dart';
 import '../tags/tags_tab_view.dart';
@@ -147,11 +149,12 @@ class _SearchPanelState extends ConsumerState<SearchPanel> {
                  final dictionaries = results
                      .where((r) => r.type == 'dictionary')
                      .toList();
+                 final topics = results.where((r) => r.type == 'topic').toList();
 
                  final combinedVerses = [...navigation, ...verses];
 
                  return DefaultTabController(
-                   length: 7,
+                   length: 8,
                    child: Column(
                      children: [
                        TabBar(
@@ -164,6 +167,7 @@ class _SearchPanelState extends ConsumerState<SearchPanel> {
                           Tab(text: 'Prayers (${prayers.length})'),
                           Tab(text: 'Comm. (${commentaries.length})'),
                           Tab(text: 'Dict. (${dictionaries.length})'),
+                          Tab(text: 'Topics (${topics.length})'),
                         ],
                       ),
                       Expanded(
@@ -176,6 +180,7 @@ class _SearchPanelState extends ConsumerState<SearchPanel> {
                             SearchResultsList(results: prayers),
                             GroupedSearchResultsList(results: commentaries),
                             GroupedSearchResultsList(results: dictionaries),
+                            SearchResultsList(results: topics),
                           ],
                         ),
                       ),
@@ -328,6 +333,27 @@ class SearchResultsList extends ConsumerWidget {
                 ref
                     .read(activeToolProvider.notifier)
                     .setTool(ActiveTool.dictionary);
+              }
+            } else if (item.type == 'topic') {
+              ref
+                  .read(selectedTopicProvider.notifier)
+                  .select(int.parse(item.referenceId));
+              if (MediaQuery.sizeOf(context).width <= Breakpoints.compact) {
+                Navigator.of(context).pop();
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  useSafeArea: true,
+                  builder: (context) => DraggableScrollableSheet(
+                    initialChildSize: 0.9,
+                    minChildSize: 0.5,
+                    maxChildSize: 1.0,
+                    expand: false,
+                    builder: (_, scrollController) => const TopicsPanel(),
+                  ),
+                );
+              } else {
+                ref.read(activeToolProvider.notifier).setTool(ActiveTool.topics);
               }
             } else if (item.type == 'journal') {
               ref.read(selectedJournalIdProvider.notifier).setId(item.referenceId);

@@ -70,6 +70,7 @@ This project is made possible thanks to several upstream resources and formats:
 - **[Lumo Project](https://lumoproject.com/)**: Visual translations of the four Gospels.
 - **[Jesus Film Project](https://www.jesusfilm.org/)**: Sharing the story of Jesus through film.
 - **[OpenBible.info](https://www.openbible.info/)**: Crowdsourced cross-reference dataset (licensed under CC-BY).
+- **[Nave's Topical Bible](https://github.com/BradyStephenson/bible-data)**: Public-domain topical index, via the BradyStephenson/bible-data dataset (licensed under CC-BY 4.0).
 - **[Berean Study Bible](https://berean.bible/)**: Public domain Bible text and audio resources.
 - **Clojure/JavaFX Study Bible**: The original desktop application that inspired and provided the feature foundation for this Flutter reimplementation.
 

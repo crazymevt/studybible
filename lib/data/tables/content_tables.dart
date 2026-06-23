@@ -90,6 +90,35 @@ class Subheadings extends Table {
   TextColumn get about => text().nullable()();
 }
 
+@DataClassName('Topic')
+class Topics extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get name => text()(); // e.g. "AARON"
+  TextColumn get section => text()(); // single-letter A–Z bucket
+}
+
+@DataClassName('TopicEntry')
+class TopicEntries extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get topicId => integer().references(Topics, #id)();
+  IntColumn get ordinal => integer()(); // order within the topic
+  TextColumn get description => text()();
+  // Newline-joined names of cross-referenced topics ("See …"), or null.
+  TextColumn get seeAlso => text().nullable()();
+}
+
+@DataClassName('TopicReference')
+@TableIndex(name: 'idx_topic_ref_location', columns: {#bookName, #chapter})
+class TopicReferences extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get topicId => integer().references(Topics, #id)();
+  IntColumn get entryId => integer().references(TopicEntries, #id)();
+  TextColumn get bookName => text()();
+  IntColumn get chapter => integer()();
+  IntColumn get verse => integer().nullable()(); // null = whole chapter
+  IntColumn get verseEnd => integer().nullable()(); // null = single verse
+}
+
 @DataClassName('Devotional')
 class Devotionals extends Table {
   IntColumn get id => integer().autoIncrement()();

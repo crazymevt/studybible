@@ -22,13 +22,16 @@ part 'content_store.g.dart';
     Subheadings,
     Devotionals,
     DevotionalEntries,
+    Topics,
+    TopicEntries,
+    TopicReferences,
   ],
 )
 class ContentStore extends _$ContentStore {
   ContentStore([QueryExecutor? e]) : super(e ?? _openConnection());
 
   @override
-  int get schemaVersion => 8;
+  int get schemaVersion => 9;
 
   @override
   MigrationStrategy get migration {
@@ -90,6 +93,12 @@ class ContentStore extends _$ContentStore {
           await m.addColumn(dictionaries, dictionaries.about);
           await m.addColumn(subheadings, subheadings.about);
           await m.addColumn(devotionals, devotionals.about);
+        }
+        if (from < 9) {
+          await m.createTable(topics);
+          await m.createTable(topicEntries);
+          await m.createTable(topicReferences);
+          await m.createIndex(idxTopicRefLocation);
         }
       },
     );
@@ -183,6 +192,10 @@ class ContentStore extends _$ContentStore {
       await customStatement(
         "INSERT INTO content_search(type, reference_id, text_content) "
         "SELECT 'dictionary', id, word FROM dictionary_entries",
+      );
+      await customStatement(
+        "INSERT INTO content_search(type, reference_id, text_content) "
+        "SELECT 'topic', id, name FROM topics",
       );
       // HTML types: strip markup before indexing.
       await _insertStrippedRows(

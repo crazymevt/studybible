@@ -8,6 +8,7 @@ import '../../app/content_providers.dart';
 import '../../data/importer/mybible_verse_parser.dart';
 import 'note_editor.dart';
 import 'compare_panel.dart';
+import 'topics_panel.dart';
 import '../tags/tag_editor_dialog.dart';
 import '../common/breakpoints.dart';
 
@@ -138,6 +139,33 @@ class VerseActionBar extends ConsumerWidget {
                       ),
                     );
                   }
+                },
+              ),
+              _ActionIcon(
+                icon: Icons.topic,
+                label: 'Topics',
+                color: onBarColor,
+                showLabel: showLabels,
+                onTap: () {
+                  final selected = ref.read(selectedVersesProvider).toList()..sort();
+                  if (selected.isEmpty) return;
+                  final book = ref.read(selectedBookNameProvider);
+                  final chapter = ref.read(selectedChapterProvider);
+                  final verse = selected.first;
+                  ref.read(selectedVersesProvider.notifier).clear();
+                  showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    backgroundColor: Theme.of(context).colorScheme.surface,
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+                    ),
+                    builder: (_) => TopicsForVerseSheet(
+                      book: book,
+                      chapter: chapter,
+                      verse: verse,
+                    ),
+                  );
                 },
               ),
               _ActionIcon(

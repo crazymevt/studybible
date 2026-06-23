@@ -12,6 +12,7 @@ import 'media_panel.dart';
 import 'reading_plan_panel.dart';
 import '../sermons/sermons_panel.dart';
 import 'devotionals_panel.dart';
+import 'topics_panel.dart';
 import '../../app/reader_state.dart';
 
 class MobileToolsDrawer extends ConsumerWidget {
@@ -132,6 +133,14 @@ class MobileToolsDrawer extends ConsumerWidget {
               ),
               title: const Text('Devotionals'),
               onTap: () => _openTool(context, const DevotionalsPanel()),
+            ),
+            ListTile(
+              leading: const Tooltip(
+                message: 'Topics',
+                child: Icon(Icons.topic),
+              ),
+              title: const Text('Topics'),
+              onTap: () => _openTool(context, const TopicsPanel()),
             ),
           ],
         ),

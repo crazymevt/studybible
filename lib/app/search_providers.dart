@@ -129,7 +129,8 @@ final globalSearchResultsProvider = FutureProvider<List<SearchResult>>((
       f.text_content,
       v.chapter as verse_chapter, v.verse as verse_num, b.name as verse_book, b.book_order as verse_book_order,
       ce.book_name as comm_book, ce.chapter as comm_chapter, c.name as comm_name,
-      de.word as dict_word, de.definition as dict_def, d.name as dict_name
+      de.word as dict_word, de.definition as dict_def, d.name as dict_name,
+      tp.name as topic_name
     FROM content_search f
     LEFT JOIN verses v ON f.type = 'verse' AND f.reference_id = v.id
     LEFT JOIN books b ON v.book_id = b.id
@@ -137,6 +138,7 @@ final globalSearchResultsProvider = FutureProvider<List<SearchResult>>((
     LEFT JOIN commentaries c ON ce.commentary_id = c.id
     LEFT JOIN dictionary_entries de ON f.type = 'dictionary' AND f.reference_id = de.id
     LEFT JOIN dictionaries d ON de.dictionary_id = d.id
+    LEFT JOIN topics tp ON f.type = 'topic' AND f.reference_id = tp.id
     WHERE content_search MATCH ?
     ORDER BY rank
     LIMIT 100
@@ -206,6 +208,17 @@ final globalSearchResultsProvider = FutureProvider<List<SearchResult>>((
           textContent: def,
           title: word,
           sourceName: dName,
+        ),
+      );
+    } else if (type == 'topic') {
+      final name = row.readNullable<String>('topic_name') ?? text;
+      results.add(
+        SearchResult(
+          type: type,
+          referenceId: refId,
+          textContent: '',
+          title: _titleCaseTopic(name),
+          sourceName: "Nave's Topical Bible",
         ),
       );
     }
@@ -473,3 +486,12 @@ final globalSearchResultsProvider = FutureProvider<List<SearchResult>>((
 
   return [...uniqueVerses, ...others];
 });
+
+/// Nave's topic names are stored upper-cased; display them in title case.
+String _titleCaseTopic(String s) {
+  return s
+      .toLowerCase()
+      .split(' ')
+      .map((w) => w.isEmpty ? w : '${w[0].toUpperCase()}${w.substring(1)}')
+      .join(' ');
+}
