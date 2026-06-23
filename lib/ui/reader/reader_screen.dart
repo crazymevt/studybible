@@ -606,11 +606,13 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
                 ),
               ),
               if (selectedVerses.isNotEmpty)
-                const Positioned(
-                  bottom: 32,
+                Positioned(
+                  // Lift the bar above the system navigation bar / gesture area
+                  // so it isn't clipped by the Android nav buttons.
+                  bottom: 16 + MediaQuery.viewPaddingOf(context).bottom,
                   left: 0,
                   right: 0,
-                  child: Center(child: VerseActionBar()),
+                  child: const Center(child: VerseActionBar()),
                 ),
             ],
           );

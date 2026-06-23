@@ -23,18 +23,23 @@ class VerseActionBar extends ConsumerWidget {
     final barColor = theme.colorScheme.inverseSurface;
     final onBarColor = theme.colorScheme.onInverseSurface;
 
+    // On phones the labeled actions make the row too wide, so FittedBox would
+    // shrink the whole bar (and its touch targets) below a usable size. Drop
+    // the captions and tighten the swatches so the single row fits at close to
+    // its natural size, keeping taps comfortable.
+    final compact = context.isPhone;
+    final swatchSize = compact ? 36.0 : 40.0;
+
     final swatches = [
-      const _ColorSwatch(color: Color(0xFFFBE083), hex: '#FBE083', name: 'Yellow'),
-      const _ColorSwatch(color: Color(0xFF98E2C6), hex: '#98E2C6', name: 'Green'),
-      const _ColorSwatch(color: Color(0xFFB5E2FA), hex: '#B5E2FA', name: 'Blue'),
-      const _ColorSwatch(color: Color(0xFFF4A8C4), hex: '#F4A8C4', name: 'Pink'),
-      const _ClearHighlightSwatch(),
+      _ColorSwatch(color: const Color(0xFFFBE083), hex: '#FBE083', name: 'Yellow', size: swatchSize),
+      _ColorSwatch(color: const Color(0xFF98E2C6), hex: '#98E2C6', name: 'Green', size: swatchSize),
+      _ColorSwatch(color: const Color(0xFFB5E2FA), hex: '#B5E2FA', name: 'Blue', size: swatchSize),
+      _ColorSwatch(color: const Color(0xFFF4A8C4), hex: '#F4A8C4', name: 'Pink', size: swatchSize),
+      _ClearHighlightSwatch(size: swatchSize),
     ];
 
-    final actions = _buildActions(context, ref, onBarColor);
+    final actions = _buildActions(context, ref, onBarColor, showLabels: !compact);
 
-    // A single compact row that hugs its content. Swatches already carry their
-    // own 40px hit targets so they don't need extra spacing between them.
     final Widget content = Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -57,19 +62,21 @@ class VerseActionBar extends ConsumerWidget {
         borderRadius: BorderRadius.circular(32),
         clipBehavior: Clip.antiAlias,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+          padding: EdgeInsets.symmetric(horizontal: compact ? 10.0 : 16.0, vertical: 8.0),
           child: content,
         ),
       ),
     );
   }
 
-  List<Widget> _buildActions(BuildContext context, WidgetRef ref, Color onBarColor) {
+  List<Widget> _buildActions(BuildContext context, WidgetRef ref, Color onBarColor,
+      {required bool showLabels}) {
     return [
               _ActionIcon(
                 icon: Icons.edit_note,
                 label: 'Add Note',
                 color: onBarColor,
+                showLabel: showLabels,
                 onTap: () {
                   final selected = ref.read(selectedVersesProvider);
                   showDialog(
@@ -83,6 +90,7 @@ class VerseActionBar extends ConsumerWidget {
                 icon: Icons.label,
                 label: 'Tag',
                 color: onBarColor,
+                showLabel: showLabels,
                 onTap: () {
                   final selected = ref.read(selectedVersesProvider).toList()..sort();
                   if (selected.isEmpty) return;
@@ -106,6 +114,7 @@ class VerseActionBar extends ConsumerWidget {
                 icon: Icons.difference,
                 label: 'Compare',
                 color: onBarColor,
+                showLabel: showLabels,
                 onTap: () {
                   if (context.isWideLayout) {
                     ref
@@ -135,6 +144,7 @@ class VerseActionBar extends ConsumerWidget {
                 icon: Icons.copy,
                 label: 'Copy',
                 color: onBarColor,
+                showLabel: showLabels,
                 onTap: () async {
                   final versesMap = ref.read(parallelVersesProvider).value;
                   if (versesMap == null || versesMap.isEmpty) return;
@@ -191,6 +201,7 @@ class VerseActionBar extends ConsumerWidget {
                 icon: Icons.close,
                 label: 'Deselect',
                 color: onBarColor,
+                showLabel: showLabels,
                 onTap: () => ref.read(selectedVersesProvider.notifier).clear(),
               ),
     ];
@@ -201,6 +212,7 @@ class _ActionIcon extends StatelessWidget {
   final IconData icon;
   final String label;
   final Color color;
+  final bool showLabel;
   final VoidCallback onTap;
 
   const _ActionIcon({
@@ -208,29 +220,42 @@ class _ActionIcon extends StatelessWidget {
     required this.label,
     required this.color,
     required this.onTap,
+    this.showLabel = true,
   });
 
   @override
   Widget build(BuildContext context) {
+    // Icon-only mode keeps a generous touch target (40px) while staying narrow.
+    final iconButton = InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(showLabel ? 8 : 20),
+      child: showLabel
+          ? Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(icon, color: color, size: 20),
+                  const SizedBox(height: 4),
+                  Text(
+                    label,
+                    style: TextStyle(color: color.withValues(alpha: 0.7), fontSize: 10),
+                  ),
+                ],
+              ),
+            )
+          : SizedBox(
+              width: 40,
+              height: 40,
+              child: Center(child: Icon(icon, color: color, size: 22)),
+            ),
+    );
     return Tooltip(
       message: label,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(8),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(icon, color: color, size: 20),
-              const SizedBox(height: 4),
-              Text(
-                label,
-                style: TextStyle(color: color.withValues(alpha: 0.7), fontSize: 10),
-              ),
-            ],
-          ),
-        ),
+      child: Semantics(
+        button: true,
+        label: label,
+        child: iconButton,
       ),
     );
   }
@@ -240,8 +265,14 @@ class _ColorSwatch extends ConsumerWidget {
   final Color color;
   final String hex;
   final String name;
+  final double size;
 
-  const _ColorSwatch({required this.color, required this.hex, required this.name});
+  const _ColorSwatch({
+    required this.color,
+    required this.hex,
+    required this.name,
+    this.size = 40,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -260,10 +291,10 @@ class _ColorSwatch extends ConsumerWidget {
             }
             ref.read(selectedVersesProvider.notifier).clear();
           },
-          // 40x40 hit target around the 24px visual swatch.
+          // Hit target around the 24px visual swatch.
           child: SizedBox(
-            width: 40,
-            height: 40,
+            width: size,
+            height: size,
             child: Center(
               child: Container(
                 width: 24,
@@ -279,7 +310,8 @@ class _ColorSwatch extends ConsumerWidget {
 }
 
 class _ClearHighlightSwatch extends ConsumerWidget {
-  const _ClearHighlightSwatch();
+  final double size;
+  const _ClearHighlightSwatch({this.size = 40});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -300,8 +332,8 @@ class _ClearHighlightSwatch extends ConsumerWidget {
             ref.read(selectedVersesProvider.notifier).clear();
           },
           child: SizedBox(
-            width: 40,
-            height: 40,
+            width: size,
+            height: size,
             child: Center(
               child: Container(
                 width: 24,
