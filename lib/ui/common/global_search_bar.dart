@@ -138,11 +138,20 @@ class _GlobalSearchBarState extends ConsumerState<GlobalSearchBar> {
         return TextField(
           controller: textEditingController,
           focusNode: focusNode,
-          decoration: const InputDecoration(
+          decoration: InputDecoration(
             hintText: 'Search entire library...',
             border: InputBorder.none,
             isDense: true,
-            contentPadding: EdgeInsets.symmetric(vertical: 10),
+            contentPadding: const EdgeInsets.symmetric(vertical: 10),
+            // The search icon lives inside the field (rather than as a fixed
+            // sibling in the title Row) so the title pill can never overflow
+            // when AppBar actions squeeze it on narrow screens.
+            prefixIcon: Icon(
+              Icons.search,
+              size: 20,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+            prefixIconConstraints: const BoxConstraints(minWidth: 36, minHeight: 0),
           ),
           onSubmitted: (value) {
             _submitSearch(value);

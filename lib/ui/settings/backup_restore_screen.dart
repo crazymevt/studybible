@@ -11,7 +11,7 @@ import 'package:share_plus/share_plus.dart';
 import '../../app/backup_providers.dart';
 import '../../data/backup/backup_restore_service.dart';
 import '../app_drawer.dart';
-import '../common/global_search_bar.dart';
+import '../common/search_title_bar.dart';
 
 class BackupRestoreScreen extends ConsumerStatefulWidget {
   const BackupRestoreScreen({super.key});
@@ -279,27 +279,7 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
         backgroundColor: Theme.of(context).colorScheme.primaryContainer,
         foregroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
         centerTitle: true,
-        title: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 400),
-          child: Container(
-            height: 40,
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Row(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                  child: Icon(Icons.search, size: 20, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                ),
-                const Expanded(
-                  child: GlobalSearchBar(),
-                ),
-              ],
-            ),
-          ),
-        ),
+        title: const SearchTitleBar(),
       ),
       drawer: const AppDrawer(),
       body: Center(

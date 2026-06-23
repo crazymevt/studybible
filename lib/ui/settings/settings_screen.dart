@@ -512,6 +512,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               ref.read(appShowStrongNumbersProvider.notifier).set(value);
             },
           ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
+            child: Text(
+              'Reading progress',
+              style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    fontWeight: FontWeight.w600,
+                  ),
+            ),
+          ),
           SwitchListTile(
             title: const Text('Mark chapters read manually'),
             subtitle: const Text(

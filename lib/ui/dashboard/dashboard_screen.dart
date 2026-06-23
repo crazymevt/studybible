@@ -10,7 +10,7 @@ import '../../app/reading_plan_providers.dart';
 import '../../app/app_state.dart';
 import '../../data/verse_of_the_day_list.dart';
 import '../../app/reader_state.dart';
-import '../common/global_search_bar.dart';
+import '../common/search_title_bar.dart';
 import '../../app/sync_service.dart';
 
 class DashboardScreen extends ConsumerWidget {
@@ -34,27 +34,7 @@ class DashboardScreen extends ConsumerWidget {
         backgroundColor: Theme.of(context).colorScheme.primaryContainer,
         foregroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
         centerTitle: true,
-        title: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 400),
-          child: Container(
-            height: 40,
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Row(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                  child: Icon(Icons.search, size: 20, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                ),
-                const Expanded(
-                  child: GlobalSearchBar(),
-                ),
-              ],
-            ),
-          ),
-        ),
+        title: const SearchTitleBar(),
         actions: [
           const _SyncButton(),
           const SizedBox(width: 8),

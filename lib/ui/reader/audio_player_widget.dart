@@ -20,7 +20,14 @@ class _AudioPlayerWidgetState extends ConsumerState<AudioPlayerWidget> {
   String? _currentUrl;
   bool _shouldAutoPlay = false;
   bool _loadFailed = false;
+  double _playbackSpeed = 1.0;
+  double? _dragValue; // non-null while the user is scrubbing the slider
+  Timer? _sleepTimer;
+  int? _sleepMinutes; // active sleep-timer duration, null when off
   StreamSubscription? _playerStateSubscription;
+
+  static const List<double> _speedOptions = [0.75, 1.0, 1.25, 1.5, 2.0];
+  static const List<int> _sleepOptions = [15, 30, 45, 60];
 
   @override
   void initState() {
@@ -65,8 +72,153 @@ class _AudioPlayerWidgetState extends ConsumerState<AudioPlayerWidget> {
   @override
   void dispose() {
     _playerStateSubscription?.cancel();
+    _sleepTimer?.cancel();
     _player.dispose();
     super.dispose();
+  }
+
+  /// Move to an adjacent chapter from the player, preserving playback: if audio
+  /// is currently playing, the next chapter auto-plays once loaded.
+  void _skipChapter({required bool forward}) {
+    _shouldAutoPlay = _player.playing;
+    final nav = ref.read(navigationControllerProvider);
+    if (forward) {
+      nav.nextChapter();
+    } else {
+      nav.previousChapter();
+    }
+  }
+
+  void _cycleSpeed() {
+    final i = _speedOptions.indexOf(_playbackSpeed);
+    final next = _speedOptions[(i + 1) % _speedOptions.length];
+    setState(() => _playbackSpeed = next);
+    _player.setSpeed(next);
+  }
+
+  void _setSleepTimer(int? minutes) {
+    _sleepTimer?.cancel();
+    setState(() => _sleepMinutes = minutes);
+    if (minutes == null) return;
+    _sleepTimer = Timer(Duration(minutes: minutes), () {
+      _player.pause();
+      if (mounted) setState(() => _sleepMinutes = null);
+    });
+  }
+
+  // Shared pill container for the secondary controls.
+  Widget _chip(BuildContext context, {required Widget child, bool active = false}) {
+    final scheme = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      decoration: BoxDecoration(
+        color: active
+            ? scheme.primaryContainer
+            : scheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: child,
+    );
+  }
+
+  Widget _buildSpeedChip(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final label = _playbackSpeed == _playbackSpeed.roundToDouble()
+        ? '${_playbackSpeed.toStringAsFixed(0)}×'
+        : '$_playbackSpeed×';
+    final active = _playbackSpeed != 1.0;
+    return InkWell(
+      borderRadius: BorderRadius.circular(16),
+      onTap: _cycleSpeed,
+      child: _chip(
+        context,
+        active: active,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.speed, size: 16, color: scheme.onSurfaceVariant),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: scheme.onSurfaceVariant,
+                  ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildVoiceChip(BuildContext context, ChapterAudioData audioData) {
+    final scheme = Theme.of(context).colorScheme;
+    return _chip(
+      context,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.record_voice_over, size: 16, color: scheme.onSurfaceVariant),
+          const SizedBox(width: 6),
+          DropdownButtonHideUnderline(
+            child: DropdownButton<String>(
+              value: audioData.activeVoice,
+              icon: Icon(Icons.arrow_drop_down, size: 20, color: scheme.onSurfaceVariant),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: scheme.onSurfaceVariant,
+                  ),
+              isDense: true,
+              onChanged: (String? newValue) {
+                if (newValue != null) {
+                  ref.read(selectedVoiceProvider.notifier).setVoice(newValue);
+                }
+              },
+              items: audioData.availableVoices.map<DropdownMenuItem<String>>((String value) {
+                final formattedName = value[0].toUpperCase() + value.substring(1);
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(formattedName),
+                );
+              }).toList(),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSleepChip(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final active = _sleepMinutes != null;
+    return PopupMenuButton<int?>(
+      tooltip: 'Sleep timer',
+      onSelected: _setSleepTimer,
+      itemBuilder: (context) => [
+        const PopupMenuItem<int?>(value: null, child: Text('Off')),
+        ..._sleepOptions.map(
+          (m) => PopupMenuItem<int?>(value: m, child: Text('$m minutes')),
+        ),
+      ],
+      child: _chip(
+        context,
+        active: active,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.bedtime, size: 16, color: scheme.onSurfaceVariant),
+            const SizedBox(width: 6),
+            Text(
+              active ? '$_sleepMinutes min' : 'Sleep',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: scheme.onSurfaceVariant,
+                  ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Future<void> _loadAudio(String url) async {
@@ -76,6 +228,7 @@ class _AudioPlayerWidgetState extends ConsumerState<AudioPlayerWidget> {
     // run only after the first await, never synchronously during build.
     try {
       await _player.setUrl(url);
+      await _player.setSpeed(_playbackSpeed);
       if (_shouldAutoPlay) {
         _shouldAutoPlay = false;
         _player.play();
@@ -125,7 +278,7 @@ class _AudioPlayerWidgetState extends ConsumerState<AudioPlayerWidget> {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: Colors.grey.withAlpha(100),
+                  color: Theme.of(context).colorScheme.onSurfaceVariant.withAlpha(80),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -137,7 +290,7 @@ class _AudioPlayerWidgetState extends ConsumerState<AudioPlayerWidget> {
               'Now Playing',
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    color: Colors.grey,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
             ),
             const SizedBox(height: 8),
@@ -183,6 +336,13 @@ class _AudioPlayerWidgetState extends ConsumerState<AudioPlayerWidget> {
               builder: (context, snapshot) {
                 final position = snapshot.data ?? Duration.zero;
                 final duration = _player.duration ?? Duration.zero;
+                final maxMs = duration.inMilliseconds.toDouble() > 0
+                    ? duration.inMilliseconds.toDouble()
+                    : 1.0;
+                // While scrubbing, show the dragged position, not the stream's.
+                final sliderValue = (_dragValue ?? position.inMilliseconds.toDouble())
+                    .clamp(0.0, maxMs);
+                final labelMs = (_dragValue ?? position.inMilliseconds.toDouble()).round();
 
                 String formatDuration(Duration d) {
                   String twoDigits(int n) => n.toString().padLeft(2, "0");
@@ -192,6 +352,8 @@ class _AudioPlayerWidgetState extends ConsumerState<AudioPlayerWidget> {
                   return "$twoDigitMinutes:$twoDigitSeconds";
                 }
 
+                final timeStyle = Theme.of(context).textTheme.labelSmall;
+
                 return Column(
                   children: [
                     SliderTheme(
@@ -200,12 +362,16 @@ class _AudioPlayerWidgetState extends ConsumerState<AudioPlayerWidget> {
                         thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8.0),
                       ),
                       child: Slider(
-                        value: position.inMilliseconds.toDouble(),
-                        max: duration.inMilliseconds.toDouble() > 0
-                            ? duration.inMilliseconds.toDouble()
-                            : 1.0,
+                        value: sliderValue,
+                        max: maxMs,
+                        // Update only local state while dragging; seek on release
+                        // so we don't spam the player on every pixel of movement.
                         onChanged: (value) {
+                          setState(() => _dragValue = value);
+                        },
+                        onChangeEnd: (value) {
                           _player.seek(Duration(milliseconds: value.round()));
+                          setState(() => _dragValue = null);
                         },
                       ),
                     ),
@@ -214,8 +380,8 @@ class _AudioPlayerWidgetState extends ConsumerState<AudioPlayerWidget> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(formatDuration(position), style: const TextStyle(fontSize: 12)),
-                          Text(formatDuration(duration), style: const TextStyle(fontSize: 12)),
+                          Text(formatDuration(Duration(milliseconds: labelMs)), style: timeStyle),
+                          Text(formatDuration(duration), style: timeStyle),
                         ],
                       ),
                     ),
@@ -226,19 +392,30 @@ class _AudioPlayerWidgetState extends ConsumerState<AudioPlayerWidget> {
             
             const SizedBox(height: 24),
             
-            // Controls
-            Row(
+            // Controls — FittedBox keeps the 5-button row from overflowing on
+            // very narrow screens by scaling it down.
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 IconButton(
-                  icon: const Icon(Icons.replay_10),
+                  icon: const Icon(Icons.skip_previous),
                   iconSize: 32.0,
+                  tooltip: 'Previous chapter',
+                  onPressed: () => _skipChapter(forward: false),
+                ),
+                const SizedBox(width: 8),
+                IconButton(
+                  icon: const Icon(Icons.replay_10),
+                  iconSize: 28.0,
+                  tooltip: 'Back 10 seconds',
                   onPressed: () {
                     final newPos = _player.position - const Duration(seconds: 10);
                     _player.seek(newPos < Duration.zero ? Duration.zero : newPos);
                   },
                 ),
-                const SizedBox(width: 24),
+                const SizedBox(width: 12),
                 StreamBuilder<PlayerState>(
                   stream: _player.playerStateStream,
                   builder: (context, snapshot) {
@@ -279,57 +456,40 @@ class _AudioPlayerWidgetState extends ConsumerState<AudioPlayerWidget> {
                     );
                   },
                 ),
-                const SizedBox(width: 24),
+                const SizedBox(width: 12),
                 IconButton(
                   icon: const Icon(Icons.forward_10),
-                  iconSize: 32.0,
+                  iconSize: 28.0,
+                  tooltip: 'Forward 10 seconds',
                   onPressed: () {
                     final newPos = _player.position + const Duration(seconds: 10);
                     final dur = _player.duration ?? Duration.zero;
                     _player.seek(newPos > dur ? dur : newPos);
                   },
                 ),
+                const SizedBox(width: 8),
+                IconButton(
+                  icon: const Icon(Icons.skip_next),
+                  iconSize: 32.0,
+                  tooltip: 'Next chapter',
+                  onPressed: () => _skipChapter(forward: true),
+                ),
               ],
+              ),
             ),
-            
+
             const SizedBox(height: 32),
             
-            // Voice Actor
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+            // Secondary controls: speed, voice actor, sleep timer
+            Wrap(
+              alignment: WrapAlignment.center,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              spacing: 12,
+              runSpacing: 8,
               children: [
-                const Icon(Icons.record_voice_over, size: 16, color: Colors.grey),
-                const SizedBox(width: 8),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: DropdownButtonHideUnderline(
-                    child: DropdownButton<String>(
-                      value: audioData.activeVoice,
-                      icon: Icon(Icons.arrow_drop_down, size: 20, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
-                          ),
-                      isDense: true,
-                      onChanged: (String? newValue) {
-                        if (newValue != null) {
-                          ref.read(selectedVoiceProvider.notifier).setVoice(newValue);
-                        }
-                      },
-                      items: audioData.availableVoices.map<DropdownMenuItem<String>>((String value) {
-                        final formattedName = value[0].toUpperCase() + value.substring(1);
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(formattedName),
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                ),
+                _buildSpeedChip(context),
+                _buildVoiceChip(context, audioData),
+                _buildSleepChip(context),
               ],
             ),
             const SizedBox(height: 16),
