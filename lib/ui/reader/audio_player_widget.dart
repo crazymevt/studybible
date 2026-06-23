@@ -72,13 +72,15 @@ class _AudioPlayerWidgetState extends ConsumerState<AudioPlayerWidget> {
   Future<void> _loadAudio(String url) async {
     if (_currentUrl == url) return;
     _currentUrl = url;
-    if (_loadFailed && mounted) setState(() => _loadFailed = false);
+    // Note: this method is invoked from build(); all setState() calls below
+    // run only after the first await, never synchronously during build.
     try {
       await _player.setUrl(url);
       if (_shouldAutoPlay) {
         _shouldAutoPlay = false;
         _player.play();
       }
+      if (_loadFailed && mounted) setState(() => _loadFailed = false);
     } catch (e) {
       debugPrint('Error loading audio: $e');
       _shouldAutoPlay = false;
@@ -101,6 +103,10 @@ class _AudioPlayerWidgetState extends ConsumerState<AudioPlayerWidget> {
     if (audioData == null) {
       _player.stop();
       _currentUrl = null;
+      // Plain assignment (not setState): we're in build and returning an empty
+      // widget anyway; this just avoids a stale error flashing when audio
+      // becomes available again.
+      _loadFailed = false;
       return const SizedBox.shrink();
     }
 
