@@ -200,9 +200,17 @@ class DashboardAction {
         readAt: now,
         iteration: 1,
       );
-      await store.into(store.readingProgresses).insert(newProgress);
+      // insertOrIgnore guards against a race: two paths (e.g. the auto-read
+      // timer and audio auto-advance) can both observe an empty `existing`
+      // and try to insert the same deterministic primary key. The second
+      // write is silently dropped instead of throwing a unique-constraint
+      // error, and the original readAt is preserved.
+      await store
+          .into(store.readingProgresses)
+          .insert(newProgress, mode: InsertMode.insertOrIgnore);
 
-      // Evaluate achievements
+      // Evaluate achievements. In the rare double-insert race this runs
+      // twice, but achievement evaluation is idempotent.
       ref.read(achievementServiceProvider).evaluateAchievements();
     }
   }

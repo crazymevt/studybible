@@ -19,6 +19,7 @@ class _AudioPlayerWidgetState extends ConsumerState<AudioPlayerWidget> {
   final AudioPlayer _player = AudioPlayer();
   String? _currentUrl;
   bool _shouldAutoPlay = false;
+  bool _loadFailed = false;
   StreamSubscription? _playerStateSubscription;
 
   @override
@@ -26,16 +27,39 @@ class _AudioPlayerWidgetState extends ConsumerState<AudioPlayerWidget> {
     super.initState();
     _playerStateSubscription = _player.playerStateStream.listen((state) {
       if (state.processingState == ProcessingState.completed) {
-        _shouldAutoPlay = true;
-        // Mark the just-finished chapter read before advancing, if enabled.
-        if (ref.read(audioAdvanceMarksReadProvider)) {
-          final book = ref.read(selectedBookNameProvider);
-          final chapter = ref.read(selectedChapterProvider);
-          ref.read(dashboardActionProvider).markChapterRead(book, chapter);
-        }
-        ref.read(navigationControllerProvider).nextChapter();
+        _onChapterComplete();
       }
     });
+  }
+
+  Future<void> _onChapterComplete() async {
+    _shouldAutoPlay = true;
+
+    final book = ref.read(selectedBookNameProvider);
+    final chapter = ref.read(selectedChapterProvider);
+
+    // Mark the just-finished chapter read on completion, if enabled. This
+    // runs before nextChapter() and independently of whether navigation
+    // actually advances, so the final chapter of the Bible (which has no
+    // next chapter to move to) is still credited.
+    // Fire-and-forget, but guard the unawaited future so a DB/device-id
+    // failure doesn't surface as an unhandled async error.
+    if (ref.read(audioAdvanceMarksReadProvider)) {
+      ref
+          .read(dashboardActionProvider)
+          .markChapterRead(book, chapter)
+          .catchError((Object e) => debugPrint('Failed to mark read: $e'));
+    }
+
+    await ref.read(navigationControllerProvider).nextChapter();
+
+    // If nothing advanced (e.g. the final chapter of the Bible), clear the
+    // pending auto-play so it doesn't linger and surprise the next load.
+    if (!mounted) return;
+    if (ref.read(selectedBookNameProvider) == book &&
+        ref.read(selectedChapterProvider) == chapter) {
+      _shouldAutoPlay = false;
+    }
   }
 
   @override
@@ -48,6 +72,7 @@ class _AudioPlayerWidgetState extends ConsumerState<AudioPlayerWidget> {
   Future<void> _loadAudio(String url) async {
     if (_currentUrl == url) return;
     _currentUrl = url;
+    if (_loadFailed && mounted) setState(() => _loadFailed = false);
     try {
       await _player.setUrl(url);
       if (_shouldAutoPlay) {
@@ -56,7 +81,17 @@ class _AudioPlayerWidgetState extends ConsumerState<AudioPlayerWidget> {
       }
     } catch (e) {
       debugPrint('Error loading audio: $e');
+      _shouldAutoPlay = false;
+      if (mounted) setState(() => _loadFailed = true);
     }
+  }
+
+  Future<void> _retryLoad() async {
+    final url = _currentUrl;
+    if (url == null) return;
+    _currentUrl = null; // force _loadAudio to re-attempt the same url
+    _shouldAutoPlay = true;
+    await _loadAudio(url);
   }
 
   @override
@@ -107,8 +142,35 @@ class _AudioPlayerWidgetState extends ConsumerState<AudioPlayerWidget> {
                     fontWeight: FontWeight.bold,
                   ),
             ),
+            if (_loadFailed) ...[
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.error_outline,
+                    size: 18,
+                    color: Theme.of(context).colorScheme.error,
+                  ),
+                  const SizedBox(width: 8),
+                  Flexible(
+                    child: Text(
+                      'Could not load audio.',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: Theme.of(context).colorScheme.error,
+                          ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  TextButton(
+                    onPressed: _retryLoad,
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
+            ],
             const SizedBox(height: 32),
-            
+
             // Slider
             StreamBuilder<Duration>(
               stream: _player.positionStream,
