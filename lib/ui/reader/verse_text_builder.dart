@@ -140,8 +140,12 @@ List<InlineSpan> buildVerseSpans({
     
     if (!hasText && verseNumberSpan != null) {
        spans.add(verseNumberSpan);
+    } else if (hasText) {
+      // Trailing space so the verse doesn't butt against the next verse number
+      // in flowing paragraph mode (matches the non-segment branches below).
+      spans.add(const TextSpan(text: ' '));
     }
-    
+
     return spans;
   } catch (e) {
     if (verseNumberSpan != null) spans.add(verseNumberSpan);
