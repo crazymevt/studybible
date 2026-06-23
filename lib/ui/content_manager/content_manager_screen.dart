@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../app/app_state.dart';
 import '../../app/content_manager_providers.dart';
 import '../../app/content_providers.dart';
+import '../../app/search_providers.dart';
 import '../app_drawer.dart';
-import '../common/global_search_bar.dart';
 
 class ContentManagerScreen extends ConsumerStatefulWidget {
   const ContentManagerScreen({super.key});
@@ -18,20 +19,53 @@ class ContentManagerScreen extends ConsumerStatefulWidget {
 class _ContentManagerScreenState extends ConsumerState<ContentManagerScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  String _ph4SearchQuery = '';
-  String _osisSearchQuery = '';
+  // A single filter shared by every tab. The prominent AppBar field drives it
+  // live; the per-tab list filters against it. Global library search is a
+  // separate, explicit action (see _searchEntireLibrary).
+  final TextEditingController _searchController = TextEditingController();
+  String _filterQuery = '';
   final Set<String> _expandedOsisLanguages = {};
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    // Rebuild so the search field's hint reflects the active tab.
+    _tabController.addListener(_onTabChanged);
+  }
+
+  void _onTabChanged() {
+    if (mounted) setState(() {});
   }
 
   @override
   void dispose() {
+    _tabController.removeListener(_onTabChanged);
     _tabController.dispose();
+    _searchController.dispose();
     super.dispose();
+  }
+
+  /// Escalate the current filter text to a full-library search (Bible &
+  /// commentary text), navigating to the reader's search tool. Mirrors
+  /// GlobalSearchBar so behaviour is identical to the global search field.
+  void _searchEntireLibrary() {
+    final query = _searchController.text.trim();
+    if (query.isEmpty) return;
+    ref.read(globalSearchQueryProvider.notifier).setQuery(query);
+    ref.read(activeToolProvider.notifier).openTool(ActiveTool.search);
+    ref.read(appModuleProvider.notifier).setModule(AppModule.reader);
+  }
+
+  String get _filterHint {
+    switch (_tabController.index) {
+      case 1:
+        return 'Filter ph4.org catalog…';
+      case 2:
+        return 'Filter OSIS languages…';
+      default:
+        return 'Filter installed content…';
+    }
   }
 
   @override
@@ -45,20 +79,38 @@ class _ContentManagerScreenState extends ConsumerState<ContentManagerScreen>
           constraints: const BoxConstraints(maxWidth: 400),
           child: Container(
             height: 40,
+            clipBehavior: Clip.antiAlias,
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.circular(20),
             ),
-            child: Row(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                  child: Icon(Icons.search, size: 20, color: Theme.of(context).colorScheme.onSurfaceVariant),
+            child: TextField(
+              controller: _searchController,
+              onChanged: (val) =>
+                  setState(() => _filterQuery = val.toLowerCase()),
+              decoration: InputDecoration(
+                hintText: _filterHint,
+                border: InputBorder.none,
+                isDense: true,
+                contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                prefixIcon: Icon(
+                  Icons.filter_list,
+                  size: 20,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
-                const Expanded(
-                  child: GlobalSearchBar(),
+                prefixIconConstraints:
+                    const BoxConstraints(minWidth: 36, minHeight: 0),
+                // Explicit escape hatch: search Bible & commentary text across
+                // the whole library, rather than filtering this list.
+                suffixIcon: IconButton(
+                  icon: const Icon(Icons.travel_explore, size: 20),
+                  tooltip: 'Search entire library',
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  onPressed: _searchEntireLibrary,
                 ),
-              ],
+                suffixIconConstraints:
+                    const BoxConstraints(minWidth: 40, minHeight: 0),
+              ),
             ),
           ),
         ),
@@ -97,18 +149,61 @@ class _ContentManagerScreenState extends ConsumerState<ContentManagerScreen>
     if (devotionalsAsync.hasError) return Center(child: Text('Error: ${devotionalsAsync.error}'));
 
     final versions = versionsAsync.value ?? [];
-    final commentaries = commentariesAsync.value ?? [];
-    final dictionaries = dictionariesAsync.value ?? [];
-    final devotionals = devotionalsAsync.value ?? [];
-    
+    final allCommentaries = commentariesAsync.value ?? [];
+    final allDictionaries = dictionariesAsync.value ?? [];
+    final allDevotionals = devotionalsAsync.value ?? [];
+
+    if (versions.isEmpty && allCommentaries.isEmpty && allDictionaries.isEmpty && allDevotionals.isEmpty) {
+      return const Center(child: Text('No content installed.'));
+    }
+
     final bibleVersionIds = (bibleVersionsAsync.value ?? []).map((v) => v.id).toSet();
     final subheadingSourceIds = (subheadingSourcesAsync.value ?? []).map((v) => v.id).toSet();
 
-    final bibles = versions.where((v) => bibleVersionIds.contains(v.id)).toList();
-    final subheadings = versions.where((v) => subheadingSourceIds.contains(v.id) && !bibleVersionIds.contains(v.id)).toList();
+    final q = _filterQuery;
+    final bibles = versions
+        .where((v) =>
+            bibleVersionIds.contains(v.id) &&
+            (q.isEmpty ||
+                v.name.toLowerCase().contains(q) ||
+                v.id.toLowerCase().contains(q)))
+        .toList();
+    final subheadings = versions
+        .where((v) =>
+            subheadingSourceIds.contains(v.id) &&
+            !bibleVersionIds.contains(v.id) &&
+            (q.isEmpty ||
+                v.name.toLowerCase().contains(q) ||
+                v.id.toLowerCase().contains(q)))
+        .toList();
+    final commentaries = allCommentaries
+        .where((c) =>
+            q.isEmpty ||
+            c.abbreviation.toLowerCase().contains(q) ||
+            c.name.toLowerCase().contains(q))
+        .toList();
+    final dictionaries = allDictionaries
+        .where((d) =>
+            q.isEmpty ||
+            d.abbreviation.toLowerCase().contains(q) ||
+            d.name.toLowerCase().contains(q))
+        .toList();
+    final devotionals = allDevotionals
+        .where((d) =>
+            q.isEmpty ||
+            d.name.toLowerCase().contains(q) ||
+            d.abbreviation.toLowerCase().contains(q))
+        .toList();
 
-    if (versions.isEmpty && commentaries.isEmpty && dictionaries.isEmpty && devotionals.isEmpty) {
-      return const Center(child: Text('No content installed.'));
+    if (q.isNotEmpty &&
+        bibles.isEmpty &&
+        subheadings.isEmpty &&
+        commentaries.isEmpty &&
+        dictionaries.isEmpty &&
+        devotionals.isEmpty) {
+      return Center(
+        child: Text('No installed content matches "${_searchController.text}".'),
+      );
     }
 
     Widget buildInstalledTrailing(String id, String name, String? about, VoidCallback onDelete) {
@@ -251,33 +346,26 @@ class _ContentManagerScreenState extends ConsumerState<ContentManagerScreen>
     final installedIdsAsync = ref.watch(installedModuleIdsProvider);
     final installedIds = installedIdsAsync.value ?? {};
 
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: TextField(
-            decoration: const InputDecoration(
-              hintText: 'Search modules...',
-              prefixIcon: Icon(Icons.search),
-              border: OutlineInputBorder(),
-            ),
-            onChanged: (val) =>
-                setState(() => _ph4SearchQuery = val.toLowerCase()),
-          ),
-        ),
-        Expanded(
-          child: catalogAsync.when(
+    return catalogAsync.when(
             loading: () => const Center(child: CircularProgressIndicator()),
             error: (err, _) => Center(child: Text('Error: $err')),
             data: (modules) {
               final filtered = modules
                   .where(
                     (m) =>
-                        m.title.toLowerCase().contains(_ph4SearchQuery) ||
-                        m.abbr.toLowerCase().contains(_ph4SearchQuery) ||
-                        m.author.toLowerCase().contains(_ph4SearchQuery),
+                        m.title.toLowerCase().contains(_filterQuery) ||
+                        m.abbr.toLowerCase().contains(_filterQuery) ||
+                        m.author.toLowerCase().contains(_filterQuery),
                   )
                   .toList();
+
+              if (filtered.isEmpty) {
+                return Center(
+                  child: Text(_filterQuery.isEmpty
+                      ? 'No modules available.'
+                      : 'No modules match "${_searchController.text}".'),
+                );
+              }
 
               return ListView.builder(
                 itemCount: filtered.length,
@@ -390,10 +478,7 @@ class _ContentManagerScreenState extends ConsumerState<ContentManagerScreen>
                 },
               );
             },
-          ),
-        ),
-      ],
-    );
+          );
   }
 
   Widget _buildOsisTab() {
@@ -402,32 +487,25 @@ class _ContentManagerScreenState extends ConsumerState<ContentManagerScreen>
     final installedIdsAsync = ref.watch(installedModuleIdsProvider);
     final installedIds = installedIdsAsync.value ?? {};
 
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: TextField(
-            decoration: const InputDecoration(
-              hintText: 'Search languages...',
-              prefixIcon: Icon(Icons.search),
-              border: OutlineInputBorder(),
-            ),
-            onChanged: (val) =>
-                setState(() => _osisSearchQuery = val.toLowerCase()),
-          ),
-        ),
-        Expanded(
-          child: languagesAsync.when(
+    return languagesAsync.when(
             loading: () => const Center(child: CircularProgressIndicator()),
             error: (err, _) => Center(child: Text('Error: $err')),
             data: (languages) {
               final filtered = languages
                   .where(
                     (l) =>
-                        l.name.toLowerCase().contains(_osisSearchQuery) ||
-                        l.code.toLowerCase().contains(_osisSearchQuery),
+                        l.name.toLowerCase().contains(_filterQuery) ||
+                        l.code.toLowerCase().contains(_filterQuery),
                   )
                   .toList();
+
+              if (filtered.isEmpty) {
+                return Center(
+                  child: Text(_filterQuery.isEmpty
+                      ? 'No languages available.'
+                      : 'No languages match "${_searchController.text}".'),
+                );
+              }
 
               return ListView.builder(
                 itemCount: filtered.length,
@@ -578,9 +656,6 @@ class _ContentManagerScreenState extends ConsumerState<ContentManagerScreen>
                 },
               );
             },
-          ),
-        ),
-      ],
-    );
+          );
   }
 }
