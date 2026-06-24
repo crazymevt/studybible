@@ -95,6 +95,13 @@ Running list of known issues and follow-ups.
     KJV versification only — covers KJV/ASV/WEB and proves the binary-index +
     versification machinery end-to-end. (2) BZIP2, then GBF/ThML, then more
     versifications. (3) commentaries (`zCom`) and dictionaries (`zLD`).
+  - **Phase 1 implemented** (branch `feat/sword-import`, `lib/data/importer/sword/`):
+    `.conf` parser, KJV versification + index math, `zText` ZIP reader,
+    per-verse OSIS fragment parser, and `SwordBibleImporter` →
+    `versions`/`books`/`verses`, all unit-tested. Wired into the Content
+    Manager via a local-file "Import SWORD module (.zip)" action. Remaining:
+    `RawText`, BZIP2/LZSS, GBF/ThML, non-KJV versifications, commentaries,
+    dictionaries (phases 2–3 above).
 
 ## Issues
 

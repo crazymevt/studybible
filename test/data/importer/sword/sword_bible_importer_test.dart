@@ -4,6 +4,7 @@ import 'dart:typed_data';
 
 import 'package:drift/drift.dart' show OrderingTerm;
 import 'package:drift/native.dart';
+import 'package:path/path.dart' as p;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:study_bible/data/content_store.dart';
 import 'package:study_bible/data/importer/sword/sword_config.dart';
@@ -24,16 +25,18 @@ Uint8List _concat(List<List<int>> parts) {
   return b.toBytes();
 }
 
-/// Build a single-block zText reader whose entries are [fragments] laid out at
-/// the given testament-relative [slots] (every other slot is zero-length).
-SwordZTextReader _reader(Map<int, String> slotToFragment) {
-  // One compressed block holding all fragments concatenated.
+/// The three testament files (verse index, block index, compressed data) for a
+/// single-block zText testament whose entries are [slotToFragment] laid out at
+/// the given testament-relative slots (every other slot is zero-length).
+({Uint8List verse, Uint8List block, Uint8List data}) _buildTestament(
+    Map<int, String> slotToFragment) {
   final order = slotToFragment.keys.toList()..sort();
   final buffer = StringBuffer();
   final offsets = <int, ({int offset, int len})>{};
   for (final slot in order) {
     final bytes = utf8.encode(slotToFragment[slot]!);
-    offsets[slot] = (offset: utf8.encode(buffer.toString()).length, len: bytes.length);
+    offsets[slot] =
+        (offset: utf8.encode(buffer.toString()).length, len: bytes.length);
     buffer.write(slotToFragment[slot]!);
   }
   final block = utf8.encode(buffer.toString());
@@ -47,11 +50,20 @@ SwordZTextReader _reader(Map<int, String> slotToFragment) {
         ? _concat([_le32(0), _le32(0), _le16(0)])
         : _concat([_le32(0), _le32(e.offset), _le16(e.len)]));
   }
+  return (
+    verse: _concat(verseRecords),
+    block: _concat([_le32(0), _le32(comp.length), _le32(block.length)]),
+    data: Uint8List.fromList(comp),
+  );
+}
 
+/// Build a single-block zText reader for [slotToFragment].
+SwordZTextReader _reader(Map<int, String> slotToFragment) {
+  final t = _buildTestament(slotToFragment);
   return SwordZTextReader(
-    verseIndex: _concat(verseRecords),
-    blockIndex: _concat([_le32(0), _le32(comp.length), _le32(block.length)]),
-    textData: Uint8List.fromList(comp),
+    verseIndex: t.verse,
+    blockIndex: t.block,
+    textData: t.data,
     compressType: SwordCompressType.zip,
   );
 }
@@ -192,5 +204,56 @@ About=A test module.
 
     expect(await store.select(store.versions).get(), hasLength(1));
     expect(await versesFor('Genesis'), hasLength(2));
+  });
+
+  group('importFromDirectory', () {
+    late Directory root;
+
+    setUp(() async {
+      root = await Directory.systemTemp.createTemp('sword_module');
+      // Lay out a real module tree: conf under mods.d/, data under DataPath.
+      final dataDir = Directory(p.join(root.path, 'modules', 'texts', 'ztext', 'test'))
+        ..createSync(recursive: true);
+      final ot = _buildTestament({
+        kjv.indexOf('OT', 0, 1, 1)!: 'In the beginning God created.',
+      });
+      // BlockType=BOOK -> ot.bzv / ot.bzs / ot.bzz
+      File(p.join(dataDir.path, 'ot.bzv')).writeAsBytesSync(ot.verse);
+      File(p.join(dataDir.path, 'ot.bzs')).writeAsBytesSync(ot.block);
+      File(p.join(dataDir.path, 'ot.bzz')).writeAsBytesSync(ot.data);
+    });
+
+    tearDown(() => root.delete(recursive: true));
+
+    test('resolves DataPath and imports from on-disk testament files', () async {
+      final diskConfig = SwordConfig.parse('''
+[KJV]
+DataPath=./modules/texts/ztext/test/
+ModDrv=zText
+SourceType=OSIS
+CompressType=ZIP
+BlockType=BOOK
+Encoding=UTF-8
+Versification=KJV
+Description=Disk KJV
+''');
+
+      await SwordBibleImporter(store).importFromDirectory(root, diskConfig);
+
+      final gen = await versesFor('Genesis');
+      expect(gen, hasLength(1));
+      expect(gen.first.textContent, 'In the beginning God created.');
+    });
+
+    test('throws when no testament data files are present', () async {
+      final emptyRoot = await Directory.systemTemp.createTemp('sword_empty');
+      addTearDown(() => emptyRoot.delete(recursive: true));
+      final cfg = SwordConfig.parse(
+          '[X]\nDataPath=./nope/\nModDrv=zText\nSourceType=OSIS\nVersification=KJV');
+      await expectLater(
+        SwordBibleImporter(store).importFromDirectory(emptyRoot, cfg),
+        throwsA(isException),
+      );
+    });
   });
 }

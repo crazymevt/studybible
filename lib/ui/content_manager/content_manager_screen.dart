@@ -1,5 +1,12 @@
+import 'dart:io';
+
+import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
+import 'package:saf_stream/saf_stream.dart';
+import 'package:saf_util/saf_util.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../app/app_state.dart';
@@ -55,6 +62,63 @@ class _ContentManagerScreenState extends ConsumerState<ContentManagerScreen>
     ref.read(globalSearchQueryProvider.notifier).setQuery(query);
     ref.read(activeToolProvider.notifier).openTool(ActiveTool.search);
     ref.read(appModuleProvider.notifier).setModule(AppModule.reader);
+  }
+
+  /// Pick a local SWORD module archive (.zip) and import it. Desktop/iOS use
+  /// the file_selector dialog; Android picks via SAF and streams the file to a
+  /// temp copy first (file_selector has no Android backend here).
+  Future<void> _importSwordModule() async {
+    File? file;
+    var isAndroidTemp = false;
+    try {
+      if (Platform.isAndroid) {
+        final doc = await SafUtil().pickFile(
+          mimeTypes: ['application/zip', 'application/octet-stream', '*/*'],
+        );
+        if (doc == null) return;
+        final stream = await SafStream().readFileStream(doc.uri);
+        final tempDir = await getTemporaryDirectory();
+        final tmp = File(p.join(tempDir.path,
+            'sword_pick_${DateTime.now().microsecondsSinceEpoch}.zip'));
+        final sink = tmp.openWrite();
+        await for (final chunk in stream) {
+          sink.add(chunk);
+        }
+        await sink.close();
+        file = tmp;
+        isAndroidTemp = true;
+      } else {
+        const typeGroup = XTypeGroup(label: 'SWORD module', extensions: ['zip']);
+        final picked = await openFile(acceptedTypeGroups: [typeGroup]);
+        if (picked == null) return;
+        file = File(picked.path);
+      }
+
+      if (!mounted) return;
+      final messenger = ScaffoldMessenger.of(context);
+      messenger.showSnackBar(
+        const SnackBar(content: Text('Importing SWORD module…')),
+      );
+      try {
+        final result = await ref
+            .read(contentManagerControllerProvider.notifier)
+            .importSwordModuleFile(file);
+        messenger.hideCurrentSnackBar();
+        messenger.showSnackBar(SnackBar(content: Text(result)));
+      } catch (e) {
+        messenger.hideCurrentSnackBar();
+        messenger.showSnackBar(SnackBar(
+          content: Text('Import failed: $e'),
+          backgroundColor: Colors.red,
+        ));
+      }
+    } finally {
+      if (isAndroidTemp && file != null && await file.exists()) {
+        try {
+          await file.delete();
+        } catch (_) {}
+      }
+    }
   }
 
   String get _filterHint {
@@ -114,6 +178,13 @@ class _ContentManagerScreenState extends ConsumerState<ContentManagerScreen>
             ),
           ),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.file_open_outlined),
+            tooltip: 'Import SWORD module (.zip)…',
+            onPressed: _importSwordModule,
+          ),
+        ],
         bottom: TabBar(
           controller: _tabController,
           tabs: const [
