@@ -6,12 +6,15 @@ import 'package:path/path.dart' as p;
 
 import '../../content_store.dart';
 import '../../models/verse_segment.dart';
+import 'gbf_fragment_parser.dart';
 import 'osis_fragment_parser.dart';
+import 'parsed_verse_entry.dart';
 import 'sword_config.dart';
 import 'sword_rawtext_reader.dart';
 import 'sword_verse_reader.dart';
 import 'sword_versification.dart';
 import 'sword_ztext_reader.dart';
+import 'thml_fragment_parser.dart';
 
 /// Imports a SWORD Bible module (`zText`/`zText4` compressed, or
 /// `RawText`/`RawText4` uncompressed) into the content store, mapping it onto
@@ -72,11 +75,10 @@ class SwordBibleImporter {
         'got ModDrv "${config.value('ModDrv')}".',
       );
     }
-    if (config.sourceType != SwordSourceType.osis &&
-        config.sourceType != SwordSourceType.plaintext) {
+    if (config.sourceType == SwordSourceType.tei) {
       throw UnsupportedError(
         'SWORD ${config.sourceType.name} source is not yet supported; '
-        'only OSIS and plaintext modules can be imported.',
+        'OSIS, GBF, ThML, and plaintext modules can be imported.',
       );
     }
     final versification = swordVersificationByName(config.versification);
@@ -102,7 +104,7 @@ class SwordBibleImporter {
           mode: InsertMode.insertOrReplace,
         );
 
-    final plaintext = config.sourceType == SwordSourceType.plaintext;
+    final sourceType = config.sourceType;
     var bookOrder = 0;
     var verseCount = 0;
 
@@ -126,7 +128,7 @@ class SwordBibleImporter {
             final raw = reader.entryAt(index);
             if (raw == null || raw.trim().isEmpty) continue;
 
-            final parsed = plaintext ? _plainEntry(raw) : parseOsisFragment(raw);
+            final parsed = _parseEntry(raw, sourceType);
             if (parsed.text.isEmpty) continue;
 
             rows.add(VersesCompanion.insert(
@@ -180,10 +182,26 @@ class SwordBibleImporter {
     );
   }
 
+  /// Parse a single verse's raw entry according to the module's [sourceType].
+  /// TEI is rejected earlier; everything else maps to a per-source filter.
+  ParsedVerseEntry _parseEntry(String raw, SwordSourceType sourceType) {
+    switch (sourceType) {
+      case SwordSourceType.osis:
+        return parseOsisFragment(raw);
+      case SwordSourceType.gbf:
+        return parseGbfFragment(raw);
+      case SwordSourceType.thml:
+        return parseThmlFragment(raw);
+      case SwordSourceType.tei:
+      case SwordSourceType.plaintext:
+        return _plainEntry(raw);
+    }
+  }
+
   /// Treat a plaintext entry literally: collapse whitespace, single segment.
-  ParsedOsisEntry _plainEntry(String raw) {
+  ParsedVerseEntry _plainEntry(String raw) {
     final text = raw.replaceAll(RegExp(r'\s+'), ' ').trim();
-    return ParsedOsisEntry(
+    return ParsedVerseEntry(
         text, text.isEmpty ? const [] : [VerseSegment(text: text)]);
   }
 }

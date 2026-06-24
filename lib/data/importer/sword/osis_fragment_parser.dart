@@ -1,19 +1,7 @@
 import 'package:xml/xml.dart';
 
 import '../../models/verse_segment.dart';
-
-/// The plain text and rich segments parsed out of a single verse.
-class ParsedOsisEntry {
-  /// Markup-free verse text, whitespace collapsed — suitable for the search
-  /// index and for `verses.textContent`.
-  final String text;
-
-  /// Rich segments (Strong's numbers, added/italic words, footnotes) for
-  /// `verses.segments`.
-  final List<VerseSegment> segments;
-
-  const ParsedOsisEntry(this.text, this.segments);
-}
+import 'parsed_verse_entry.dart';
 
 /// Parses a single verse's OSIS fragment into plain text plus [VerseSegment]s.
 ///
@@ -29,7 +17,7 @@ class ParsedOsisEntry {
 /// The fragment is wrapped and XML-parsed; if it is not well-formed (stray
 /// `&`/`<`, etc.) the parser falls back to crude tag-stripping so the verse is
 /// still captured as plain text.
-ParsedOsisEntry parseOsisFragment(String fragment) {
+ParsedVerseEntry parseOsisFragment(String fragment) {
   final segments = <VerseSegment>[];
   final plain = StringBuffer();
 
@@ -117,13 +105,13 @@ ParsedOsisEntry parseOsisFragment(String fragment) {
         .replaceAll(RegExp(r'<[^>]*>'), ' ')
         .replaceAll(RegExp(r'\s+'), ' ')
         .trim();
-    return ParsedOsisEntry(
+    return ParsedVerseEntry(
         stripped, stripped.isEmpty ? const [] : [VerseSegment(text: stripped)]);
   }
 
   walk(root, italic: false, jesus: false, strongs: null);
   final text = plain.toString().replaceAll(RegExp(r'\s+'), ' ').trim();
-  return ParsedOsisEntry(text, segments);
+  return ParsedVerseEntry(text, segments);
 }
 
 /// Pulls Strong's numbers out of an OSIS `lemma` attribute such as

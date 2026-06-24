@@ -106,13 +106,22 @@ Running list of known issues and follow-ups.
     leading index slots (module + testament heading), so book offsets start at
     2 — an off-by-one that shifted every verse.
   - **Roadmap for the remaining phases** (planned order: 2 → 4 → 3 → 5):
-    - **Phase 2 — broaden format coverage** (cheap, high payoff; unlocks much
-      more of the catalog): `RawText`/`RawText4` (uncompressed; flat `ot` +
-      `ot.vss` index, no block layer — new reader); **BZIP2** (tiny add —
-      `package:archive` already has `BZip2Decoder`); `GBF` and `ThML` per-verse
-      source filters alongside `parseOsisFragment` (ThML can lean on
-      `package:html`). LZSS (~100-line port) and XZ stay rejected with a clear
-      message until needed.
+    - **Phase 2 DONE — broaden format coverage** (2026-06-24).
+      `RawText`/`RawText4` uncompressed Bibles via a new `SwordRawTextReader`
+      (flat `ot`/`nt` text + `ot.vss`/`nt.vss` positional index, no block
+      layer); both readers now share a `SwordVerseReader` interface so
+      `SwordBibleImporter` walks the versification reader-agnostically and
+      accepts any Bible driver. **BZIP2** decompression added to
+      `SwordZTextReader` via `package:archive`'s `BZip2Decoder`. Per-verse
+      source filters `parseGbfFragment` (token-based GBF) and `parseThmlFragment`
+      (XML via `package:xml`) join `parseOsisFragment`, dispatched by
+      `SourceType`; both share a `VerseSegmentBuilder` that attaches the
+      trailing Strong's codes GBF/ThML emit *after* each word, captures
+      footnotes out of the search text, and marks italic/Jesus words. The shared
+      parse result is now `ParsedVerseEntry` (renamed from `ParsedOsisEntry`).
+      LZSS and XZ compression, and `TEI` source, still throw a clear
+      unsupported-format error. All unit-tested (readers, both filters,
+      end-to-end RawText import).
     - **Phase 4 DONE — CrossWire download manager** (2026-06-24).
       New "CrossWire Catalog" tab beside ph4.org/OSIS: fetches
       [`masterRepoList.conf`](https://crosswire.org/ftpmirror/pub/sword/masterRepoList.conf)
