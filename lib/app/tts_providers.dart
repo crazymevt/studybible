@@ -100,16 +100,17 @@ class TtsController extends Notifier<TtsState> {
     state = const TtsState();
   }
 
-  /// Convenience for a single play/pause toggle button. [verses] is used only
-  /// when starting fresh from idle.
-  void toggle(List<Verse> verses) {
+  /// Convenience for a single play/pause toggle button. [verses] and
+  /// [fromVerse] are used only when starting fresh from idle; pausing then
+  /// playing again resumes where it left off, ignoring [fromVerse].
+  void toggle(List<Verse> verses, {int fromVerse = 0}) {
     switch (state.status) {
       case TtsStatus.playing:
         pause();
       case TtsStatus.paused:
         resume();
       case TtsStatus.idle:
-        start(verses);
+        start(verses, fromVerse: fromVerse);
     }
   }
 

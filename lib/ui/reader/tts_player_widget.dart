@@ -30,6 +30,13 @@ class TtsPlayerWidget extends ConsumerWidget {
     final chapter = ref.watch(selectedChapterProvider);
     final verses = _activeVerses(ref);
 
+    // When verses are selected, start read-aloud from the first of them rather
+    // than the top of the chapter. 0 means "from the beginning".
+    final selectedVerses = ref.watch(selectedVersesProvider);
+    final startVerse = selectedVerses.isEmpty
+        ? 0
+        : selectedVerses.reduce((a, b) => a < b ? a : b);
+
     final isPlaying = ttsState.status == TtsStatus.playing;
 
     return SafeArea(
@@ -72,7 +79,9 @@ class TtsPlayerWidget extends ConsumerWidget {
             Text(
               ttsState.currentVerse != null
                   ? 'Verse ${ttsState.currentVerse}'
-                  : 'Tap play to start',
+                  : startVerse > 0
+                      ? 'Starts at verse $startVerse'
+                      : 'Tap play to start',
               textAlign: TextAlign.center,
               style: Theme.of(context)
                   .textTheme
@@ -103,8 +112,9 @@ class TtsPlayerWidget extends ConsumerWidget {
                   padding: EdgeInsets.zero,
                   color: scheme.primary,
                   tooltip: isPlaying ? 'Pause' : 'Play',
-                  onPressed:
-                      verses.isEmpty ? null : () => controller.toggle(verses),
+                  onPressed: verses.isEmpty
+                      ? null
+                      : () => controller.toggle(verses, fromVerse: startVerse),
                 ),
                 const SizedBox(width: 24),
                 // Spacer to visually balance the stop button.

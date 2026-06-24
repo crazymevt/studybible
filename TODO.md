@@ -14,8 +14,10 @@ Running list of known issues and follow-ups.
 
 ## Enhancements
 
-- [ ] **Start TTS (read-aloud) from the selected verse, not the chapter
-  beginning.** When a verse is selected, read-aloud should begin at that verse
-  instead of always restarting from verse 1 of the chapter.
-  - Look at `TtsService` and `lib/app/tts_providers.dart`; the play action
-    should seed the starting verse from the current verse selection.
+- [x] **Start TTS (read-aloud) from the selected verse, not the chapter
+  beginning.** When a verse is selected, read-aloud now begins at the first
+  selected verse instead of restarting from verse 1.
+  - Fixed: `TtsController.toggle` forwards a `fromVerse` to `start`; the read
+    aloud sheet seeds it from the lowest `selectedVersesProvider` entry (0 when
+    nothing is selected) and shows "Starts at verse N" while idle. Pause/resume
+    still continues where it left off.
