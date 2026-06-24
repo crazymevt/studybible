@@ -97,4 +97,12 @@ Running list of known issues and follow-ups.
     created once in `initState` and held in `_changelogFuture`, so the asset is
     read/parsed a single time per dialog instead of on every rebuild. The
     `const WhatsNewDialog()` call sites are unchanged. analyze + 104 tests green.
-- [ ] **TextEditingController memory leaks.** Several dialogs create `TextEditingController` instances but fail to dispose them. For example, `_NoteEditorDialogState` (in `note_editor.dart`) lacks a `dispose()` method entirely, while methods like `_showNewSermonDialog` (in `sermons_panel.dart`) and `_showOutlineGeneratorDialog` (in `sermon_editor_screen.dart`) instantiate controllers before calling `showDialog` but never call `.dispose()` after the dialog completes. This causes compounding memory leaks as users open and close dialogs.
+- [x] **TextEditingController memory leaks.** Several dialogs create `TextEditingController` instances but fail to dispose them. For example, `_NoteEditorDialogState` (in `note_editor.dart`) lacks a `dispose()` method entirely, while methods like `_showNewSermonDialog` (in `sermons_panel.dart`) and `_showOutlineGeneratorDialog` (in `sermon_editor_screen.dart`) instantiate controllers before calling `showDialog` but never call `.dispose()` after the dialog completes. This causes compounding memory leaks as users open and close dialogs.
+  - Done (2026-06-24): added the missing `dispose()` to `_NoteEditorDialogState`.
+    For the dialog-local controllers, dispose after the dialog future resolves:
+    `_showNewSermonDialog` / `_showOutlineGeneratorDialog` (both `await
+    showDialog`) dispose post-await; `_showAddPrayerDialog` in
+    `prayer_tracker_panel.dart` (a non-awaited `showDialog`, found during the
+    sweep) disposes via `.then()`. A full `lib/ui` scan confirmed every other
+    `TextEditingController` is a State field already disposed in `dispose()`.
+    analyze + 104 tests green.

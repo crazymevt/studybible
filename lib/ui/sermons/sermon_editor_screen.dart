@@ -338,6 +338,8 @@ class _SermonEditorScreenState extends ConsumerState<SermonEditorScreen> {
         ],
       ),
     );
+
+    pointsController.dispose();
   }
 
   void _generateOutline(int numPoints) {

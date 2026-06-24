@@ -22,6 +22,12 @@ class _NoteEditorDialogState extends ConsumerState<NoteEditorDialog> {
     _loadExistingNote();
   }
 
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
   Future<void> _loadExistingNote() async {
     final store = ref.read(userStoreProvider);
     final bookName = ref.read(selectedBookNameProvider);

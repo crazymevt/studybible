@@ -162,5 +162,8 @@ class SermonsPanel extends ConsumerWidget {
         ],
       ),
     );
+
+    titleController.dispose();
+    seriesController.dispose();
   }
 }

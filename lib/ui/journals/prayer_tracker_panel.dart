@@ -256,6 +256,9 @@ class PrayerTrackerPanel extends ConsumerWidget {
           ],
         );
       },
-    );
+    ).then((_) {
+      nameCtrl.dispose();
+      descCtrl.dispose();
+    });
   }
 }
