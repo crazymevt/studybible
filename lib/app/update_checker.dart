@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import '../data/logging.dart';
 import 'version.dart';
 
 part 'update_checker.g.dart';
@@ -75,8 +76,8 @@ Future<UpdateCheckResult?> updateChecker(Ref ref) async {
         }
       }
     }
-  } catch (e) {
-    debugPrint('Failed to check for updates: $e');
+  } catch (e, stack) {
+    logError(e, stack, context: 'updateChecker');
   }
   return null;
 }

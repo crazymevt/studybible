@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app/tag_providers.dart';
+import '../../data/logging.dart';
 
 class TagEditorDialog extends ConsumerStatefulWidget {
   final String entityId;
@@ -53,7 +54,8 @@ class _TagEditorDialogState extends ConsumerState<TagEditorDialog> {
         _controller.clear();
         _focusNode.requestFocus();
       }
-    } catch (e) {
+    } catch (e, stack) {
+      logError(e, stack, context: 'TagEditorDialog.addTag');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error adding tag: $e')),

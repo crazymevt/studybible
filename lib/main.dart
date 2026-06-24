@@ -10,6 +10,7 @@ import 'package:window_manager/window_manager.dart';
 import 'ui/main_shell.dart';
 import 'app/shared_prefs.dart';
 import 'app/app_state.dart';
+import 'data/logging.dart';
 import 'theme/app_themes.dart';
 import 'dart:ui';
 
@@ -36,7 +37,7 @@ void main() {
     // Errors caught by the Flutter framework (build/layout/paint, gestures).
     FlutterError.onError = (FlutterErrorDetails details) {
       FlutterError.presentError(details);
-      _reportError(details.exception, details.stack, context: 'FlutterError');
+      logError(details.exception, details.stack, context: 'FlutterError');
     };
 
     if (!kIsWeb &&
@@ -76,17 +77,8 @@ void main() {
       ),
     );
   }, (Object error, StackTrace stack) {
-    _reportError(error, stack, context: 'Uncaught');
+    logError(error, stack, context: 'Uncaught');
   });
-}
-
-/// Central place to record uncaught and framework errors. Currently logs to the
-/// console; this is the single hook to wire in a crash-reporting service later.
-void _reportError(Object error, StackTrace? stack, {required String context}) {
-  debugPrint('[$context] $error');
-  if (stack != null) {
-    debugPrint(stack.toString());
-  }
 }
 
 class StudyBibleApp extends ConsumerStatefulWidget {

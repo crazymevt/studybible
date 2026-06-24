@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import '../../data/content_store.dart';
+import '../../data/logging.dart';
 import '../../theme/app_themes.dart';
 import '../../data/models/verse_segment.dart';
 
@@ -152,7 +153,8 @@ List<InlineSpan> buildVerseSpans({
     }
 
     return spans;
-  } catch (e) {
+  } catch (e, stack) {
+    logError(e, stack, context: 'buildVerseSpans');
     if (verseNumberSpan != null) spans.add(verseNumberSpan);
     final text = ignoreLeadingBreaks ? '${verse.textContent.trimLeft()} ' : '${verse.textContent} ';
     spans.addAll(_buildHighlightedSpans(

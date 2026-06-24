@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app/sync_service.dart';
+import '../../data/logging.dart';
 
 class SyncButton extends ConsumerStatefulWidget {
   const SyncButton({super.key});
@@ -43,7 +44,8 @@ class _SyncButtonState extends ConsumerState<SyncButton> with SingleTickerProvid
           const SnackBar(content: Text('Sync complete!')),
         );
       }
-    } catch (e) {
+    } catch (e, stack) {
+      logError(e, stack, context: 'SyncButton.sync');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Sync failed: $e')),

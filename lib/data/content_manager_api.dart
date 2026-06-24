@@ -1,7 +1,7 @@
-import 'package:flutter/foundation.dart';
 import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:html/parser.dart' as html_parser;
+import 'logging.dart';
 
 enum ModuleType { bible, commentary, dictionary, subheadings, devotional }
 
@@ -161,9 +161,9 @@ class ContentManagerApi {
         }
       }
       return modules;
-    } catch (e) {
-      debugPrint('Error fetching ph4 modules: $e');
-      return [];
+    } catch (e, stack) {
+      logError(e, stack, context: 'ContentManagerApi.fetchPh4Modules');
+      rethrow;
     }
   }
 
@@ -186,9 +186,9 @@ class ContentManagerApi {
       }
       languages.sort((a, b) => a.name.compareTo(b.name));
       return languages;
-    } catch (e) {
-      debugPrint('Error fetching OSIS languages: $e');
-      return [];
+    } catch (e, stack) {
+      logError(e, stack, context: 'ContentManagerApi.fetchOsisLanguages');
+      rethrow;
     }
   }
 
@@ -230,9 +230,10 @@ class ContentManagerApi {
       }
       translations.sort((a, b) => a.title.compareTo(b.title));
       return translations;
-    } catch (e) {
-      debugPrint('Error fetching OSIS translations for $langCode: $e');
-      return [];
+    } catch (e, stack) {
+      logError(e, stack,
+          context: 'ContentManagerApi.fetchOsisTranslations($langCode)');
+      rethrow;
     }
   }
 

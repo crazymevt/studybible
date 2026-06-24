@@ -10,6 +10,7 @@ import 'package:share_plus/share_plus.dart';
 
 import '../../app/backup_providers.dart';
 import '../../app/content_providers.dart';
+import '../../data/logging.dart';
 import '../../app/user_providers.dart';
 import '../../data/backup/backup_restore_service.dart';
 import '../app_drawer.dart';
@@ -131,7 +132,8 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
         await backupFile.delete();
         if (mounted) setState(() => _statusMessage = 'Backup cancelled.');
       }
-    } catch (e) {
+    } catch (e, stack) {
+      logError(e, stack, context: 'BackupRestore.backup');
       if (mounted) {
         setState(() => _statusMessage = 'Error: $e');
         ScaffoldMessenger.of(context).showSnackBar(
@@ -207,7 +209,8 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
       BackupInfo info;
       try {
         info = await service.inspectBackup(backupFile);
-      } catch (e) {
+      } catch (e, stack) {
+        logError(e, stack, context: 'BackupRestore.inspectBackup');
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -262,7 +265,8 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
           ),
         );
       }
-    } catch (e) {
+    } catch (e, stack) {
+      logError(e, stack, context: 'BackupRestore.restore');
       if (mounted) {
         setState(() => _statusMessage = 'Error: $e');
         ScaffoldMessenger.of(context).showSnackBar(

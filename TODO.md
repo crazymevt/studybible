@@ -75,6 +75,22 @@ Running list of known issues and follow-ups.
     tree is as current as the SDK allows. These will become reachable only when
     a future Flutter release bumps its pins — nothing actionable until then.
     Tests green after the bump.
-- [ ] **Investigate silent failures on network and IO operations.** Many `catch` blocks (e.g. cross-reference import in `content_providers.dart`, audio loading in `audio_player_widget.dart`, and network calls in `content_manager_api.dart`) swallow exceptions with a simple `debugPrint` and return empty states. In release builds, this means features fail completely silently without logging to a crash reporter or showing a UI error to the user.
+- [x] **Investigate silent failures on network and IO operations.** Many `catch` blocks (e.g. cross-reference import in `content_providers.dart`, audio loading in `audio_player_widget.dart`, and network calls in `content_manager_api.dart`) swallow exceptions with a simple `debugPrint` and return empty states. In release builds, this means features fail completely silently without logging to a crash reporter or showing a UI error to the user.
+  - Done (2026-06-24): added `lib/data/logging.dart` `logError(error, stack,
+    {context})` as the single sink for *caught* errors, mirroring the
+    uncaught/framework path in `main.dart` (which now also routes through it).
+    This is the one hook to wire a crash reporter (Sentry/Crashlytics — neither
+    installed yet) into later.
+  - Routed every genuine error-swallow site (data/app/ui) through `logError`
+    with a `context` label and a stack trace. Deliberately *left* intentional
+    control-flow catches (platform no-op `catch(_)`, FTS-vocab migration
+    fallbacks, "table not migrated yet" search guards, delta/date parse
+    fallbacks) so they don't become log noise.
+  - UX: `ContentManagerApi.fetch*` now **rethrow** instead of returning `[]`,
+    so the content browser and onboarding show the real connection error via
+    their existing `AsyncValue.error` branches instead of a misleading "nothing
+    available" empty state. Audio load failures already drive a `_loadFailed`
+    retry UI; sync/backup/export already showed SnackBars — those now log too.
+  - analyze + domain lint + 104 tests all green.
 - [ ] **FutureBuilder inside build method.** `WhatsNewDialog` creates its future (`_loadChangelog()`) directly inside its `build` method. This causes the app to re-read and re-parse the JSON asset on every single widget rebuild, which is a common Flutter anti-pattern that can lead to flickering or performance hits. It should be converted to a `StatefulWidget` and initialized in `initState`.
 - [ ] **TextEditingController memory leaks.** Several dialogs create `TextEditingController` instances but fail to dispose them. For example, `_NoteEditorDialogState` (in `note_editor.dart`) lacks a `dispose()` method entirely, while methods like `_showNewSermonDialog` (in `sermons_panel.dart`) and `_showOutlineGeneratorDialog` (in `sermon_editor_screen.dart`) instantiate controllers before calling `showDialog` but never call `.dispose()` after the dialog completes. This causes compounding memory leaks as users open and close dialogs.

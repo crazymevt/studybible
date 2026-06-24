@@ -6,6 +6,7 @@ import '../../app/content_providers.dart';
 import '../../app/app_state.dart';
 import '../../app/reader_state.dart';
 import '../../data/mybible_book_map.dart';
+import '../../data/logging.dart';
 
 class CommentaryPanel extends ConsumerWidget {
   const CommentaryPanel({super.key});
@@ -270,7 +271,9 @@ class CommentaryPanel extends ConsumerWidget {
                                     ),
                                   );
                                 }
-                              } catch (e) {
+                              } catch (e, stack) {
+                                logError(e, stack,
+                                    context: 'CommentaryPanel link tap: $url');
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content: Text('Error parsing url $url: $e'),

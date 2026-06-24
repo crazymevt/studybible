@@ -9,6 +9,7 @@ import 'package:vsc_quill_delta_to_html/vsc_quill_delta_to_html.dart';
 import 'package:archive/archive.dart';
 import 'package:file_selector/file_selector.dart';
 import '../user_store.dart';
+import '../logging.dart';
 import 'dart:io';
 
 enum ExportFormat { pdf, html, text }
@@ -70,7 +71,8 @@ class SermonExporter {
           ),
         );
       }
-    } catch (e) {
+    } catch (e, stack) {
+      logError(e, stack, context: 'SermonExporter.export');
       scaffoldMessenger.showSnackBar(
         SnackBar(content: Text('Failed to export: $e')),
       );
@@ -114,8 +116,8 @@ class SermonExporter {
       try {
         final doc = Document.fromJson(jsonDecode(sermon.content));
         plainText = doc.toPlainText();
-      } catch (e) {
-        debugPrint('Failed to parse sermon content for PDF export: $e');
+      } catch (e, stack) {
+        logError(e, stack, context: 'SermonExporter._generatePdf parse');
         plainText = sermon.content;
       }
 
@@ -158,7 +160,8 @@ class SermonExporter {
           deltaJsonList.map((e) => e as Map<String, dynamic>).toList(),
         );
         buffer.writeln(converter.convert());
-      } catch (e) {
+      } catch (e, stack) {
+        logError(e, stack, context: 'SermonExporter._generateHtml parse');
         buffer.writeln('<p>${_escapeHtml(sermon.content)}</p>');
       }
       buffer.writeln('</div>');
@@ -183,8 +186,8 @@ class SermonExporter {
       try {
         final doc = Document.fromJson(jsonDecode(sermon.content));
         buffer.writeln(doc.toPlainText());
-      } catch (e) {
-        debugPrint('Failed to parse sermon content for text export: $e');
+      } catch (e, stack) {
+        logError(e, stack, context: 'SermonExporter._generateText parse');
         buffer.writeln(sermon.content);
       }
       

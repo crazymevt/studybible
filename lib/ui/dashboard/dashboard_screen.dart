@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../app/dashboard_providers.dart';
 import '../../app/update_checker.dart';
+import '../../data/logging.dart';
 import '../app_drawer.dart';
 import 'reading_progress_dialog.dart';
 import 'time_analytics_dialog.dart';
@@ -896,7 +897,8 @@ class _SyncButtonState extends ConsumerState<_SyncButton> {
           const SnackBar(content: Text('Sync completed successfully')),
         );
       }
-    } catch (e) {
+    } catch (e, stack) {
+      logError(e, stack, context: 'DashboardScreen.sync');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Sync failed: $e')),

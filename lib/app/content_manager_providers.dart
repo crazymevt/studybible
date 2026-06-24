@@ -7,6 +7,7 @@ import '../data/content_manager_api.dart';
 import '../data/importer/archive_extractor.dart';
 import '../data/importer/mybible_importer.dart';
 import '../data/importer/osis_importer.dart';
+import '../data/logging.dart';
 import 'content_providers.dart'; // To get contentStoreProvider
 
 final contentManagerApiProvider = Provider((ref) => ContentManagerApi());
@@ -119,7 +120,8 @@ class ContentManagerController extends Notifier<Map<String, DownloadProgress>> {
       ref.invalidate(dictionariesProvider);
       ref.invalidate(devotionalsProvider);
       ref.invalidate(installedModuleIdsProvider);
-    } catch (e) {
+    } catch (e, stack) {
+      logError(e, stack, context: 'ContentManager.downloadAndImport');
       state = {...state, stateKey: DownloadProgress(0, 'Error: $e')};
     }
   }
@@ -176,7 +178,8 @@ class ContentManagerController extends Notifier<Map<String, DownloadProgress>> {
       ref.invalidate(dictionariesProvider);
       ref.invalidate(devotionalsProvider);
       ref.invalidate(installedModuleIdsProvider);
-    } catch (e) {
+    } catch (e, stack) {
+      logError(e, stack, context: 'ContentManager.downloadAndImportOsis');
       state = {...state, stateKey: DownloadProgress(0, 'Error: $e')};
     }
   }

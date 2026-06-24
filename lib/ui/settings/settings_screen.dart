@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app/app_state.dart';
 import '../../app/content_providers.dart';
 import '../../app/sync_service.dart';
+import '../../data/logging.dart';
 import '../../theme/app_themes.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
@@ -45,7 +46,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       messenger.showSnackBar(
         const SnackBar(content: Text('Search index rebuilt.')),
       );
-    } catch (e) {
+    } catch (e, stack) {
+      logError(e, stack, context: 'SettingsScreen.rebuildSearchIndex');
       messenger.showSnackBar(
         SnackBar(content: Text('Failed to rebuild search index: $e')),
       );
@@ -146,7 +148,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             const SnackBar(content: Text('Theme imported to draft! Click Apply to save.')),
           );
         }
-      } catch (e) {
+      } catch (e, stack) {
+        logError(e, stack, context: 'SettingsScreen.importTheme');
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Failed to import theme. Invalid format.')),
@@ -775,8 +778,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         final secureBookmarks = SecureBookmarks();
                         final bookmark = await secureBookmarks.bookmark(File(selectedDirectory));
                         ref.read(syncFolderBookmarkProvider.notifier).setBookmark(bookmark);
-                      } catch (e) {
-                        debugPrint('Error creating secure bookmark: $e');
+                      } catch (e, stack) {
+                        logError(e, stack,
+                            context: 'SettingsScreen.secureBookmark');
                       }
                     }
 
@@ -787,7 +791,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           const SnackBar(content: Text('Sync folder updated and synced successfully!')),
                         );
                       }
-                    } catch (e) {
+                    } catch (e, stack) {
+                      logError(e, stack,
+                          context: 'SettingsScreen.syncToNewFolder');
                       if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(content: Text('Failed to sync to new folder: $e')),

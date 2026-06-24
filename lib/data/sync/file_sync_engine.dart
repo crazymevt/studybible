@@ -1,5 +1,6 @@
 import 'dart:convert';
 import '../../domain/sync/sync_record.dart';
+import '../logging.dart';
 import 'sync_engine.dart';
 import 'sync_storage.dart';
 
@@ -82,8 +83,10 @@ class FileSyncEngine implements SyncEngine {
         try {
           final data = jsonDecode(line);
           allRemoteRecords.add(GenericSyncRecord.fromJson(data));
-        } catch (e) {
-          // Ignore malformed json
+        } catch (e, stack) {
+          // Drop the malformed record but log it — a silently skipped remote
+          // record can otherwise hide real data loss during sync.
+          logError(e, stack, context: 'FileSyncEngine: malformed remote record');
         }
       }
     }

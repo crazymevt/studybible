@@ -7,6 +7,7 @@ import '../../app/audio_providers.dart';
 import '../../app/content_providers.dart';
 import '../../app/dashboard_providers.dart';
 import '../../app/reader_state.dart';
+import '../../data/logging.dart';
 
 class AudioPlayerWidget extends ConsumerStatefulWidget {
   const AudioPlayerWidget({super.key});
@@ -234,8 +235,8 @@ class _AudioPlayerWidgetState extends ConsumerState<AudioPlayerWidget> {
         _player.play();
       }
       if (_loadFailed && mounted) setState(() => _loadFailed = false);
-    } catch (e) {
-      debugPrint('Error loading audio: $e');
+    } catch (e, stack) {
+      logError(e, stack, context: 'AudioPlayerWidget._loadAudio');
       _shouldAutoPlay = false;
       if (mounted) setState(() => _loadFailed = true);
     }

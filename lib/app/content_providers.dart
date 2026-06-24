@@ -12,6 +12,7 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 
 import '../data/importer/cross_reference_importer.dart';
+import '../data/logging.dart';
 import 'package:flutter/widgets.dart';
 
 // Guards the one-time cross-reference import so it is scheduled at most once
@@ -35,8 +36,8 @@ final contentStoreProvider = Provider<ContentStore>((ref) {
       try {
         final importer = CrossReferenceImporter(store);
         await importer.importIfEmpty();
-      } catch (e) {
-        debugPrint('Failed to import cross references: $e');
+      } catch (e, stack) {
+        logError(e, stack, context: 'CrossReferenceImporter.importIfEmpty');
       }
     });
   }

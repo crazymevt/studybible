@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import '../../app/reading_plan_providers.dart';
 import '../../app/sync_service.dart';
 import '../../app/achievement_service.dart';
+import '../../data/logging.dart';
 
 class ReadingPlanGeneratorScreen extends ConsumerStatefulWidget {
   const ReadingPlanGeneratorScreen({super.key});
@@ -175,7 +176,8 @@ class _ReadingPlanGeneratorScreenState
       if (mounted) {
         Navigator.of(context).pop(); // Go back to list
       }
-    } catch (e) {
+    } catch (e, stack) {
+      logError(e, stack, context: 'ReadingPlanGenerator.generate');
       if (mounted) {
         ScaffoldMessenger.of(
           context,

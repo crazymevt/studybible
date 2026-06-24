@@ -5,6 +5,7 @@ import 'package:flutter_quill/quill_delta.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app/sermon_providers.dart';
 import '../../app/user_providers.dart';
+import '../../data/logging.dart';
 import 'export_dialog.dart';
 import 'sermon_presentation_screen.dart';
 import '../tags/tag_editor_dialog.dart';
@@ -42,7 +43,8 @@ class _SermonEditorScreenState extends ConsumerState<SermonEditorScreen> {
       List<dynamic> jsonData;
       try {
         jsonData = jsonDecode(sermon.content);
-      } catch (e) {
+      } catch (e, stack) {
+        logError(e, stack, context: 'SermonEditor: parse content');
         jsonData = [{'insert': '\\n'}];
       }
       

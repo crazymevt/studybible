@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import '../../data/user_store.dart';
+import '../../data/logging.dart';
 
 class SermonPresentationScreen extends StatefulWidget {
   final Sermon sermon;
@@ -22,8 +23,8 @@ class _SermonPresentationScreenState extends State<SermonPresentationScreen> {
     try {
       final decoded = jsonDecode(widget.sermon.content);
       document = Document.fromJson(decoded);
-    } catch (e) {
-      debugPrint('Failed to parse sermon content as Quill document: $e');
+    } catch (e, stack) {
+      logError(e, stack, context: 'SermonPresentation: parse content');
       document = Document()..insert(0, widget.sermon.content);
     }
     _controller = QuillController(

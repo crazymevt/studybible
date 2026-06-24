@@ -1,6 +1,6 @@
-import 'package:flutter/foundation.dart';
 import 'dart:convert';
 import 'package:flutter/services.dart' show rootBundle;
+import '../data/logging.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/models/media_collection.dart';
 
@@ -22,9 +22,9 @@ final mediaCollectionsProvider = FutureProvider<List<MediaCollection>>((
       final jsonString = await rootBundle.loadString('assets/media/$file');
       final jsonData = jsonDecode(jsonString) as Map<String, dynamic>;
       collections.add(MediaCollection.fromJson(jsonData));
-    } catch (e) {
-      // Ignore missing files or parse errors to keep loading others
-      debugPrint('Failed to load media collection: $file - $e');
+    } catch (e, stack) {
+      // Keep loading other collections; log so a broken asset is diagnosable.
+      logError(e, stack, context: 'loadMediaCollections: $file');
     }
   }
 

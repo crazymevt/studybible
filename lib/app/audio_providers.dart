@@ -1,6 +1,6 @@
-import 'package:flutter/foundation.dart';
 import 'dart:convert';
 import 'package:flutter/services.dart';
+import '../data/logging.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/models/audio_bible.dart';
 import 'reader_state.dart';
@@ -21,8 +21,8 @@ final audioBiblesProvider = FutureProvider<List<AudioBible>>((ref) async {
       final jsonString = await rootBundle.loadString(entry.value);
       final jsonData = jsonDecode(jsonString) as Map<String, dynamic>;
       bibles.add(AudioBible.fromJson(entry.key, jsonData));
-    } catch (e) {
-      debugPrint('Failed to load audio bible: ${entry.key} - $e');
+    } catch (e, stack) {
+      logError(e, stack, context: 'loadAudioBibles: ${entry.key}');
     }
   }
 
