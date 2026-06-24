@@ -276,13 +276,7 @@ class AchievementService {
   }
 
   int _computeBiblesCompleted(List<ReadingProgress> progress) {
-    // A simple heuristic: max iteration that has all 1189 chapters.
-    // In our app, we might just track the iteration field. 
-    int maxIteration = 0;
-    for (final p in progress) {
-      if (p.iteration > maxIteration) maxIteration = p.iteration;
-    }
-    return maxIteration - 1; // Basic heuristic: if we are on iteration 3, we've finished 2.
+    return completedBiblePasses(chapterReadCounts(progress));
   }
 
   bool _checkBookFinishedInOneDay(String bookName, List<ReadingProgress> progress) {
@@ -305,6 +299,33 @@ class AchievementService {
     }
     return true;
   }
+}
+
+/// Per-chapter read counts ("BookName_chapter" -> times read) from a set of
+/// reading-progress rows. Each row is one read of one chapter at one iteration,
+/// so counting rows per chapter yields how many passes have covered it.
+Map<String, int> chapterReadCounts(Iterable<ReadingProgress> progress) {
+  final counts = <String, int>{};
+  for (final r in progress) {
+    final key = '${r.bookName}_${r.chapter}';
+    counts[key] = (counts[key] ?? 0) + 1;
+  }
+  return counts;
+}
+
+/// Number of complete passes through the whole Bible: the fewest times any
+/// canonical chapter has been read. Re-reading a single chapter cannot raise
+/// this until every other canonical chapter has caught up, so it can't be
+/// gamed.
+int completedBiblePasses(Map<String, int> readCounts) {
+  int min = -1;
+  bibleChapters.forEach((book, chapters) {
+    for (int c = 1; c <= chapters; c++) {
+      final count = readCounts['${book}_$c'] ?? 0;
+      if (min == -1 || count < min) min = count;
+    }
+  });
+  return min == -1 ? 0 : min;
 }
 
 const _pentateuch = ['Genesis', 'Exodus', 'Leviticus', 'Numbers', 'Deuteronomy'];

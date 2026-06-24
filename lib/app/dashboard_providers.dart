@@ -37,12 +37,25 @@ final achievementsProvider = StreamProvider<List<Achievement>>((ref) {
 
 // --- AGGREGATES & DERIVATIVES ---
 
+/// Number of complete passes through the whole Bible (0 until every chapter
+/// has been read at least once).
+final biblesCompletedProvider = Provider<int>((ref) {
+  final progress = ref.watch(readingProgressProvider).value ?? [];
+  return completedBiblePasses(chapterReadCounts(progress));
+});
+
+/// Coverage for the pass the reader is currently on: the chapters already read
+/// this time through (read count >= currentPass). When no pass is complete this
+/// is simply every chapter read so far; once a pass completes it resets and
+/// fills again as chapters are re-read.
 final bibleCoverageProvider = Provider<Map<String, List<int>>>((ref) {
   final progress = ref.watch(readingProgressProvider).value ?? [];
-  final coverage = <String, Set<int>>{};
+  final counts = chapterReadCounts(progress);
+  final currentPass = completedBiblePasses(counts) + 1;
 
+  final coverage = <String, Set<int>>{};
   for (final p in progress) {
-    if (p.iteration == 1) {
+    if ((counts['${p.bookName}_${p.chapter}'] ?? 0) >= currentPass) {
       coverage.putIfAbsent(p.bookName, () => {}).add(p.chapter);
     }
   }
@@ -180,39 +193,51 @@ class DashboardAction {
     final deviceId = await ref.read(deviceIdProvider.future);
     final now = DateTime.now().millisecondsSinceEpoch;
 
-    // Check if it already exists for the current iteration.
-    // For now, we assume iteration 1 unless we implement complex iteration logic later.
-    final existing =
-        await (store.select(store.readingProgresses)
-              ..where((r) => r.bookName.equals(bookName))
-              ..where((r) => r.chapter.equals(chapter))
-              ..where((r) => r.deleted.equals(false)))
-            .get();
+    // Multi-pass tracking. Each read is recorded once per pass: a chapter only
+    // advances to iteration N+1 after the whole Bible has been read N times, so
+    // re-reading a single chapter can't inflate the completed-Bible count.
+    final all = await (store.select(store.readingProgresses)
+          ..where((r) => r.deleted.equals(false)))
+        .get();
+    final counts = chapterReadCounts(all);
+    final thisCount = counts['${bookName}_$chapter'] ?? 0;
 
-    if (existing.isEmpty) {
-      final newProgress = ReadingProgress(
-        id: '${bookName}_${chapter}_1',
-        updatedAt: now,
-        deviceId: deviceId,
-        deleted: false,
-        bookName: bookName,
-        chapter: chapter,
-        readAt: now,
-        iteration: 1,
-      );
-      // insertOrIgnore guards against a race: two paths (e.g. the auto-read
-      // timer and audio auto-advance) can both observe an empty `existing`
-      // and try to insert the same deterministic primary key. The second
-      // write is silently dropped instead of throwing a unique-constraint
-      // error, and the original readAt is preserved.
-      await store
-          .into(store.readingProgresses)
-          .insert(newProgress, mode: InsertMode.insertOrIgnore);
-
-      // Evaluate achievements. In the rare double-insert race this runs
-      // twice, but achievement evaluation is idempotent.
-      ref.read(achievementServiceProvider).evaluateAchievements();
+    final int iteration;
+    if (bibleChapters.containsKey(bookName)) {
+      // Canonical book: the current pass is one past the fewest-read chapter.
+      // If this chapter is already at (or beyond) that pass it's been read this
+      // time through, so there is nothing to record.
+      final completedPasses = completedBiblePasses(counts);
+      if (thisCount > completedPasses) return;
+      iteration = completedPasses + 1;
+    } else {
+      // Non-canonical book (e.g. an apocryphal section a version may include):
+      // the pass model doesn't apply, so just record a single read.
+      if (thisCount > 0) return;
+      iteration = 1;
     }
+
+    final newProgress = ReadingProgress(
+      id: '${bookName}_${chapter}_$iteration',
+      updatedAt: now,
+      deviceId: deviceId,
+      deleted: false,
+      bookName: bookName,
+      chapter: chapter,
+      readAt: now,
+      iteration: iteration,
+    );
+    // insertOrIgnore guards against a race: two paths (e.g. the auto-read timer
+    // and audio auto-advance) can both compute the same deterministic primary
+    // key and try to insert it. The second write is silently dropped instead of
+    // throwing a unique-constraint error, and the original readAt is preserved.
+    await store
+        .into(store.readingProgresses)
+        .insert(newProgress, mode: InsertMode.insertOrIgnore);
+
+    // Evaluate achievements. In the rare double-insert race this runs twice,
+    // but achievement evaluation is idempotent.
+    ref.read(achievementServiceProvider).evaluateAchievements();
   }
 
   Future<void> logTime(int startTime, int endTime, String activityType) async {

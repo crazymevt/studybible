@@ -22,6 +22,7 @@ class DashboardScreen extends ConsumerWidget {
     final pace = ref.watch(readingPaceProvider);
     final timeData = ref.watch(timeAnalyticsProvider);
     final coverage = ref.watch(bibleCoverageProvider);
+    final biblesCompleted = ref.watch(biblesCompletedProvider);
     final achievementsAsync = ref.watch(achievementsProvider);
 
     int chaptersRead = 0;
@@ -185,6 +186,7 @@ class DashboardScreen extends ConsumerWidget {
                               percent,
                               chaptersRead,
                               coverage,
+                              biblesCompleted,
                             ),
                             const SizedBox(height: 16),
                             _buildReadingPlansSection(context, ref),
@@ -217,6 +219,7 @@ class DashboardScreen extends ConsumerWidget {
                         percent,
                         chaptersRead,
                         coverage,
+                        biblesCompleted,
                       ),
                       const SizedBox(height: 16),
                       _buildReadingPlansSection(context, ref),
@@ -239,6 +242,7 @@ class DashboardScreen extends ConsumerWidget {
     double percent,
     int totalChapters,
     Map<String, List<int>> coverage,
+    int biblesCompleted,
   ) {
     return Card(
       elevation: 2,
@@ -260,7 +264,7 @@ class DashboardScreen extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Bible Progress',
+                      biblesCompleted > 0 ? 'Bible Progress (Pass ${biblesCompleted + 1})' : 'Bible Progress',
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -270,6 +274,19 @@ class DashboardScreen extends ConsumerWidget {
                       '$totalChapters / 1189 Chapters Read',
                       style: const TextStyle(color: Colors.grey),
                     ),
+                    if (biblesCompleted > 0) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        biblesCompleted == 1
+                            ? 'Completed the Bible once 🎉'
+                            : 'Completed the Bible $biblesCompleted times 🎉',
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.primary,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
                     const SizedBox(height: 16),
                     const Text(
                       'Tap to view complete coverage details',
