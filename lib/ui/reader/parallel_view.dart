@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
@@ -58,10 +59,27 @@ class _ParallelViewState extends ConsumerState<ParallelView> {
   final ItemPositionsListener itemPositionsListener =
       ItemPositionsListener.create();
 
+  // Per-span tap recognizers created by buildVerseSpans for the verse columns;
+  // disposed and rebuilt each build() so they don't leak as rows rebuild.
+  final List<GestureRecognizer> _spanRecognizers = [];
+
+  void _disposeSpanRecognizers() {
+    for (final r in _spanRecognizers) {
+      r.dispose();
+    }
+    _spanRecognizers.clear();
+  }
+
   @override
   void initState() {
     super.initState();
     _checkScrollTarget();
+  }
+
+  @override
+  void dispose() {
+    _disposeSpanRecognizers();
+    super.dispose();
   }
 
   @override
@@ -95,6 +113,9 @@ class _ParallelViewState extends ConsumerState<ParallelView> {
   }
 
   void _openDictionary(String word, Offset position) async {
+    // The long-press timer that triggers this can fire after the widget is
+    // gone (e.g. a rebuild mid-press), so bail before touching context.
+    if (!mounted) return;
     final result = await showMenu<String>(
       context: context,
       position: RelativeRect.fromLTRB(
@@ -153,6 +174,9 @@ class _ParallelViewState extends ConsumerState<ParallelView> {
 
   @override
   Widget build(BuildContext context) {
+    // Dispose the prior frame's per-span recognizers before rebuilding the
+    // verse columns, so they don't accumulate across rebuilds.
+    _disposeSpanRecognizers();
     if (widget.versesMap.isEmpty) {
       return const Center(child: Text('No active versions.'));
     }
@@ -330,6 +354,7 @@ class _ParallelViewState extends ConsumerState<ParallelView> {
                                                 onWordRightClick: _openDictionary,
                                                 searchQuery: widget.searchQuery,
                                                 ignoreLeadingBreaks: true,
+                                                recognizers: _spanRecognizers,
                                               ),
                                             ],
                                           ),

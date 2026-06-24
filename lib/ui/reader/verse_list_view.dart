@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import '../../data/content_store.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
@@ -60,6 +61,24 @@ class _VerseListViewState extends ConsumerState<VerseListView> {
   // verse change rather than on every rebuild.
   int? _lastSpokenScroll;
 
+  // Per-span tap recognizers created by buildVerseSpans (one per word and per
+  // punctuation run) across all built rows. Disposed and rebuilt each build()
+  // so they don't leak as rows rebuild on selection/scroll.
+  final List<GestureRecognizer> _spanRecognizers = [];
+
+  void _disposeSpanRecognizers() {
+    for (final r in _spanRecognizers) {
+      r.dispose();
+    }
+    _spanRecognizers.clear();
+  }
+
+  @override
+  void dispose() {
+    _disposeSpanRecognizers();
+    super.dispose();
+  }
+
   @override
   void initState() {
     super.initState();
@@ -91,6 +110,9 @@ class _VerseListViewState extends ConsumerState<VerseListView> {
   }
 
   void _openDictionary(String word, Offset position) async {
+    // The long-press timer that triggers this can fire after the widget is
+    // gone (e.g. a rebuild mid-press), so bail before touching context.
+    if (!mounted) return;
     final result = await showMenu<String>(
       context: context,
       position: RelativeRect.fromLTRB(
@@ -143,11 +165,15 @@ class _VerseListViewState extends ConsumerState<VerseListView> {
       onWordRightClick: _openDictionary,
       ignoreLeadingBreaks: true,
       searchQuery: widget.searchQuery,
+      recognizers: _spanRecognizers,
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    // Dispose the prior frame's per-span recognizers before the itemBuilder
+    // creates fresh ones for the visible rows, so they don't accumulate.
+    _disposeSpanRecognizers();
     final spokenVerse = ref.watch(spokenVerseProvider);
 
     // Follow read-aloud: scroll the active verse into view as it changes.

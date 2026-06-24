@@ -49,6 +49,10 @@ class FlowingParagraphView extends ConsumerStatefulWidget {
 
 class _FlowingParagraphViewState extends ConsumerState<FlowingParagraphView> {
   late List<TapGestureRecognizer> _recognizers;
+  // Per-span tap recognizers created by buildVerseSpans (one per word and per
+  // punctuation run). These are rebuilt on every build(), so the previous
+  // batch must be disposed to avoid leaking recognizers/timers.
+  final List<GestureRecognizer> _spanRecognizers = [];
   final Map<int, GlobalKey> _verseKeys = {};
 
   @override
@@ -104,7 +108,17 @@ class _FlowingParagraphViewState extends ConsumerState<FlowingParagraphView> {
     }
   }
 
+  void _disposeSpanRecognizers() {
+    for (final r in _spanRecognizers) {
+      r.dispose();
+    }
+    _spanRecognizers.clear();
+  }
+
   void _openDictionary(String word, Offset position) async {
+    // The long-press timer that triggers this can fire after the widget is
+    // gone (e.g. a rebuild mid-press), so bail before touching context.
+    if (!mounted) return;
     final result = await showMenu<String>(
       context: context,
       position: RelativeRect.fromLTRB(
@@ -148,11 +162,16 @@ class _FlowingParagraphViewState extends ConsumerState<FlowingParagraphView> {
   @override
   void dispose() {
     _disposeRecognizers();
+    _disposeSpanRecognizers();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    // Dispose the previous frame's per-span recognizers before building fresh
+    // ones; otherwise every rebuild (selection, scroll target, theme) leaks a
+    // recognizer for every word on screen.
+    _disposeSpanRecognizers();
     final spans = widget.verses.asMap().entries.map((entry) {
       final index = entry.key;
       final verse = entry.value;
@@ -219,6 +238,7 @@ class _FlowingParagraphViewState extends ConsumerState<FlowingParagraphView> {
         verseNumberSpan: verseNumberSpan,
         ignoreLeadingBreaks: verseSubheadings.isNotEmpty,
         searchQuery: widget.searchQuery,
+        recognizers: _spanRecognizers,
       );
 
       return TextSpan(

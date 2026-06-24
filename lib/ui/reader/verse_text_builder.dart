@@ -18,6 +18,7 @@ List<InlineSpan> buildVerseSpans({
   InlineSpan? verseNumberSpan,
   bool ignoreLeadingBreaks = false,
   String? searchQuery,
+  List<GestureRecognizer>? recognizers,
 }) {
   final spans = <InlineSpan>[];
   final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -38,6 +39,7 @@ List<InlineSpan> buildVerseSpans({
       onWordRightClick: onWordRightClick,
       searchQuery: searchQuery,
       context: context,
+      recognizers: recognizers,
     ));
     return spans;
   }
@@ -136,6 +138,7 @@ List<InlineSpan> buildVerseSpans({
           onWordRightClick: onWordRightClick,
           searchQuery: searchQuery,
           context: context,
+          recognizers: recognizers,
         ));
       }
     }
@@ -159,6 +162,7 @@ List<InlineSpan> buildVerseSpans({
       onWordRightClick: onWordRightClick,
       searchQuery: searchQuery,
       context: context,
+      recognizers: recognizers,
     ));
     return spans;
   }
@@ -171,9 +175,10 @@ List<InlineSpan> _buildHighlightedSpans(
   required Function(String, Offset) onWordRightClick,
   required String? searchQuery,
   required BuildContext context,
+  List<GestureRecognizer>? recognizers,
 }) {
   if (searchQuery == null || searchQuery.isEmpty) {
-    return _buildWordSpans(text, style, onVerseTap: onVerseTap, onWordRightClick: onWordRightClick);
+    return _buildWordSpans(text, style, onVerseTap: onVerseTap, onWordRightClick: onWordRightClick, recognizers: recognizers);
   }
 
   final spans = <InlineSpan>[];
@@ -183,7 +188,7 @@ List<InlineSpan> _buildHighlightedSpans(
   int lastMatchEnd = 0;
   for (final match in matches) {
     if (match.start > lastMatchEnd) {
-      spans.addAll(_buildWordSpans(text.substring(lastMatchEnd, match.start), style, onVerseTap: onVerseTap, onWordRightClick: onWordRightClick));
+      spans.addAll(_buildWordSpans(text.substring(lastMatchEnd, match.start), style, onVerseTap: onVerseTap, onWordRightClick: onWordRightClick, recognizers: recognizers));
     }
 
     final highlightStyle = style?.copyWith(
@@ -192,12 +197,12 @@ List<InlineSpan> _buildHighlightedSpans(
         ) ??
         TextStyle(backgroundColor: Colors.yellow.withValues(alpha: 0.5), color: Colors.black);
 
-    spans.addAll(_buildWordSpans(text.substring(match.start, match.end), highlightStyle, onVerseTap: onVerseTap, onWordRightClick: onWordRightClick));
+    spans.addAll(_buildWordSpans(text.substring(match.start, match.end), highlightStyle, onVerseTap: onVerseTap, onWordRightClick: onWordRightClick, recognizers: recognizers));
     lastMatchEnd = match.end;
   }
 
   if (lastMatchEnd < text.length) {
-    spans.addAll(_buildWordSpans(text.substring(lastMatchEnd), style, onVerseTap: onVerseTap, onWordRightClick: onWordRightClick));
+    spans.addAll(_buildWordSpans(text.substring(lastMatchEnd), style, onVerseTap: onVerseTap, onWordRightClick: onWordRightClick, recognizers: recognizers));
   }
 
   return spans;
@@ -208,6 +213,7 @@ List<InlineSpan> _buildWordSpans(
   TextStyle? style, {
   required VoidCallback onVerseTap,
   required Function(String, Offset) onWordRightClick,
+  List<GestureRecognizer>? recognizers,
 }) {
   final spans = <InlineSpan>[];
   // Match unicode letters/numbers or non-letters/numbers
@@ -218,22 +224,20 @@ List<InlineSpan> _buildWordSpans(
     final isWord = match.group(1) != null;
     
     if (!isWord) {
+      final recognizer = TapGestureRecognizer()..onTap = onVerseTap;
+      recognizers?.add(recognizer);
       spans.add(
         TextSpan(
           text: segment,
           style: style,
-          recognizer: TapGestureRecognizer()..onTap = onVerseTap,
+          recognizer: recognizer,
         ),
       );
     } else {
       Timer? longPressTimer;
       bool isLongPress = false;
 
-      spans.add(
-        TextSpan(
-          text: segment,
-          style: style,
-          recognizer: TapGestureRecognizer()
+      final recognizer = TapGestureRecognizer()
             ..onTapDown = (details) {
               isLongPress = false;
               longPressTimer = Timer(const Duration(milliseconds: 500), () {
@@ -259,7 +263,13 @@ List<InlineSpan> _buildWordSpans(
                if (cleanWord.isNotEmpty) {
                  onWordRightClick(cleanWord, details.globalPosition);
                }
-            },
+            };
+      recognizers?.add(recognizer);
+      spans.add(
+        TextSpan(
+          text: segment,
+          style: style,
+          recognizer: recognizer,
         ),
       );
     }
