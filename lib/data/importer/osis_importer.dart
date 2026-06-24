@@ -163,46 +163,40 @@ class OsisImporter {
       bookIdMap[osisBookId] = insertedBookId;
     }
 
-    // Now batch-insert all verses
+    // Now batch-insert all verses. _extractBookVerses walks the book in
+    // document order so it handles both container-form verses
+    // (<verse>text</verse>) and milestone-form verses (<verse sID/> text
+    // <verse eID/>), the latter being common in CrossWire/eBible OSIS.
+    int verseCount = 0;
     await store.batch((batch) {
       for (final bookDiv in bookDivs) {
         final osisBookId = bookDiv.getAttribute('osisID')!;
         final bookId = bookIdMap[osisBookId];
         if (bookId == null) continue;
 
-        final chapters = bookDiv.findElements('chapter');
-        for (final chapterEl in chapters) {
-          final chapterOsisId = chapterEl.getAttribute('osisID') ?? '';
-          // osisID format: "Gen.1"
-          final chapterNum = _parseChapterNum(chapterOsisId);
-
-          final verses = chapterEl.findElements('verse');
-          for (final verseEl in verses) {
-            final verseOsisId = verseEl.getAttribute('osisID') ?? '';
-            // osisID format: "Gen.1.1"
-            final verseNum = _parseVerseNum(verseOsisId);
-
-            final built = _buildSegments(verseEl);
-            if (built.text.isEmpty) continue;
-
-            final segmentsJson = jsonEncode(
-              built.segments.map((s) => s.toJson()).toList(),
-            );
-
-            batch.insert(
-              store.verses,
-              VersesCompanion.insert(
-                bookId: bookId,
-                chapter: chapterNum,
-                verse: verseNum,
-                textContent: built.text,
-                segments: segmentsJson,
-              ),
-            );
-          }
+        for (final v in extractOsisBookVerses(bookDiv)) {
+          batch.insert(
+            store.verses,
+            VersesCompanion.insert(
+              bookId: bookId,
+              chapter: v.chapter,
+              verse: v.verse,
+              textContent: v.text,
+              segments: v.segmentsJson,
+            ),
+          );
+          verseCount++;
         }
       }
     });
+
+    if (verseCount == 0) {
+      // Don't leave a books-but-no-verses shell behind; fail loudly instead.
+      await store.deleteVersion(vid);
+      throw Exception(
+        'No verses found in OSIS file "$resolvedTitle" — its structure may be unsupported.',
+      );
+    }
 
     // Update FTS5 search index
     await store.customStatement(
@@ -217,55 +211,110 @@ class OsisImporter {
     );
   }
 
-  /// Parse the chapter number from an osisID like "Gen.1".
-  int _parseChapterNum(String osisId) {
-    final parts = osisId.split('.');
-    if (parts.length >= 2) {
-      return int.tryParse(parts[1]) ?? 1;
+}
+
+/// Parse the chapter number from an osisID like "Gen.1".
+int _parseChapterNum(String osisId) {
+  final parts = osisId.split('.');
+  if (parts.length >= 2) {
+    return int.tryParse(parts[1]) ?? 1;
+  }
+  return 1;
+}
+
+/// Parse the verse number from an osisID like "Gen.1.1".
+int _parseVerseNum(String osisId) {
+  final parts = osisId.split('.');
+  if (parts.length >= 3) {
+    return int.tryParse(parts[2]) ?? 1;
+  }
+  return 1;
+}
+
+/// Extract every verse in [bookDiv] as ordered records, handling both OSIS
+/// verse encodings: the container form, where a `verse` element wraps its text,
+/// and the milestone form, where empty `verse` start/end markers (sID/eID)
+/// bracket text that lives as siblings between them (common in CrossWire/eBible
+/// OSIS).
+///
+/// The walk is a single document-order traversal that tracks the current
+/// chapter/verse via `chapter`/`verse` markers (or container elements). Inline
+/// markup (e.g. `w` tags) is flattened into the running text, while each `note`
+/// becomes a footnote [VerseSegment] kept out of the plain text so it never
+/// pollutes the search index.
+List<OsisVerse> extractOsisBookVerses(XmlElement bookDiv) {
+  final out = <OsisVerse>[];
+  int chapter = 0;
+  int? verse;
+  final segments = <VerseSegment>[];
+  final current = StringBuffer();
+  final plain = StringBuffer();
+
+  void flushText() {
+    final collapsed = current.toString().replaceAll(RegExp(r'\s+'), ' ');
+    current.clear();
+    if (collapsed.trim().isEmpty) {
+      // Preserve a separating space so adjacent words don't run together.
+      if (collapsed.isNotEmpty) plain.write(' ');
+      return;
     }
-    return 1;
+    segments.add(VerseSegment(text: collapsed));
+    plain.write(collapsed);
   }
 
-  /// Parse the verse number from an osisID like "Gen.1.1".
-  int _parseVerseNum(String osisId) {
-    final parts = osisId.split('.');
-    if (parts.length >= 3) {
-      return int.tryParse(parts[2]) ?? 1;
+  void closeVerse() {
+    if (verse == null) return;
+    flushText();
+    final text = plain.toString().replaceAll(RegExp(r'\s+'), ' ').trim();
+    if (text.isNotEmpty) {
+      out.add(OsisVerse(
+        chapter: chapter,
+        verse: verse!,
+        text: text,
+        segmentsJson: jsonEncode(segments.map((s) => s.toJson()).toList()),
+      ));
     }
-    return 1;
+    segments.clear();
+    current.clear();
+    plain.clear();
+    verse = null;
   }
 
-  /// Build the verse's display segments and searchable plain text.
-  ///
-  /// Inline markup (e.g. `<w>`) is flattened into the running text, but each
-  /// OSIS `<note>` becomes a footnote [VerseSegment] instead of being merged
-  /// into the verse — the reader renders these as a tappable indicator, and
-  /// their text is kept out of [text] so it never pollutes the search index.
-  ({String text, List<VerseSegment> segments}) _buildSegments(
-    XmlElement verseEl,
-  ) {
-    final segments = <VerseSegment>[];
-    final plain = StringBuffer();
-    final current = StringBuffer();
-
-    void flushText() {
-      final collapsed = current.toString().replaceAll(RegExp(r'\s+'), ' ');
-      current.clear();
-      if (collapsed.trim().isEmpty) {
-        // Preserve a separating space so adjacent words don't run together.
-        if (collapsed.isNotEmpty) plain.write(' ');
-        return;
-      }
-      segments.add(VerseSegment(text: collapsed));
-      plain.write(collapsed);
-    }
-
-    void walk(XmlNode node) {
-      for (final child in node.children) {
-        if (child is XmlText) {
-          current.write(child.value);
-        } else if (child is XmlElement) {
-          if (child.localName == 'note') {
+  void walk(XmlNode node) {
+    for (final child in node.children) {
+      if (child is XmlText) {
+        if (verse != null) current.write(child.value);
+      } else if (child is XmlElement) {
+        final name = child.localName;
+        if (name == 'chapter') {
+          // Any chapter boundary closes an open verse. A start marker (or a
+          // container chapter) updates the current chapter number; only a
+          // container chapter (no sID) nests its verses, so recurse there.
+          closeVerse();
+          if (child.getAttribute('eID') == null) {
+            final osisID = child.getAttribute('osisID');
+            if (osisID != null) chapter = _parseChapterNum(osisID);
+            if (child.getAttribute('sID') == null) walk(child);
+          }
+        } else if (name == 'verse') {
+          final sID = child.getAttribute('sID');
+          final eID = child.getAttribute('eID');
+          final osisID = child.getAttribute('osisID');
+          if (eID != null) {
+            closeVerse();
+          } else if (sID != null) {
+            // Milestone start: text follows as siblings.
+            closeVerse();
+            if (osisID != null) verse = _parseVerseNum(osisID);
+          } else {
+            // Container verse: text is in this element's children.
+            closeVerse();
+            if (osisID != null) verse = _parseVerseNum(osisID);
+            walk(child);
+            closeVerse();
+          }
+        } else if (name == 'note') {
+          if (verse != null) {
             flushText();
             final noteText =
                 child.innerText.replaceAll(RegExp(r'\s+'), ' ').trim();
@@ -274,17 +323,32 @@ class OsisImporter {
                 VerseSegment(isFootnote: true, footnoteText: noteText),
               );
             }
-          } else {
-            walk(child);
           }
+          // Don't recurse into note content — it isn't verse text.
+        } else {
+          // Inline wrappers (w, q, divineName, transChange, …): recurse so
+          // their text joins the current verse.
+          walk(child);
         }
       }
     }
-
-    walk(verseEl);
-    flushText();
-
-    final text = plain.toString().replaceAll(RegExp(r'\s+'), ' ').trim();
-    return (text: text, segments: segments);
   }
+
+  walk(bookDiv);
+  closeVerse(); // flush a trailing open verse at end of book
+  return out;
+}
+
+class OsisVerse {
+  final int chapter;
+  final int verse;
+  final String text;
+  final String segmentsJson;
+
+  OsisVerse({
+    required this.chapter,
+    required this.verse,
+    required this.text,
+    required this.segmentsJson,
+  });
 }

@@ -121,11 +121,22 @@ final globalSearchResultsProvider = FutureProvider<List<SearchResult>>((
     }
   }
 
-  // 1. Query Content Database
+  // 1. Query Content Database.
+  //
+  // content_search indexes verses from every installed translation, so without
+  // a filter a verse can match (and its snippet be shown) for a version other
+  // than the one being read — and tapping the result opens the active version,
+  // mismatching the preview. Restrict verse matches to the primary active
+  // version. Non-verse rows (commentary/dictionary/topic) are unaffected.
+  final primaryVersion =
+      activeVersions.isNotEmpty ? activeVersions.first : null;
+  final verseVersionFilter =
+      primaryVersion != null ? "AND (f.type != 'verse' OR b.version_id = ?)" : '';
+
   final contentQuery = '''
-    SELECT 
-      f.type, 
-      f.reference_id, 
+    SELECT
+      f.type,
+      f.reference_id,
       f.text_content,
       v.chapter as verse_chapter, v.verse as verse_num, b.name as verse_book, b.book_order as verse_book_order,
       ce.book_name as comm_book, ce.chapter as comm_chapter, c.name as comm_name,
@@ -140,6 +151,7 @@ final globalSearchResultsProvider = FutureProvider<List<SearchResult>>((
     LEFT JOIN dictionaries d ON de.dictionary_id = d.id
     LEFT JOIN topics tp ON f.type = 'topic' AND f.reference_id = tp.id
     WHERE content_search MATCH ?
+    $verseVersionFilter
     ORDER BY rank
     LIMIT 100
   ''';
@@ -147,7 +159,10 @@ final globalSearchResultsProvider = FutureProvider<List<SearchResult>>((
   final contentRows = await contentStore
       .customSelect(
         contentQuery,
-        variables: [Variable.withString(searchPattern)],
+        variables: [
+          Variable.withString(searchPattern),
+          if (primaryVersion != null) Variable.withString(primaryVersion),
+        ],
       )
       .get();
   for (final row in contentRows) {

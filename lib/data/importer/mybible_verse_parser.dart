@@ -1,5 +1,19 @@
 import '../models/verse_segment.dart';
 
+/// Plain, searchable text for a verse: strips MyBible inline markup (Strong's
+/// numbers, footnotes, formatting tags) so the FTS index isn't polluted and
+/// phrase search isn't broken by tag tokens interleaved between words. OSIS
+/// verses are already plain, and the parser leaves plain text untouched, so
+/// this is safe to apply to any verse's stored text.
+String mybibleVersePlainText(String raw) {
+  return MyBibleVerseParser()
+      .parseVerse(raw)
+      .map((s) => s.text)
+      .join('')
+      .replaceAll(RegExp(r'\s+'), ' ')
+      .trim();
+}
+
 class MyBibleVerseParser {
   bool _inItalic = false;
   bool _inJesusWords = false;

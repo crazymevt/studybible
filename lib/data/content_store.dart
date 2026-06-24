@@ -6,6 +6,7 @@ import 'package:path/path.dart' as p;
 
 import 'tables/content_tables.dart';
 import 'fts_text.dart';
+import 'importer/mybible_verse_parser.dart';
 
 part 'content_store.g.dart';
 
@@ -182,7 +183,7 @@ class ContentStore extends _$ContentStore {
       'SELECT id, text_content AS t FROM $table WHERE $fkColumn = ?',
       variables: [Variable.withInt(fkValue)],
     ).get();
-    await _insertStrippedRows(type, rows);
+    await _insertCleanedRows(type, rows, stripMarkupForIndex);
   }
 
   /// Rebuilds the entire full-text search index from the source tables,
@@ -191,11 +192,16 @@ class ContentStore extends _$ContentStore {
   Future<void> rebuildSearchIndex() async {
     await transaction(() async {
       await customStatement('DELETE FROM content_search');
-      // Plain-text types: fast bulk insert, no stripping needed.
-      await customStatement(
-        "INSERT INTO content_search(type, reference_id, text_content) "
-        "SELECT 'verse', id, text_content FROM verses",
+      // Verses: strip MyBible inline markup (Strong's/footnote/format tags) so
+      // phrase search isn't broken by tag tokens interleaved between words.
+      // Matches the importer; the parser leaves already-plain (e.g. OSIS) text
+      // untouched. This must NOT use the raw text_content column.
+      await _insertCleanedRows(
+        'verse',
+        await customSelect('SELECT id, text_content AS t FROM verses').get(),
+        mybibleVersePlainText,
       );
+      // Plain-text types: fast bulk insert, no stripping needed.
       await customStatement(
         "INSERT INTO content_search(type, reference_id, text_content) "
         "SELECT 'dictionary', id, word FROM dictionary_entries",
@@ -205,37 +211,48 @@ class ContentStore extends _$ContentStore {
         "SELECT 'topic', id, name FROM topics",
       );
       // HTML types: strip markup before indexing.
-      await _insertStrippedRows(
+      await _insertCleanedRows(
         'commentary',
         await customSelect(
           'SELECT id, text_content AS t FROM commentary_entries',
         ).get(),
+        stripMarkupForIndex,
       );
-      await _insertStrippedRows(
+      await _insertCleanedRows(
         'devotional',
         await customSelect(
           'SELECT id, text_content AS t FROM devotional_entries',
         ).get(),
+        stripMarkupForIndex,
       );
     });
   }
 
-  /// Strips markup from each row's `t` column and inserts (type, id, text) into
-  /// content_search in chunked multi-row statements (kept well under SQLite's
-  /// bound-variable limit).
-  Future<void> _insertStrippedRows(String type, List<QueryRow> rows) async {
+  /// Cleans each row's `t` column with [clean] and inserts (type, id, text)
+  /// into content_search in chunked multi-row statements (kept well under
+  /// SQLite's bound-variable limit). Rows whose cleaned text is empty are
+  /// skipped so the index stays free of blank entries.
+  Future<void> _insertCleanedRows(
+    String type,
+    List<QueryRow> rows,
+    String Function(String) clean,
+  ) async {
     const chunkSize = 200;
     for (var i = 0; i < rows.length; i += chunkSize) {
       final end = (i + chunkSize < rows.length) ? i + chunkSize : rows.length;
       final chunk = rows.sublist(i, end);
-      final placeholders = List.filled(chunk.length, '(?, ?, ?)').join(', ');
-      final args = <Variable>[];
+      final cleaned = <(int, String)>[];
       for (final row in chunk) {
+        final text = clean(row.read<String>('t'));
+        if (text.isNotEmpty) cleaned.add((row.read<int>('id'), text));
+      }
+      if (cleaned.isEmpty) continue;
+      final placeholders = List.filled(cleaned.length, '(?, ?, ?)').join(', ');
+      final args = <Variable>[];
+      for (final (id, text) in cleaned) {
         args.add(Variable.withString(type));
-        args.add(Variable.withInt(row.read<int>('id')));
-        args.add(
-          Variable.withString(stripMarkupForIndex(row.read<String>('t'))),
-        );
+        args.add(Variable.withInt(id));
+        args.add(Variable.withString(text));
       }
       await customInsert(
         'INSERT INTO content_search(type, reference_id, text_content) '
