@@ -1,5 +1,41 @@
 [
   {
+    "version": "26.6.24+2",
+    "date": "2026-06-24",
+    "features": [
+      {
+        "category": "New Features",
+        "title": "Install Bibles, commentaries & dictionaries from CrossWire",
+        "description": "A new CrossWire Catalog in the Content Manager downloads and installs SWORD modules — Bibles, commentaries, and dictionaries — directly in the app.",
+        "icon": "star"
+      },
+      {
+        "category": "New Features",
+        "title": "Automatic update checks",
+        "description": "On desktop, the app now lets you know when a newer version is available.",
+        "icon": "star"
+      },
+      {
+        "category": "Updates",
+        "title": "Rebuild prompt for improved verse search",
+        "description": "Verse search indexing was improved; the What's New screen now offers a one-tap rebuild so already-installed Bibles return complete results.",
+        "icon": "update"
+      },
+      {
+        "category": "Bugfixes",
+        "title": "Fixed a crash when deleting or installing a version",
+        "description": "Removing or adding a Bible no longer crashes the reader.",
+        "icon": "bug_report"
+      },
+      {
+        "category": "Bugfixes",
+        "title": "Reliability fixes",
+        "description": "Resolved dialog memory leaks, surfaced previously-silent network and download errors, and hardened reader state recovery.",
+        "icon": "bug_report"
+      }
+    ]
+  },
+  {
     "version": "26.6.24+1",
     "date": "2026-06-24",
     "features": [
