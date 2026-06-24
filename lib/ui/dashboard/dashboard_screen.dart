@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../app/dashboard_providers.dart';
+import '../../app/update_checker.dart';
 import '../app_drawer.dart';
 import 'reading_progress_dialog.dart';
 import 'time_analytics_dialog.dart';
@@ -24,6 +26,7 @@ class DashboardScreen extends ConsumerWidget {
     final coverage = ref.watch(bibleCoverageProvider);
     final biblesCompleted = ref.watch(biblesCompletedProvider);
     final achievementsAsync = ref.watch(achievementsProvider);
+    final updateCheckAsync = ref.watch(updateCheckerProvider);
 
     int chaptersRead = 0;
     for (final chapters in coverage.values) {
@@ -63,6 +66,45 @@ class DashboardScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                if (updateCheckAsync.value != null &&
+                    ref.watch(dismissedUpdateVersionProvider) !=
+                        updateCheckAsync.value!.latestVersion)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 24.0),
+                    child: MaterialBanner(
+                      elevation: 1,
+                      backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                      leading: const Icon(Icons.system_update),
+                      content: Text('A new version of Study Bible (${updateCheckAsync.value!.latestVersion}) is available!'),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            ref
+                                .read(dismissedUpdateVersionProvider.notifier)
+                                .dismiss(updateCheckAsync.value!.latestVersion);
+                          },
+                          child: const Text('Dismiss'),
+                        ),
+                        TextButton(
+                          onPressed: () async {
+                            final uri =
+                                Uri.parse(updateCheckAsync.value!.releaseUrl);
+                            if (!await launchUrl(uri,
+                                mode: LaunchMode.externalApplication)) {
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Could not open the release page.'),
+                                  ),
+                                );
+                              }
+                            }
+                          },
+                          child: const Text('View Release'),
+                        ),
+                      ],
+                    ),
+                  ),
                 Text(
                   'Your Study Dashboard',
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
