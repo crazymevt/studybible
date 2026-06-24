@@ -50,18 +50,25 @@ class _MainShellState extends ConsumerState<MainShell> {
 
     // Fresh install: nothing is "new" to a first-time user, and the dialog
     // would collide with onboarding. Record the current version silently so
-    // the next genuine upgrade is what triggers the dialog.
+    // the next genuine upgrade is what triggers the dialog. A fresh install
+    // indexes cleanly, so the search-index rebuild prompt never applies.
     if (lastSeen == null) {
       await prefs.setString('lastSeenVersion', appVersion);
+      await prefs.setInt(kSearchIndexRebuiltGenKey, kSearchIndexGeneration);
       return;
     }
 
     if (lastSeen != appVersion) {
-      // Show dialog
+      // Existing users may carry a search index built before the current
+      // indexing generation; offer a one-tap rebuild in the dialog until they
+      // run it (re-fires when kSearchIndexGeneration is bumped).
+      final rebuiltGen = prefs.getInt(kSearchIndexRebuiltGenKey) ?? 0;
+      final showRebuildPrompt = rebuiltGen < kSearchIndexGeneration;
       if (mounted) {
         showDialog(
           context: context,
-          builder: (context) => const WhatsNewDialog(),
+          builder: (context) =>
+              WhatsNewDialog(showRebuildPrompt: showRebuildPrompt),
         );
       }
       // Update prefs

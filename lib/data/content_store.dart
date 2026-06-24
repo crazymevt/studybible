@@ -189,6 +189,11 @@ class ContentStore extends _$ContentStore {
   /// Rebuilds the entire full-text search index from the source tables,
   /// stripping markup from HTML content types. Safe to run on demand to clean
   /// an index that was populated before markup stripping existed.
+  ///
+  /// NOTE: if you change *how* content is indexed here (what gets stripped,
+  /// tokenized, or which columns are indexed), existing users' indexes go
+  /// stale. Bump `kSearchIndexGeneration` in `lib/app/shared_prefs.dart` in the
+  /// same release so the What's New dialog prompts them to rebuild.
   Future<void> rebuildSearchIndex() async {
     await transaction(() async {
       await customStatement('DELETE FROM content_search');

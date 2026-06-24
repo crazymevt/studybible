@@ -22,21 +22,20 @@ Running list of known issues and follow-ups.
     nothing is selected) and shows "Starts at verse N" while idle. Pause/resume
     still continues where it left off.
 
-- [ ] **Prompt existing users to rebuild the search index after the
+- [x] **Prompt existing users to rebuild the search index after the
   markup-stripping fix.** Verse search indexing was changed to strip MyBible
   markup (release 26.6.24+1), but already-installed Bibles keep their old
-  polluted index until the user rebuilds it. We need to tell users to do this
-  and make it one tap.
-  - Surface a clear, friendly note at the **top of the "What's New" dialog**
-    recommending a rebuild, with an inline action button that runs
-    `ContentStore.rebuildSearchIndex()` (today it's buried in
-    Settings → "Rebuild search index", `lib/ui/settings/settings_screen.dart`).
-  - Consider only showing the note for users upgrading *into* this version (not
-    fresh installs, which already index cleanly), and marking it done once the
-    rebuild has been run so it doesn't nag.
-  - Changelog renders from `assets/changelog.json`
-    (`scripts/update_version.dart`); the dialog lives near the app's
-    "What's New" / version display.
+  polluted index until the user rebuilds it.
+  - Done: the What's New dialog shows an amber "Action recommended" caution at
+    the top with a one-tap **Rebuild now** button (runs
+    `ContentStore.rebuildSearchIndex()`), flipping to a green "All set"
+    confirmation. Fresh installs are born clean and never see it.
+  - Generalised beyond a one-shot: gated on `kSearchIndexGeneration`
+    (`lib/app/shared_prefs.dart`) vs the per-user `searchIndexRebuiltGeneration`
+    pref. **To re-prompt after a future indexing change, bump
+    `kSearchIndexGeneration` in the same release** — users below it are nudged
+    once, then quiet after rebuilding (also resolved by Settings → Rebuild
+    search index). A reminder lives on `ContentStore.rebuildSearchIndex()`.
 
 - [x] **Auto check for updates.** Automatically check for updates and display
   a message indicating that a new version is available, along with a link to the

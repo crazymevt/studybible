@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/app_state.dart';
 import '../../app/content_providers.dart';
+import '../../app/shared_prefs.dart';
 import '../../app/sync_service.dart';
 import '../../data/logging.dart';
 import '../../theme/app_themes.dart';
@@ -43,6 +44,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final messenger = ScaffoldMessenger.of(context);
     try {
       await ref.read(contentStoreProvider).rebuildSearchIndex();
+      // A manual rebuild also resolves the upgrade prompt in the What's New
+      // dialog (marks the current generation), so the user isn't nudged again.
+      await ref
+          .read(sharedPreferencesProvider)
+          .setInt(kSearchIndexRebuiltGenKey, kSearchIndexGeneration);
       messenger.showSnackBar(
         const SnackBar(content: Text('Search index rebuilt.')),
       );
