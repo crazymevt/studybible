@@ -4,15 +4,13 @@ Running list of known issues and follow-ups.
 
 ## Bugs
 
-- [ ] **Right-click dictionary lookup returns multiple words instead of the
+- [x] **Right-click dictionary lookup returns multiple words instead of the
   exact word.** Right-clicking (or long-pressing) a word in the reader to "Look
-  up in Dictionary" shows several entries rather than the single exact word
-  that was tapped. The lookup likely runs a prefix/substring match where it
-  should resolve (or at least prioritize) the exact term.
-  - Entry point: `_openDictionary` in the reader views
-    (`lib/ui/reader/flowing_paragraph_view.dart`, `verse_list_view.dart`,
-    `parallel_view.dart`) sets `dictionarySearchQueryProvider` to the tapped
-    word; the `DictionaryPanel` search then resolves the matches.
+  up in Dictionary" showed every entry containing the term as a substring.
+  - Fixed: `dictionarySearchQueryProvider` now carries an `exact` flag; the
+    reader lookups request an exact (case-insensitive) headword match and show
+    "No definitions found" when there's no exact headword (no substring
+    fallback). The free-text search box keeps its substring behaviour.
 
 ## Enhancements
 

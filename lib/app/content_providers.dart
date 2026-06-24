@@ -401,17 +401,22 @@ class DictionaryEntryWithDict {
   DictionaryEntryWithDict({required this.entry, required this.dictionary});
 }
 
-class DictionarySearchQueryNotifier extends Notifier<String> {
-  @override
-  String build() => '';
+/// A dictionary lookup. [exact] requests the single headword [term] (used when
+/// a word is tapped/right-clicked in the reader); when false the term is
+/// matched as a substring (used by the free-text search box).
+typedef DictionaryQuery = ({String term, bool exact});
 
-  void setQuery(String query) {
-    state = query;
+class DictionarySearchQueryNotifier extends Notifier<DictionaryQuery> {
+  @override
+  DictionaryQuery build() => (term: '', exact: false);
+
+  void setQuery(String query, {bool exact = false}) {
+    state = (term: query, exact: exact);
   }
 }
 
 final dictionarySearchQueryProvider =
-    NotifierProvider<DictionarySearchQueryNotifier, String>(
+    NotifierProvider<DictionarySearchQueryNotifier, DictionaryQuery>(
       () => DictionarySearchQueryNotifier(),
     );
 
@@ -419,24 +424,31 @@ final dictionaryEntriesProvider = FutureProvider<List<DictionaryEntryWithDict>>(
   (ref) async {
     final store = ref.watch(contentStoreProvider);
     final query = ref.watch(dictionarySearchQueryProvider);
-    if (query.trim().isEmpty) return [];
+    final term = query.term.trim();
+    if (term.isEmpty) return [];
 
-    final search = '%${query.trim()}%';
+    Future<List<DictionaryEntryWithDict>> runLike(String pattern) async {
+      final q = store.select(store.dictionaryEntries).join([
+        innerJoin(
+          store.dictionaries,
+          store.dictionaries.id.equalsExp(store.dictionaryEntries.dictionaryId),
+        ),
+      ])..where(store.dictionaryEntries.word.like(pattern));
 
-    final q = store.select(store.dictionaryEntries).join([
-      innerJoin(
-        store.dictionaries,
-        store.dictionaries.id.equalsExp(store.dictionaryEntries.dictionaryId),
-      ),
-    ])..where(store.dictionaryEntries.word.like(search));
+      final results = await q.get();
+      return results.map((row) {
+        return DictionaryEntryWithDict(
+          entry: row.readTable(store.dictionaryEntries),
+          dictionary: row.readTable(store.dictionaries),
+        );
+      }).toList();
+    }
 
-    final results = await q.get();
-    return results.map((row) {
-      return DictionaryEntryWithDict(
-        entry: row.readTable(store.dictionaryEntries),
-        dictionary: row.readTable(store.dictionaries),
-      );
-    }).toList();
+    // LIKE with no wildcards is an exact, case-insensitive match, so a tapped
+    // lowercase word still resolves a capitalised headword. Exact lookups don't
+    // fall back to a substring search: showing unrelated words that merely
+    // contain the term is worse than an honest "not found".
+    return runLike(query.exact ? term : '%$term%');
   },
 );
 
