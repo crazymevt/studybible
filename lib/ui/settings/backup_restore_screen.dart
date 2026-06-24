@@ -9,6 +9,8 @@ import 'package:saf_util/saf_util.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../app/backup_providers.dart';
+import '../../app/content_providers.dart';
+import '../../app/user_providers.dart';
 import '../../data/backup/backup_restore_service.dart';
 import '../app_drawer.dart';
 import '../common/search_title_bar.dart';
@@ -36,6 +38,18 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
       final service = ref.read(backupRestoreServiceProvider);
       final backupFile = await service.createBackup(
         includeContent: _includeContent,
+        checkpoint: () async {
+          // Flush WAL into the main .db files so the backup captures the most
+          // recent writes (the service only archives the main files).
+          await ref
+              .read(userStoreProvider)
+              .customStatement('PRAGMA wal_checkpoint(TRUNCATE);');
+          if (_includeContent) {
+            await ref
+                .read(contentStoreProvider)
+                .customStatement('PRAGMA wal_checkpoint(TRUNCATE);');
+          }
+        },
         onProgress: (status) {
           if (mounted) setState(() => _statusMessage = status);
         },

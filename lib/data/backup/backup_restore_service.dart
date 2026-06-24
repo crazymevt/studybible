@@ -78,6 +78,7 @@ class BackupRestoreService {
   /// The caller is responsible for moving/saving this file.
   Future<File> createBackup({
     required bool includeContent,
+    Future<void> Function()? checkpoint,
     void Function(String status)? onProgress,
   }) async {
     final dbDir = await _getDbDir();
@@ -85,6 +86,13 @@ class BackupRestoreService {
     final contentDbFile = File(p.join(dbDir, 'content.db'));
 
     onProgress?.call('Preparing backup...');
+
+    // The databases run in WAL mode, so the newest commits live in the
+    // `*.db-wal` sidecar until they are checkpointed into the main file. We
+    // archive only the main `.db` files, so flush the WAL first — otherwise a
+    // backup taken while the app is live silently omits the user's most recent
+    // notes, highlights, reading progress, etc.
+    await checkpoint?.call();
 
     // Build the archive
     final archive = Archive();

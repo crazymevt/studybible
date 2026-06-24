@@ -308,7 +308,7 @@ final globalSearchResultsProvider = FutureProvider<List<SearchResult>>((
         
         String targetStr = '$bName $cNum';
         if (sVerses != null) {
-            targetStr += sVerses.contains(',') ? ':$sVerses' : ':$sVerses';
+            targetStr += ':$sVerses';
         } else if (vNum != null) {
             targetStr += ':$vNum';
         }
