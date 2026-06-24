@@ -54,6 +54,16 @@ void main() {
       expect(r.text, 'the LORD spake');
     });
 
+    test('separates a canonical <title> from the following verse text', () {
+      // Real KJV modules embed the Psalm superscription as a <title> in v.1;
+      // without separation it merged as "David.The LORD…".
+      final r = parseOsisFragment(
+          '<title canonical="true">A Psalm of David.</title>'
+          'The LORD is my shepherd');
+      expect(r.text, 'A Psalm of David. The LORD is my shepherd');
+      expect(r.segments.any((s) => s.isLineBreak), isTrue);
+    });
+
     test('falls back to tag-stripping on malformed XML', () {
       // A bare & makes the fragment invalid XML; we still capture the text.
       final r = parseOsisFragment('Shadrach & Meshach <w>went</w>');

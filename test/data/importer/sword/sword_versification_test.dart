@@ -54,22 +54,23 @@ void main() {
   });
 
   group('SwordVersification.indexOf', () {
-    test('first verses sit at index 3 (after testament+book+chapter heading)',
-        () {
-      // Slot 0 = testament heading, 1 = book heading, 2 = chapter heading.
-      expect(kjv.indexOf('OT', 0, 1, 1), 3); // Genesis 1:1
-      expect(kjv.indexOf('NT', 0, 1, 1), 3); // Matthew 1:1 (NT-relative)
+    test('first verses sit at index 4 (after the two intro + title + chapter '
+        'heading slots)', () {
+      // Slots 0–1 = module/testament headings, 2 = book title, 3 = ch.1 heading.
+      // Verified against the real CrossWire KJV module (Gen 1:1 at slot 4).
+      expect(kjv.indexOf('OT', 0, 1, 1), 4); // Genesis 1:1
+      expect(kjv.indexOf('NT', 0, 1, 1), 4); // Matthew 1:1 (NT-relative)
     });
 
     test('walks within a chapter and across chapters', () {
-      expect(kjv.indexOf('OT', 0, 1, 31), 33); // Genesis 1:31 (last of ch.1)
-      expect(kjv.indexOf('OT', 0, 2, 1), 35); // Genesis 2:1 (past ch.2 heading)
+      expect(kjv.indexOf('OT', 0, 1, 31), 34); // Genesis 1:31 (last of ch.1)
+      expect(kjv.indexOf('OT', 0, 2, 1), 36); // Genesis 2:1 (past ch.2 heading)
     });
 
     test('crosses book boundaries using the full book span', () {
-      // Genesis span = 1 (book heading) + 50 (chapter headings) + 1533 verses.
-      // Exodus heading therefore follows at 1 + 1584 = 1585, Exodus 1:1 at 1587.
-      expect(kjv.indexOf('OT', 1, 1, 1), 1587);
+      // Genesis span = 1 (title) + 50 (chapter headings) + 1533 verses = 1584.
+      // Exodus title follows at 2 + 1584 = 1586, Exodus 1:1 at 1588.
+      expect(kjv.indexOf('OT', 1, 1, 1), 1588);
     });
 
     test('reverse-consistent with recordCount (last verse is count-1)', () {

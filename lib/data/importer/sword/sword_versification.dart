@@ -14,14 +14,15 @@
 /// laid out as:
 ///
 /// ```
-/// 0: testament heading
-/// 1: book 0 heading
-/// 2: book 0, chapter 1 heading
-/// 3: book 0, chapter 1, verse 1
+/// 0: module heading
+/// 1: testament heading
+/// 2: book 0 heading (title)
+/// 3: book 0, chapter 1 heading
+/// 4: book 0, chapter 1, verse 1
 /// ...
 /// ```
 ///
-/// i.e. the testament contributes one leading "heading" slot, every book one
+/// i.e. the testament contributes two leading "heading" slots, every book one
 /// heading slot, and every chapter one heading slot, before its verses. Getting
 /// these heading slots right is the whole game — an off-by-one shifts every
 /// subsequent verse. The arithmetic in [indexOf] mirrors SWORD's
@@ -91,8 +92,12 @@ class SwordVersification {
     if (chapter < 1 || chapter > book.chapterCount) return null;
     if (verse < 1 || verse > book.versesPerChapter[chapter - 1]) return null;
 
-    // Slot 0 is the testament heading; the first book heading sits at 1.
-    var idx = 1;
+    // SWORD reserves TWO leading slots before the first book — the module
+    // heading (0) and the testament heading (1), both normally empty — so the
+    // first book's title sits at index 2. Verified against real CrossWire
+    // modules (Genesis title at slot 2, "CHAPTER 1." at 3, Gen 1:1 at 4) and
+    // matching pysword's BibleStructure, whose book offsets also start at 2.
+    var idx = 2;
     for (var b = 0; b < bookIndex; b++) {
       idx += 1 + books[b].chapterCount + books[b].verseCount;
     }
@@ -110,7 +115,7 @@ class SwordVersification {
   /// The total number of index records in [testament], i.e. one past the last
   /// valid index. Equals the testament heading plus every book's span.
   int recordCount(String testament) {
-    var total = 1; // testament heading
+    var total = 2; // module + testament heading slots (see indexOf)
     for (final b in booksFor(testament)) {
       total += 1 + b.chapterCount + b.verseCount;
     }

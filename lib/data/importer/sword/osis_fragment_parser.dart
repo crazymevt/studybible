@@ -92,6 +92,15 @@ ParsedOsisEntry parseOsisFragment(String fragment) {
               jesus: jesus || child.getAttribute('who')?.toLowerCase() == 'jesus',
               strongs: strongs);
           continue;
+        case 'title':
+          // Canonical titles (e.g. Psalm superscriptions) are embedded in
+          // verse 1 by many OSIS Bibles. Keep the text but break after it so
+          // it neither merges into the following verse text ("David.The LORD")
+          // nor pollutes search runs.
+          walk(child, italic: italic, jesus: jesus, strongs: strongs);
+          segments.add(const VerseSegment(isLineBreak: true));
+          plain.write(' ');
+          continue;
         default:
           // divineName, seg, foreign, title, rdg, …: flatten their text.
           walk(child, italic: italic, jesus: jesus, strongs: strongs);
