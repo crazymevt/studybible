@@ -29,67 +29,7 @@ final audioBiblesProvider = FutureProvider<List<AudioBible>>((ref) async {
   return bibles;
 });
 
-// 2. Determine which audio bible is active based on activeVersions
-final activeAudioBibleProvider = Provider<AsyncValue<AudioBible?>>((ref) {
-  final activeVersions = ref.watch(activeVersionsProvider);
-  if (activeVersions.isEmpty) return const AsyncValue.data(null);
-
-  final availableVersionsAsync = ref.watch(versionsProvider);
-  final availableBiblesAsync = ref.watch(audioBiblesProvider);
-
-  if (availableVersionsAsync is AsyncLoading ||
-      availableBiblesAsync is AsyncLoading) {
-    return const AsyncValue.loading();
-  }
-
-  if (availableVersionsAsync is AsyncError) {
-    return AsyncValue.error(
-      availableVersionsAsync.error!,
-      availableVersionsAsync.stackTrace!,
-    );
-  }
-
-  if (availableBiblesAsync is AsyncError) {
-    return AsyncValue.error(
-      availableBiblesAsync.error!,
-      availableBiblesAsync.stackTrace!,
-    );
-  }
-
-  final versions = availableVersionsAsync.value ?? [];
-  final bibles = availableBiblesAsync.value ?? [];
-
-  final activeId = activeVersions.first;
-  final activeBibleVersion = versions
-      .where((v) => v.id == activeId)
-      .firstOrNull;
-
-  if (activeBibleVersion == null) return const AsyncValue.data(null);
-
-  final name = activeBibleVersion.name.toLowerCase();
-  final abbrev = activeBibleVersion.abbreviation.toLowerCase();
-  final id = activeBibleVersion.id.toLowerCase();
-
-  // Check for KJV matches
-  if (name.contains('kjv') ||
-      name.contains('king james') ||
-      abbrev.contains('kjv') ||
-      id.contains('kjv')) {
-    return AsyncValue.data(bibles.where((b) => b.name == 'kjv').firstOrNull);
-  }
-
-  // Check for BSB matches
-  if (name.contains('bsb') ||
-      name.contains('berean') ||
-      abbrev.contains('bsb') ||
-      id.contains('bsb')) {
-    return AsyncValue.data(bibles.where((b) => b.name == 'bsb').firstOrNull);
-  }
-
-  return const AsyncValue.data(null);
-});
-
-// 3. User selected voice actor
+// 2. User selected voice actor
 class SelectedVoiceNotifier extends Notifier<String?> {
   @override
   String? build() {
@@ -121,8 +61,45 @@ class ChapterAudioData {
 }
 
 final chapterAudioProvider = Provider<ChapterAudioData?>((ref) {
-  final activeBibleAsync = ref.watch(activeAudioBibleProvider);
-  final activeBible = activeBibleAsync.value;
+  final activeVersions = ref.watch(activeVersionsProvider);
+  if (activeVersions.isEmpty) return null;
+
+  final versions = ref.watch(versionsProvider.select((v) => v.value));
+  final bibles = ref.watch(audioBiblesProvider.select((v) => v.value));
+
+  if (versions == null || bibles == null) {
+    return null; // Equivalent to loading
+  }
+
+  final activeId = activeVersions.first;
+  final activeBibleVersion = versions
+      .where((v) => v.id == activeId)
+      .firstOrNull;
+
+  if (activeBibleVersion == null) return null;
+
+  final name = activeBibleVersion.name.toLowerCase();
+  final abbrev = activeBibleVersion.abbreviation.toLowerCase();
+  final id = activeBibleVersion.id.toLowerCase();
+
+  AudioBible? activeBible;
+
+  // Check for KJV matches
+  if (name.contains('kjv') ||
+      name.contains('king james') ||
+      abbrev.contains('kjv') ||
+      id.contains('kjv')) {
+    activeBible = bibles.where((b) => b.name == 'kjv').firstOrNull;
+  }
+
+  // Check for BSB matches
+  if (activeBible == null &&
+      (name.contains('bsb') ||
+      name.contains('berean') ||
+      abbrev.contains('bsb') ||
+      id.contains('bsb'))) {
+    activeBible = bibles.where((b) => b.name == 'bsb').firstOrNull;
+  }
 
   if (activeBible == null) return null;
 

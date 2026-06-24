@@ -327,10 +327,10 @@ class _ContentManagerScreenState extends ConsumerState<ContentManagerScreen>
             subtitle: Text(v.id),
             trailing: buildInstalledTrailing(v.id, v.name, v.about, () async {
               await ref.read(contentStoreProvider).deleteVersion(v.id);
-              ref.invalidate(versionsProvider);
-              ref.invalidate(bibleVersionsProvider);
-              ref.invalidate(subheadingSourcesProvider);
-              ref.invalidate(installedModuleIdsProvider);
+              ref.read(versionsProvider.notifier).reload();
+              ref.read(bibleVersionsProvider.notifier).reload();
+              ref.read(subheadingSourcesProvider.notifier).reload();
+              ref.read(installedModuleIdsProvider.notifier).reload();
               if (mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Deleted ${v.name}')));
               }
@@ -347,9 +347,9 @@ class _ContentManagerScreenState extends ConsumerState<ContentManagerScreen>
             subtitle: Text(v.id),
             trailing: buildInstalledTrailing(v.id, v.name, v.about, () async {
               await ref.read(contentStoreProvider).deleteVersion(v.id);
-              ref.invalidate(versionsProvider);
-              ref.invalidate(subheadingSourcesProvider);
-              ref.invalidate(installedModuleIdsProvider);
+              ref.read(versionsProvider.notifier).reload();
+              ref.read(subheadingSourcesProvider.notifier).reload();
+              ref.read(installedModuleIdsProvider.notifier).reload();
               if (mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Deleted ${v.name}')));
               }
@@ -366,8 +366,8 @@ class _ContentManagerScreenState extends ConsumerState<ContentManagerScreen>
             subtitle: const Text('Commentary'),
             trailing: buildInstalledTrailing(c.abbreviation, c.name, c.about, () async {
               await ref.read(contentStoreProvider).deleteCommentary(c.id);
-              ref.invalidate(commentariesProvider);
-              ref.invalidate(installedModuleIdsProvider);
+              ref.read(commentariesProvider.notifier).reload();
+              ref.read(installedModuleIdsProvider.notifier).reload();
               if (mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Deleted ${c.abbreviation}')));
               }
@@ -384,8 +384,8 @@ class _ContentManagerScreenState extends ConsumerState<ContentManagerScreen>
             subtitle: const Text('Dictionary'),
             trailing: buildInstalledTrailing(d.abbreviation, d.name, d.about, () async {
               await ref.read(contentStoreProvider).deleteDictionary(d.id);
-              ref.invalidate(dictionariesProvider);
-              ref.invalidate(installedModuleIdsProvider);
+              ref.read(dictionariesProvider.notifier).reload();
+              ref.read(installedModuleIdsProvider.notifier).reload();
               if (mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Deleted ${d.abbreviation}')));
               }
@@ -402,8 +402,8 @@ class _ContentManagerScreenState extends ConsumerState<ContentManagerScreen>
             subtitle: Text(d.abbreviation),
             trailing: buildInstalledTrailing(d.abbreviation, d.name, d.about, () async {
               await ref.read(contentStoreProvider).deleteDevotional(d.id);
-              ref.invalidate(devotionalsProvider);
-              ref.invalidate(installedModuleIdsProvider);
+              ref.read(devotionalsProvider.notifier).reload();
+              ref.read(installedModuleIdsProvider.notifier).reload();
               if (mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Deleted ${d.abbreviation}')));
               }

@@ -45,53 +45,105 @@ final contentStoreProvider = Provider<ContentStore>((ref) {
   return store;
 });
 
-final versionsProvider = FutureProvider<List<Version>>((ref) {
-  final store = ref.watch(contentStoreProvider);
-  return store.select(store.versions).get();
-});
+class VersionsNotifier extends AsyncNotifier<List<Version>> {
+  @override
+  Future<List<Version>> build() {
+    final store = ref.watch(contentStoreProvider);
+    return store.select(store.versions).get();
+  }
 
-final installedModuleIdsProvider = FutureProvider<Set<String>>((ref) async {
-  final store = ref.watch(contentStoreProvider);
-  
-  final versions = await store.select(store.versions).get();
-  final commentaries = await store.select(store.commentaries).get();
-  final dictionaries = await store.select(store.dictionaries).get();
-  final devotionals = await store.select(store.devotionals).get();
-  
-  final set = <String>{};
-  for (final v in versions) {
-    set.add(v.id.toUpperCase());
-    set.add(v.abbreviation.toUpperCase());
+  Future<void> reload() async {
+    final store = ref.read(contentStoreProvider);
+    final data = await store.select(store.versions).get();
+    state = AsyncData(data);
   }
-  for (final c in commentaries) {
-    set.add(c.abbreviation.toUpperCase());
-  }
-  for (final d in dictionaries) {
-    set.add(d.abbreviation.toUpperCase());
-  }
-  for (final dv in devotionals) {
-    set.add(dv.abbreviation.toUpperCase());
-  }
-  return set;
-});
+}
 
-final bibleVersionsProvider = FutureProvider<List<Version>>((ref) async {
-  final store = ref.watch(contentStoreProvider);
-  final allVersions = await store.select(store.versions).get();
-  final bookVersions = await store.customSelect('SELECT DISTINCT version_id FROM books').get();
-  final bookVersionIds = bookVersions.map((row) => row.read<String>('version_id')).toSet();
-  
-  return allVersions.where((v) => bookVersionIds.contains(v.id)).toList();
-});
+final versionsProvider = AsyncNotifierProvider<VersionsNotifier, List<Version>>(
+  () => VersionsNotifier(),
+);
 
-final subheadingSourcesProvider = FutureProvider<List<Version>>((ref) async {
-  final store = ref.watch(contentStoreProvider);
-  final allVersions = await store.select(store.versions).get();
-  final shVersions = await store.customSelect('SELECT DISTINCT version_id FROM subheadings').get();
-  final shVersionIds = shVersions.map((row) => row.read<String>('version_id')).toSet();
-  
-  return allVersions.where((v) => shVersionIds.contains(v.id)).toList();
-});
+class InstalledModuleIdsNotifier extends AsyncNotifier<Set<String>> {
+  @override
+  Future<Set<String>> build() async {
+    return _fetch(ref.watch(contentStoreProvider));
+  }
+
+  Future<void> reload() async {
+    state = AsyncData(await _fetch(ref.read(contentStoreProvider)));
+  }
+
+  Future<Set<String>> _fetch(ContentStore store) async {
+    final versions = await store.select(store.versions).get();
+    final commentaries = await store.select(store.commentaries).get();
+    final dictionaries = await store.select(store.dictionaries).get();
+    final devotionals = await store.select(store.devotionals).get();
+    
+    final set = <String>{};
+    for (final v in versions) {
+      set.add(v.id.toUpperCase());
+      set.add(v.abbreviation.toUpperCase());
+    }
+    for (final c in commentaries) {
+      set.add(c.abbreviation.toUpperCase());
+    }
+    for (final d in dictionaries) {
+      set.add(d.abbreviation.toUpperCase());
+    }
+    for (final dv in devotionals) {
+      set.add(dv.abbreviation.toUpperCase());
+    }
+    return set;
+  }
+}
+
+final installedModuleIdsProvider = AsyncNotifierProvider<InstalledModuleIdsNotifier, Set<String>>(
+  () => InstalledModuleIdsNotifier(),
+);
+
+class BibleVersionsNotifier extends AsyncNotifier<List<Version>> {
+  @override
+  Future<List<Version>> build() async {
+    return _fetch(ref.watch(contentStoreProvider));
+  }
+
+  Future<void> reload() async {
+    state = AsyncData(await _fetch(ref.read(contentStoreProvider)));
+  }
+
+  Future<List<Version>> _fetch(ContentStore store) async {
+    final allVersions = await store.select(store.versions).get();
+    final bookVersions = await store.customSelect('SELECT DISTINCT version_id FROM books').get();
+    final bookVersionIds = bookVersions.map((row) => row.read<String>('version_id')).toSet();
+    return allVersions.where((v) => bookVersionIds.contains(v.id)).toList();
+  }
+}
+
+final bibleVersionsProvider = AsyncNotifierProvider<BibleVersionsNotifier, List<Version>>(
+  () => BibleVersionsNotifier(),
+);
+
+class SubheadingSourcesNotifier extends AsyncNotifier<List<Version>> {
+  @override
+  Future<List<Version>> build() async {
+    return _fetch(ref.watch(contentStoreProvider));
+  }
+
+  Future<void> reload() async {
+    state = AsyncData(await _fetch(ref.read(contentStoreProvider)));
+  }
+
+  Future<List<Version>> _fetch(ContentStore store) async {
+    final allVersions = await store.select(store.versions).get();
+    final shVersions = await store.customSelect('SELECT DISTINCT version_id FROM subheadings').get();
+    final shVersionIds = shVersions.map((row) => row.read<String>('version_id')).toSet();
+    return allVersions.where((v) => shVersionIds.contains(v.id)).toList();
+  }
+}
+
+final subheadingSourcesProvider = AsyncNotifierProvider<SubheadingSourcesNotifier, List<Version>>(
+  () => SubheadingSourcesNotifier(),
+);
 
 final booksForVersionProvider = FutureProvider.family<List<Book>, String>((
   ref,
@@ -184,23 +236,24 @@ final chapterSubheadingsProvider = FutureProvider.family<Map<int, List<String>>,
 /// Pure derivation — it must not write back to [activeVersionsProvider]. The
 /// stored preference is self-healed by [ActiveVersionsNotifier] instead;
 /// mutating a watched dependency here threw "setState() called during build".
-final validActiveVersionsProvider = FutureProvider<List<String>>((ref) async {
-  final activeVersions = ref.watch(activeVersionsProvider);
-  final installedVersions = await ref.watch(versionsProvider.future);
-
-  if (installedVersions.isEmpty) return [];
-
-  final valid = activeVersions
-      .where((av) => installedVersions.any((iv) => iv.id == av))
-      .toList();
-
-  return valid.isEmpty ? [installedVersions.first.id] : valid;
-});
-
 final parallelVersesProvider = FutureProvider<Map<String, List<Verse>>>((
   ref,
 ) async {
-  final versions = await ref.watch(validActiveVersionsProvider.future);
+  final activeVersions = ref.watch(activeVersionsProvider);
+  final installedVersions = ref.watch(versionsProvider.select((v) => v.value));
+
+  List<String> versions;
+  if (installedVersions == null) {
+    versions = activeVersions.isEmpty ? ['KJV'] : activeVersions;
+  } else if (installedVersions.isEmpty) {
+    versions = [];
+  } else {
+    final valid = activeVersions
+        .where((av) => installedVersions.any((iv) => iv.id == av))
+        .toList();
+    versions = valid.isEmpty ? [installedVersions.first.id] : valid;
+  }
+
   final bookName = ref.watch(selectedBookNameProvider);
   final chapter = ref.watch(selectedChapterProvider);
 
@@ -228,7 +281,8 @@ class CompareResult {
 }
 
 final compareVersesProvider = FutureProvider.family<List<CompareResult>, ({String bookName, int chapter, String selectedVersesStr})>((ref, args) async {
-  final versions = await ref.watch(versionsProvider.future);
+  final versions = ref.watch(versionsProvider.select((v) => v.value));
+  if (versions == null) return [];
   final results = <CompareResult>[];
   final contentStore = ref.watch(contentStoreProvider);
 
@@ -301,20 +355,56 @@ final navigationControllerProvider = Provider(
   (ref) => NavigationController(ref),
 );
 
-final commentariesProvider = FutureProvider<List<Commentary>>((ref) {
-  final store = ref.watch(contentStoreProvider);
-  return store.select(store.commentaries).get();
-});
+class CommentariesNotifier extends AsyncNotifier<List<Commentary>> {
+  @override
+  Future<List<Commentary>> build() {
+    final store = ref.watch(contentStoreProvider);
+    return store.select(store.commentaries).get();
+  }
 
-final dictionariesProvider = FutureProvider<List<Dictionary>>((ref) {
-  final store = ref.watch(contentStoreProvider);
-  return store.select(store.dictionaries).get();
-});
+  Future<void> reload() async {
+    final store = ref.read(contentStoreProvider);
+    state = AsyncData(await store.select(store.commentaries).get());
+  }
+}
 
-final devotionalsProvider = FutureProvider<List<Devotional>>((ref) {
-  final store = ref.watch(contentStoreProvider);
-  return store.select(store.devotionals).get();
-});
+final commentariesProvider = AsyncNotifierProvider<CommentariesNotifier, List<Commentary>>(
+  () => CommentariesNotifier(),
+);
+
+class DictionariesNotifier extends AsyncNotifier<List<Dictionary>> {
+  @override
+  Future<List<Dictionary>> build() {
+    final store = ref.watch(contentStoreProvider);
+    return store.select(store.dictionaries).get();
+  }
+
+  Future<void> reload() async {
+    final store = ref.read(contentStoreProvider);
+    state = AsyncData(await store.select(store.dictionaries).get());
+  }
+}
+
+final dictionariesProvider = AsyncNotifierProvider<DictionariesNotifier, List<Dictionary>>(
+  () => DictionariesNotifier(),
+);
+
+class DevotionalsNotifier extends AsyncNotifier<List<Devotional>> {
+  @override
+  Future<List<Devotional>> build() {
+    final store = ref.watch(contentStoreProvider);
+    return store.select(store.devotionals).get();
+  }
+
+  Future<void> reload() async {
+    final store = ref.read(contentStoreProvider);
+    state = AsyncData(await store.select(store.devotionals).get());
+  }
+}
+
+final devotionalsProvider = AsyncNotifierProvider<DevotionalsNotifier, List<Devotional>>(
+  () => DevotionalsNotifier(),
+);
 
 class ShowBookIntroNotifier extends Notifier<bool> {
   @override

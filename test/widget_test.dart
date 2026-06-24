@@ -24,6 +24,11 @@ import 'package:study_bible/data/content_store.dart';
 import 'package:study_bible/data/user_store.dart';
 import 'package:study_bible/ui/onboarding/onboarding_screen.dart';
 
+class MockBibleVersionsNotifier extends BibleVersionsNotifier {
+  @override
+  Future<List<Version>> build() async => [];
+}
+
 void main() {
   testWidgets('App boots into the onboarding shell with no content installed',
       (WidgetTester tester) async {
@@ -54,7 +59,7 @@ void main() {
             ref.onDispose(store.close);
             return store;
           }),
-          bibleVersionsProvider.overrideWith((ref) async => []),
+          bibleVersionsProvider.overrideWith(MockBibleVersionsNotifier.new),
           ph4CatalogProvider.overrideWith((ref) async => []),
         ],
       );

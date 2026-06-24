@@ -120,13 +120,13 @@ class ContentManagerController extends Notifier<Map<String, DownloadProgress>> {
       state = {...state, stateKey: DownloadProgress(1.0, 'Done')};
 
       // Refresh installed versions
-      ref.invalidate(versionsProvider);
-      ref.invalidate(bibleVersionsProvider);
-      ref.invalidate(subheadingSourcesProvider);
-      ref.invalidate(commentariesProvider);
-      ref.invalidate(dictionariesProvider);
-      ref.invalidate(devotionalsProvider);
-      ref.invalidate(installedModuleIdsProvider);
+      ref.read(versionsProvider.notifier).reload();
+      ref.read(bibleVersionsProvider.notifier).reload();
+      ref.read(subheadingSourcesProvider.notifier).reload();
+      ref.read(commentariesProvider.notifier).reload();
+      ref.read(dictionariesProvider.notifier).reload();
+      ref.read(devotionalsProvider.notifier).reload();
+      ref.read(installedModuleIdsProvider.notifier).reload();
     } catch (e, stack) {
       logError(e, stack, context: 'ContentManager.downloadAndImport');
       state = {...state, stateKey: DownloadProgress(0, 'Error: $e')};
@@ -178,13 +178,13 @@ class ContentManagerController extends Notifier<Map<String, DownloadProgress>> {
       state = {...state, stateKey: DownloadProgress(1.0, 'Done')};
 
       // Refresh installed versions
-      ref.invalidate(versionsProvider);
-      ref.invalidate(bibleVersionsProvider);
-      ref.invalidate(subheadingSourcesProvider);
-      ref.invalidate(commentariesProvider);
-      ref.invalidate(dictionariesProvider);
-      ref.invalidate(devotionalsProvider);
-      ref.invalidate(installedModuleIdsProvider);
+      ref.read(versionsProvider.notifier).reload();
+      ref.read(bibleVersionsProvider.notifier).reload();
+      ref.read(subheadingSourcesProvider.notifier).reload();
+      ref.read(commentariesProvider.notifier).reload();
+      ref.read(dictionariesProvider.notifier).reload();
+      ref.read(devotionalsProvider.notifier).reload();
+      ref.read(installedModuleIdsProvider.notifier).reload();
     } catch (e, stack) {
       logError(e, stack, context: 'ContentManager.downloadAndImportOsis');
       state = {...state, stateKey: DownloadProgress(0, 'Error: $e')};
@@ -313,9 +313,9 @@ class ContentManagerController extends Notifier<Map<String, DownloadProgress>> {
 
       state = {...state, stateKey: DownloadProgress(1.0, 'Done')};
 
-      ref.invalidate(versionsProvider);
-      ref.invalidate(bibleVersionsProvider);
-      ref.invalidate(installedModuleIdsProvider);
+      ref.read(versionsProvider.notifier).reload();
+      ref.read(bibleVersionsProvider.notifier).reload();
+      ref.read(installedModuleIdsProvider.notifier).reload();
 
       return 'Imported ${config.description ?? config.name} '
           '(${config.name.toUpperCase()})';
