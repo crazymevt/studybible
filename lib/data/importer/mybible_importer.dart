@@ -152,8 +152,6 @@ class MyBibleImporter {
         'SELECT book_number, chapter, verse, text FROM verses ORDER BY book_number, chapter, verse',
       );
 
-      final parser = MyBibleVerseParser();
-
       await store.batch((batch) {
         for (final row in versesQuery) {
           if (row['book_number'] == null ||
@@ -169,7 +167,10 @@ class MyBibleImporter {
           final bookId = bookIdMap[bookNumber];
           if (bookId == null) continue;
 
-          final segments = parser.parseVerse(text);
+          // Fresh parser per verse: its tag-state fields aren't reset between
+          // calls, so a verse with an unclosed tag would otherwise bleed
+          // formatting into the next.
+          final segments = MyBibleVerseParser().parseVerse(text);
           final segmentsJson = jsonEncode(
             segments.map((s) => s.toJson()).toList(),
           );
@@ -232,17 +233,46 @@ class MyBibleImporter {
         });
       }
 
-      // Update FTS5 index for this version
-      await store.customStatement(
-        '''
-        INSERT INTO content_search(type, reference_id, text_content) 
-        SELECT 'verse', v.id, v.text_content 
-        FROM verses v 
-        JOIN books b ON v.book_id = b.id 
-        WHERE b.version_id = ?
-      ''',
-        [versionId],
-      );
+      // Update FTS5 index for this version. text_content keeps the raw MyBible
+      // markup for the reader, but indexing it verbatim interleaves Strong's
+      // numbers and tag fragments between words (FTS5 splits on '<' and '/'),
+      // which breaks phrase search and pollutes the vocab. Strip the markup
+      // with the verse parser first — mirroring the OSIS importer, which
+      // already indexes cleaned text.
+      final insertedVerses = await (store.select(store.verses)
+            ..where((v) => v.bookId.isIn(bookIdMap.values.toList())))
+          .get();
+
+      final indexRows = <(int, String)>[];
+      for (final v in insertedVerses) {
+        final clean = MyBibleVerseParser()
+            .parseVerse(v.textContent)
+            .map((s) => s.text)
+            .join('')
+            .replaceAll(RegExp(r'\s+'), ' ')
+            .trim();
+        if (clean.isNotEmpty) indexRows.add((v.id, clean));
+      }
+
+      await store.transaction(() async {
+        const chunkSize = 300;
+        for (var i = 0; i < indexRows.length; i += chunkSize) {
+          final end = (i + chunkSize) < indexRows.length
+              ? i + chunkSize
+              : indexRows.length;
+          final chunk = indexRows.sublist(i, end);
+          final values = List.filled(chunk.length, "('verse', ?, ?)").join(', ');
+          final args = <Object?>[];
+          for (final (id, clean) in chunk) {
+            args.add(id);
+            args.add(clean);
+          }
+          await store.customStatement(
+            'INSERT INTO content_search(type, reference_id, text_content) VALUES $values',
+            args,
+          );
+        }
+      });
     } finally {
       db.close();
     }
