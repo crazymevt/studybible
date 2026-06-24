@@ -23,8 +23,10 @@ import 'sword_ztext_reader.dart';
 /// entry is parsed with its `SourceType` filter and serialised to simple HTML
 /// (the commentary panel renders with `HtmlWidget`).
 ///
-/// Scope: per-verse entries with the `KJV` versification. Book/chapter intro
-/// ("verse 0") entries are not yet mapped.
+/// Maps per-verse entries plus the book- and chapter-intro ("verse 0") slots:
+/// book intros are stored with null chapter+verse and chapter intros with a
+/// chapter and null verse, matching the commentary panel's intro/chapter
+/// queries. Scope: the `KJV` versification.
 class SwordCommentaryImporter {
   final ContentStore store;
 
@@ -105,25 +107,38 @@ class SwordCommentaryImporter {
       for (var bi = 0; bi < books.length; bi++) {
         final book = books[bi];
         final rows = <CommentaryEntriesCompanion>[];
+
+        // Read the entry at [index]; if present, append a row for the given
+        // (chapter, verse) coordinate. Book intros use null chapter+verse;
+        // chapter intros use a chapter with null verse (matches the MyBible
+        // importer and the commentary panel's intro/chapter queries).
+        void addSlot(int? index, {int? chapter, int? verse}) {
+          if (index == null) return;
+          final raw = reader.entryAt(index);
+          if (raw == null || raw.trim().isEmpty) return;
+          final html = segmentsToHtml(parseSwordSource(raw, sourceType).segments);
+          if (html.isEmpty) return;
+          rows.add(CommentaryEntriesCompanion.insert(
+            commentaryId: commentaryId,
+            bookName: book.name,
+            chapter: Value(chapter),
+            verse: Value(verse),
+            textContent: html,
+          ));
+        }
+
+        // Book-level intro material.
+        addSlot(versification.bookIntroIndex(testament, bi));
+
         for (var chapter = 1; chapter <= book.chapterCount; chapter++) {
+          // Chapter-level intro material.
+          addSlot(versification.chapterIntroIndex(testament, bi, chapter),
+              chapter: chapter);
+
           final verses = book.versesPerChapter[chapter - 1];
           for (var verse = 1; verse <= verses; verse++) {
-            final index = versification.indexOf(testament, bi, chapter, verse);
-            if (index == null) continue;
-            final raw = reader.entryAt(index);
-            if (raw == null || raw.trim().isEmpty) continue;
-
-            final parsed = parseSwordSource(raw, sourceType);
-            final html = segmentsToHtml(parsed.segments);
-            if (html.isEmpty) continue;
-
-            rows.add(CommentaryEntriesCompanion.insert(
-              commentaryId: commentaryId,
-              bookName: book.name,
-              chapter: Value(chapter),
-              verse: Value(verse),
-              textContent: html,
-            ));
+            addSlot(versification.indexOf(testament, bi, chapter, verse),
+                chapter: chapter, verse: verse);
           }
         }
         if (rows.isEmpty) continue;

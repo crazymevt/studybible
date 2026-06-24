@@ -92,23 +92,54 @@ class SwordVersification {
     if (chapter < 1 || chapter > book.chapterCount) return null;
     if (verse < 1 || verse > book.versesPerChapter[chapter - 1]) return null;
 
-    // SWORD reserves TWO leading slots before the first book — the module
-    // heading (0) and the testament heading (1), both normally empty — so the
-    // first book's title sits at index 2. Verified against real CrossWire
-    // modules (Genesis title at slot 2, "CHAPTER 1." at 3, Gen 1:1 at 4) and
-    // matching pysword's BibleStructure, whose book offsets also start at 2.
-    var idx = 2;
-    for (var b = 0; b < bookIndex; b++) {
-      idx += 1 + books[b].chapterCount + books[b].verseCount;
-    }
     // Step past this book's heading, then over every prior chapter (its own
     // heading slot plus its verses). We now sit on `chapter`'s heading slot;
     // adding the (1-based) verse lands on the verse itself.
-    idx += 1;
+    var idx = _bookStart(books, bookIndex) + 1;
     for (var c = 1; c < chapter; c++) {
       idx += 1 + book.versesPerChapter[c - 1];
     }
     idx += verse;
+    return idx;
+  }
+
+  /// The 0-based index of the **book heading** slot (the "verse 0" / book-intro
+  /// record SWORD reserves before a book's first chapter) for [testament]
+  /// [bookIndex], or null if out of range. Commentaries use this slot for
+  /// book-level material.
+  int? bookIntroIndex(String testament, int bookIndex) {
+    final books = booksFor(testament);
+    if (bookIndex < 0 || bookIndex >= books.length) return null;
+    return _bookStart(books, bookIndex);
+  }
+
+  /// The 0-based index of the **chapter heading** slot (the chapter-intro
+  /// record before a chapter's verse 1) for [testament] [bookIndex]:[chapter],
+  /// or null if out of range. Commentaries use this slot for chapter-level
+  /// material.
+  int? chapterIntroIndex(String testament, int bookIndex, int chapter) {
+    final books = booksFor(testament);
+    if (bookIndex < 0 || bookIndex >= books.length) return null;
+    final book = books[bookIndex];
+    if (chapter < 1 || chapter > book.chapterCount) return null;
+    var idx = _bookStart(books, bookIndex) + 1; // past the book heading
+    for (var c = 1; c < chapter; c++) {
+      idx += 1 + book.versesPerChapter[c - 1];
+    }
+    return idx; // sits on the chapter heading slot
+  }
+
+  /// The 0-based index of a book's heading slot within its testament. SWORD
+  /// reserves TWO leading slots before the first book — the module heading (0)
+  /// and the testament heading (1), both normally empty — so the first book's
+  /// title sits at index 2. Verified against real CrossWire modules (Genesis
+  /// title at slot 2, "CHAPTER 1." at 3, Gen 1:1 at 4) and matching pysword's
+  /// BibleStructure, whose book offsets also start at 2.
+  int _bookStart(List<SwordVersifiedBook> books, int bookIndex) {
+    var idx = 2;
+    for (var b = 0; b < bookIndex; b++) {
+      idx += 1 + books[b].chapterCount + books[b].verseCount;
+    }
     return idx;
   }
 

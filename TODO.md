@@ -170,8 +170,10 @@ Running list of known issues and follow-ups.
         are TEI — and a shared `parseSwordSource` dispatcher + `segmentsToHtml`
         serialiser feeding both new importers (their panels render with
         `HtmlWidget`). The CrossWire catalog now installs Bible, commentary, and
-        dictionary modules; book/chapter intro ("verse 0") commentary entries
-        are not yet mapped.
+        dictionary modules. Commentary book- and chapter-intro ("verse 0")
+        slots are mapped to null-chapter / null-verse entries (verified against
+        real Scofield, whose book introductions live in the chapter-1 intro
+        slot).
       - **Verified in the macOS app**: a commentary and a dictionary downloaded
         from the CrossWire catalog install and render correctly in the
         commentary/dictionary panels (formatted HTML, no raw markup).

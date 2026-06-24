@@ -80,6 +80,31 @@ About=A test commentary.
         kjv.indexOf('NT', 0, 1, 1)!: 'The genealogy record.',
       });
 
+  test('imports book- and chapter-intro slots as null coordinates', () async {
+    final reader = _reader({
+      kjv.bookIntroIndex('OT', 0)!: '<p>Genesis: book introduction.</p>',
+      kjv.chapterIntroIndex('OT', 0, 1)!: '<p>Chapter 1 overview.</p>',
+      kjv.indexOf('OT', 0, 1, 1)!: '<p>On verse one.</p>',
+    });
+    await SwordCommentaryImporter(store).importCommentary(config, ot: reader);
+
+    final entries = await (store.select(store.commentaryEntries)
+          ..where((e) => e.bookName.equals('Genesis')))
+        .get();
+    expect(entries, hasLength(3));
+
+    final bookIntro =
+        entries.singleWhere((e) => e.chapter == null && e.verse == null);
+    expect(bookIntro.textContent, contains('book introduction'));
+
+    final chapterIntro =
+        entries.singleWhere((e) => e.chapter == 1 && e.verse == null);
+    expect(chapterIntro.textContent, contains('Chapter 1 overview'));
+
+    final verse = entries.singleWhere((e) => e.chapter == 1 && e.verse == 1);
+    expect(verse.textContent, contains('On verse one'));
+  });
+
   test('imports commentary metadata and entries', () async {
     await SwordCommentaryImporter(store)
         .importCommentary(config, ot: otReader(), nt: ntReader());

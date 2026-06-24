@@ -92,6 +92,26 @@ void main() {
     });
   });
 
+  group('SwordVersification intro slots', () {
+    test('book and chapter intro slots sit just before their content', () {
+      // Genesis: title at slot 2, ch.1 heading at 3, Gen 1:1 at 4.
+      expect(kjv.bookIntroIndex('OT', 0), 2);
+      expect(kjv.chapterIntroIndex('OT', 0, 1), 3);
+      expect(kjv.chapterIntroIndex('OT', 0, 1)! + 1, kjv.indexOf('OT', 0, 1, 1));
+      // ch.2 heading is one past Genesis 1:31 (slot 34).
+      expect(kjv.chapterIntroIndex('OT', 0, 2), 35);
+      // Second book's intro equals the slot before its 1:1.
+      expect(kjv.bookIntroIndex('OT', 1)! + 1, kjv.chapterIntroIndex('OT', 1, 1));
+    });
+
+    test('return null for out-of-range coordinates', () {
+      expect(kjv.bookIntroIndex('OT', -1), isNull);
+      expect(kjv.bookIntroIndex('NT', 99), isNull);
+      expect(kjv.chapterIntroIndex('OT', 0, 0), isNull);
+      expect(kjv.chapterIntroIndex('OT', 0, 51), isNull);
+    });
+  });
+
   group('swordVersificationByName', () {
     test('resolves KJV case-insensitively', () {
       expect(swordVersificationByName('KJV'), same(kjv));
