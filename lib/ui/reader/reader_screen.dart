@@ -361,90 +361,112 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
           foregroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
           centerTitle: true,
           title: const SearchTitleBar(),
+          // Pack the action buttons with shrink-wrapped tap targets and
+          // compact density so the full set (history, audio, TTS, sync,
+          // versions, view-toggle, tools) still fits on narrow phones without
+          // a RenderFlex overflow.
           actions: [
-            IconButton(
-              icon: const Icon(Icons.history),
-              tooltip: 'History',
-              onPressed: () {
-                showModalBottomSheet(
-                  context: context,
-                  isScrollControlled: true,
-                  useSafeArea: true,
-                  builder: (context) => DraggableScrollableSheet(
-                    initialChildSize: 0.9,
-                    minChildSize: 0.5,
-                    maxChildSize: 1.0,
-                    expand: false,
-                    builder: (_, _) => const HistoryPanel(),
-                  ),
-                );
-              },
-            ),
-            if (audioData != null)
-              IconButton(
-                icon: const Icon(Icons.headphones),
-                tooltip: 'Audio Player',
-                onPressed: () {
-                  showModalBottomSheet(
-                    context: context,
-                    isScrollControlled: true,
-                    backgroundColor: Theme.of(context).colorScheme.surface,
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-                    ),
-                    builder: (context) => const AudioPlayerWidget(),
-                  );
-                },
-              ),
-            if (TtsService.isSupported)
-              IconButton(
-                icon: Icon(
-                  ref.watch(ttsControllerProvider).status == TtsStatus.playing
-                      ? Icons.record_voice_over
-                      : Icons.record_voice_over_outlined,
+            IconButtonTheme(
+              data: IconButtonThemeData(
+                style: IconButton.styleFrom(
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  visualDensity: VisualDensity.compact,
                 ),
-                tooltip: 'Read aloud',
-                onPressed: () {
-                  showModalBottomSheet(
-                    context: context,
-                    isScrollControlled: true,
-                    backgroundColor: Theme.of(context).colorScheme.surface,
-                    shape: const RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.vertical(top: Radius.circular(24)),
-                    ),
-                    builder: (context) => const TtsPlayerWidget(),
-                  );
-                },
               ),
-          const SyncButton(),
-          IconButton(
-            icon: const Icon(Icons.library_books),
-            tooltip: 'Versions',
-            onPressed: _showVersionPicker,
-          ),
-          IconButton(
-            icon: Icon(
-                _isFlowing ? Icons.format_list_numbered : Icons.article_outlined),
-            tooltip: _isFlowing
-                ? 'Switch to verse-by-verse view'
-                : 'Switch to paragraph view',
-            onPressed: () {
-              setState(() {
-                _isFlowing = !_isFlowing;
-              });
-            },
-          ),
-          if (MediaQuery.sizeOf(context).width <= Breakpoints.compact)
-            Builder(
-              builder: (context) => IconButton(
-                icon: const Icon(Icons.build),
-                tooltip: 'Tools',
-                onPressed: () => Scaffold.of(context).openEndDrawer(),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.history),
+                    tooltip: 'History',
+                    onPressed: () {
+                      showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        useSafeArea: true,
+                        builder: (context) => DraggableScrollableSheet(
+                          initialChildSize: 0.9,
+                          minChildSize: 0.5,
+                          maxChildSize: 1.0,
+                          expand: false,
+                          builder: (_, _) => const HistoryPanel(),
+                        ),
+                      );
+                    },
+                  ),
+                  if (audioData != null)
+                    IconButton(
+                      icon: const Icon(Icons.headphones),
+                      tooltip: 'Audio Player',
+                      onPressed: () {
+                        showModalBottomSheet(
+                          context: context,
+                          isScrollControlled: true,
+                          backgroundColor:
+                              Theme.of(context).colorScheme.surface,
+                          shape: const RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.vertical(top: Radius.circular(24)),
+                          ),
+                          builder: (context) => const AudioPlayerWidget(),
+                        );
+                      },
+                    ),
+                  if (TtsService.isSupported)
+                    IconButton(
+                      icon: Icon(
+                        ref.watch(ttsControllerProvider).status ==
+                                TtsStatus.playing
+                            ? Icons.record_voice_over
+                            : Icons.record_voice_over_outlined,
+                      ),
+                      tooltip: 'Read aloud',
+                      onPressed: () {
+                        showModalBottomSheet(
+                          context: context,
+                          isScrollControlled: true,
+                          backgroundColor:
+                              Theme.of(context).colorScheme.surface,
+                          shape: const RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.vertical(top: Radius.circular(24)),
+                          ),
+                          builder: (context) => const TtsPlayerWidget(),
+                        );
+                      },
+                    ),
+                  const SyncButton(),
+                  IconButton(
+                    icon: const Icon(Icons.library_books),
+                    tooltip: 'Versions',
+                    onPressed: _showVersionPicker,
+                  ),
+                  IconButton(
+                    icon: Icon(_isFlowing
+                        ? Icons.format_list_numbered
+                        : Icons.article_outlined),
+                    tooltip: _isFlowing
+                        ? 'Switch to verse-by-verse view'
+                        : 'Switch to paragraph view',
+                    onPressed: () {
+                      setState(() {
+                        _isFlowing = !_isFlowing;
+                      });
+                    },
+                  ),
+                  if (MediaQuery.sizeOf(context).width <= Breakpoints.compact)
+                    Builder(
+                      builder: (context) => IconButton(
+                        icon: const Icon(Icons.build),
+                        tooltip: 'Tools',
+                        onPressed: () => Scaffold.of(context).openEndDrawer(),
+                      ),
+                    ),
+                ],
               ),
             ),
-        ],
-      ),
+          ],
+        ),
       endDrawer: MediaQuery.sizeOf(context).width <= Breakpoints.compact
           ? const MobileToolsDrawer()
           : null,
