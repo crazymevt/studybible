@@ -98,18 +98,43 @@ class ContentStore extends _$ContentStore {
           await m.addColumn(devotionals, devotionals.about);
         }
         if (from < 9) {
-          await m.createTable(topics);
-          await m.createTable(topicEntries);
-          await m.createTable(topicReferences);
-          await m.createIndex(idxTopicRefLocation);
+          await _createTableIfNotExists(m, topics);
+          await _createTableIfNotExists(m, topicEntries);
+          await _createTableIfNotExists(m, topicReferences);
+          await customStatement(
+            'CREATE INDEX IF NOT EXISTS idx_topic_ref_location '
+            'ON topic_references (book_name, chapter)',
+          );
         }
         if (from < 10) {
-          await m.createTable(places);
-          await m.createTable(placeVerses);
-          await m.createIndex(idxPlaceVerseLocation);
+          await _createTableIfNotExists(m, places);
+          await _createTableIfNotExists(m, placeVerses);
+          await customStatement(
+            'CREATE INDEX IF NOT EXISTS idx_place_verse_location '
+            'ON place_verses (book_name, chapter)',
+          );
         }
       },
     );
+  }
+
+  /// Creates [table] only if it isn't already present.
+  ///
+  /// A migration block can be re-entered after a partial or interrupted run —
+  /// drift only bumps the stored schema version once the whole strategy
+  /// completes, so a failure midway leaves some statements applied and the
+  /// version unchanged. On the next open the same block runs again; a plain
+  /// [Migrator.createTable] would then throw "table already exists" and wedge
+  /// every future open (the content DB never finishes opening, so the reader
+  /// hangs). Skipping tables that already exist makes the block idempotent.
+  Future<void> _createTableIfNotExists(Migrator m, TableInfo table) async {
+    final existing = await customSelect(
+      "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = ?",
+      variables: [Variable<String>(table.actualTableName)],
+    ).get();
+    if (existing.isEmpty) {
+      await m.createTable(table);
+    }
   }
 
   Future<void> deleteVersion(String versionId) async {
