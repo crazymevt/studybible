@@ -92,9 +92,14 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
 
       if (Platform.isIOS) {
         // iOS: the system share sheet offers "Save to Files" for local folders.
+        // On iPad, share requires a sharePositionOrigin to anchor the popover.
+        final box = context.findRenderObject() as RenderBox?;
         final shareResult = await SharePlus.instance.share(
           ShareParams(
             files: [XFile(backupFile.path, name: service.defaultFilename)],
+            sharePositionOrigin: box != null
+                ? box.localToGlobal(Offset.zero) & box.size
+                : null,
           ),
         );
         await backupFile.delete();

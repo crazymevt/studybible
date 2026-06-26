@@ -89,8 +89,9 @@ class _ContentManagerScreenState extends ConsumerState<ContentManagerScreen>
         file = tmp;
         isAndroidTemp = true;
       } else {
-        const typeGroup = XTypeGroup(label: 'SWORD module', extensions: ['zip']);
-        final picked = await openFile(acceptedTypeGroups: [typeGroup]);
+        // Do not use acceptedTypeGroups as it can cause PlatformExceptions on iOS
+        // if the specific extension UTIs are not registered in Info.plist.
+        final picked = await openFile();
         if (picked == null) return;
         file = File(picked.path);
       }

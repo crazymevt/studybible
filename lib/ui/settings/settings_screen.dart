@@ -16,6 +16,8 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:saf_util/saf_util.dart';
 import 'package:macos_secure_bookmarks/macos_secure_bookmarks.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:path_provider/path_provider.dart';
 import 'acknowledgments_screen.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
@@ -110,6 +112,24 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     };
     final jsonStr = jsonEncode(themeData);
     
+    if (Platform.isIOS || Platform.isAndroid) {
+      final box = context.findRenderObject() as RenderBox?;
+      final tempDir = await getTemporaryDirectory();
+      final tempFile = File('${tempDir.path}/custom_theme.json');
+      await tempFile.writeAsString(jsonStr);
+      
+      await SharePlus.instance.share(
+        ShareParams(
+          files: [XFile(tempFile.path, name: 'custom_theme.json')],
+          sharePositionOrigin: box != null
+              ? box.localToGlobal(Offset.zero) & box.size
+              : null,
+        ),
+      );
+      await tempFile.delete();
+      return;
+    }
+
     const XTypeGroup jsonGroup = XTypeGroup(label: 'JSON', extensions: ['json']);
     final FileSaveLocation? saveLocation = await getSaveLocation(
       acceptedTypeGroups: const [jsonGroup],
@@ -128,8 +148,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   }
 
   Future<void> _importTheme() async {
-    const XTypeGroup jsonGroup = XTypeGroup(label: 'JSON', extensions: ['json']);
-    final XFile? picked = await openFile(acceptedTypeGroups: const [jsonGroup]);
+    // Do not use acceptedTypeGroups as it can cause PlatformExceptions on iOS/Android
+    // if the specific extension UTIs are not registered in Info.plist.
+    final XFile? picked = await openFile();
 
     if (picked != null) {
       try {
@@ -772,6 +793,18 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       initialUri: '',
                     );
                     selectedDirectory = dir?.uri;
+                  } else if (Platform.isIOS) {
+                    final docs = await getApplicationDocumentsDirectory();
+                    final syncDir = Directory('${docs.path}/Sync');
+                    if (!await syncDir.exists()) {
+                      await syncDir.create();
+                    }
+                    selectedDirectory = syncDir.path;
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('On iOS, sync uses your app Documents folder.')),
+                      );
+                    }
                   } else {
                     selectedDirectory = await getDirectoryPath();
                   }
