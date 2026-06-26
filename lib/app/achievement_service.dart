@@ -96,10 +96,10 @@ class AchievementService {
     for (final r in readingProgress) {
       if (r.iteration == 1) {
         readSet.add('${r.bookName}|${r.chapter}');
-        final d = DateTime.fromMillisecondsSinceEpoch(r.readAt).toLocal();
-        final day = DateTime(d.year, d.month, d.day);
-        chaptersByDay[day] = (chaptersByDay[day] ?? 0) + 1;
       }
+      final d = DateTime.fromMillisecondsSinceEpoch(r.readAt).toLocal();
+      final day = DateTime(d.year, d.month, d.day);
+      chaptersByDay[day] = (chaptersByDay[day] ?? 0) + 1;
     }
 
     final maxChaptersInDay = chaptersByDay.values.fold(0, (max, count) => count > max ? count : max);
@@ -280,15 +280,19 @@ class AchievementService {
   }
 
   bool _checkBookFinishedInOneDay(String bookName, List<ReadingProgress> progress) {
-    final chapters = progress.where((r) => r.bookName == bookName && r.iteration == 1).toList();
-    if (chapters.length < bibleChapters[bookName]!) return false;
-    
-    final days = chapters.map((r) {
-      final d = DateTime.fromMillisecondsSinceEpoch(r.readAt).toLocal();
-      return DateTime(d.year, d.month, d.day);
-    }).toSet();
-    
-    return days.length == 1;
+    final iterations = progress.where((r) => r.bookName == bookName).map((r) => r.iteration).toSet();
+    for (final iter in iterations) {
+      final chapters = progress.where((r) => r.bookName == bookName && r.iteration == iter).toList();
+      if (chapters.length < bibleChapters[bookName]!) continue;
+      
+      final days = chapters.map((r) {
+        final d = DateTime.fromMillisecondsSinceEpoch(r.readAt).toLocal();
+        return DateTime(d.year, d.month, d.day);
+      }).toSet();
+      
+      if (days.length == 1) return true;
+    }
+    return false;
   }
 
   bool checkBookFinished(String bookName, Set<String> readSet) {

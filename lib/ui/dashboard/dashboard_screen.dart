@@ -317,19 +317,6 @@ class DashboardScreen extends ConsumerWidget {
                       '$totalChapters / 1189 Chapters Read',
                       style: const TextStyle(color: Colors.grey),
                     ),
-                    if (biblesCompleted > 0) ...[
-                      const SizedBox(height: 4),
-                      Text(
-                        biblesCompleted == 1
-                            ? 'Completed the Bible once 🎉'
-                            : 'Completed the Bible $biblesCompleted times 🎉',
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.primary,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ],
                     const SizedBox(height: 16),
                     const Text(
                       'Tap to view complete coverage details',
@@ -358,6 +345,40 @@ class DashboardScreen extends ConsumerWidget {
                   Text(
                     '${percent.toStringAsFixed(1)}%',
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(width: 24),
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primary.withAlpha(30),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.emoji_events,
+                      color: Theme.of(context).colorScheme.primary,
+                      size: 28,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    '$biblesCompleted×',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                  Text(
+                    'Completed',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Theme.of(context).colorScheme.primary,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
