@@ -79,6 +79,7 @@ dependencies:
   flutter_tts: ^4.2.5
   flutter_map: ^8.3.0
   latlong2: ^0.9.1
+  just_audio_windows: ^0.2.3
 dev_dependencies:
   flutter_test:
     sdk: flutter

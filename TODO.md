@@ -145,7 +145,7 @@ Running list of known issues and follow-ups.
 
 ## Issues
 
-- [ ] **Investigate why Windows can't play audio.**
+- [x] **Investigate why Windows can't play audio.**
 
 ## Archive
 
