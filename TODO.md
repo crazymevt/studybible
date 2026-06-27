@@ -4,52 +4,13 @@ Running list of known issues and follow-ups.
 
 ## Bugs
 
-- [x] **Right-click dictionary lookup returns multiple words instead of the
-  exact word.** Right-clicking (or long-pressing) a word in the reader to "Look
-  up in Dictionary" showed every entry containing the term as a substring.
-  - Fixed: `dictionarySearchQueryProvider` now carries an `exact` flag; the
-    reader lookups request an exact (case-insensitive) headword match and show
-    "No definitions found" when there's no exact headword (no substring
-    fallback). The free-text search box keeps its substring behaviour.
-
 ## Enhancements
+
+- [ ] **Support FTS5 NEAR operator.** Update the search system to allow proximity searches (e.g. `NEAR`) instead of forcing exact phrase matches for everything.
 
 - [ ] **Delete Notes.**
 
 - [ ] **Gesture navigation using PageView.** Implement swipe navigation in the Reader to change chapters by wrapping the content in a `PageView`. This will require refactoring the state to eagerly load adjacent chapters to support smooth swipe animations.
-
-- [x] **Start TTS (read-aloud) from the selected verse, not the chapter
-  beginning.** When a verse is selected, read-aloud now begins at the first
-  selected verse instead of restarting from verse 1.
-  - Fixed: `TtsController.toggle` forwards a `fromVerse` to `start`; the read
-    aloud sheet seeds it from the lowest `selectedVersesProvider` entry (0 when
-    nothing is selected) and shows "Starts at verse N" while idle. Pause/resume
-    still continues where it left off.
-
-- [x] **Prompt existing users to rebuild the search index after the
-  markup-stripping fix.** Verse search indexing was changed to strip MyBible
-  markup (release 26.6.24+1), but already-installed Bibles keep their old
-  polluted index until the user rebuilds it.
-  - Done: the What's New dialog shows an amber "Action recommended" caution at
-    the top with a one-tap **Rebuild now** button (runs
-    `ContentStore.rebuildSearchIndex()`), flipping to a green "All set"
-    confirmation. Fresh installs are born clean and never see it.
-  - Generalised beyond a one-shot: gated on `kSearchIndexGeneration`
-    (`lib/app/shared_prefs.dart`) vs the per-user `searchIndexRebuiltGeneration`
-    pref. **To re-prompt after a future indexing change, bump
-    `kSearchIndexGeneration` in the same release** — users below it are nudged
-    once, then quiet after rebuilding (also resolved by Settings → Rebuild
-    search index). A reminder lives on `ContentStore.rebuildSearchIndex()`.
-
-- [x] **Auto check for updates.** Automatically check for updates and display
-  a message indicating that a new version is available, along with a link to the
-  latest releases page.
-  - Done: `updateCheckerProvider` (`lib/app/update_checker.dart`) queries the
-    GitHub releases API on desktop only, comparing the latest tag against
-    `appVersion`. The dashboard shows a dismissible `MaterialBanner` with a
-    "View Release" link when a newer version exists. Result is cached for the
-    session (`ref.keepAlive()`); dismissal is keyed to the version so a later
-    release re-shows the banner.
 
 ## Research
 
@@ -185,6 +146,49 @@ Running list of known issues and follow-ups.
 ## Issues
 
 - [ ] **Investigate why Windows can't play audio.**
+
+## Archive
+
+- [x] **Right-click dictionary lookup returns multiple words instead of the
+  exact word.** Right-clicking (or long-pressing) a word in the reader to "Look
+  up in Dictionary" showed every entry containing the term as a substring.
+  - Fixed: `dictionarySearchQueryProvider` now carries an `exact` flag; the
+    reader lookups request an exact (case-insensitive) headword match and show
+    "No definitions found" when there's no exact headword (no substring
+    fallback). The free-text search box keeps its substring behaviour.
+
+- [x] **Start TTS (read-aloud) from the selected verse, not the chapter
+  beginning.** When a verse is selected, read-aloud now begins at the first
+  selected verse instead of restarting from verse 1.
+  - Fixed: `TtsController.toggle` forwards a `fromVerse` to `start`; the read
+    aloud sheet seeds it from the lowest `selectedVersesProvider` entry (0 when
+    nothing is selected) and shows "Starts at verse N" while idle. Pause/resume
+    still continues where it left off.
+
+- [x] **Prompt existing users to rebuild the search index after the
+  markup-stripping fix.** Verse search indexing was changed to strip MyBible
+  markup (release 26.6.24+1), but already-installed Bibles keep their old
+  polluted index until the user rebuilds it.
+  - Done: the What's New dialog shows an amber "Action recommended" caution at
+    the top with a one-tap **Rebuild now** button (runs
+    `ContentStore.rebuildSearchIndex()`), flipping to a green "All set"
+    confirmation. Fresh installs are born clean and never see it.
+  - Generalised beyond a one-shot: gated on `kSearchIndexGeneration`
+    (`lib/app/shared_prefs.dart`) vs the per-user `searchIndexRebuiltGeneration`
+    pref. **To re-prompt after a future indexing change, bump
+    `kSearchIndexGeneration` in the same release** — users below it are nudged
+    once, then quiet after rebuilding (also resolved by Settings → Rebuild
+    search index). A reminder lives on `ContentStore.rebuildSearchIndex()`.
+
+- [x] **Auto check for updates.** Automatically check for updates and display
+  a message indicating that a new version is available, along with a link to the
+  latest releases page.
+  - Done: `updateCheckerProvider` (`lib/app/update_checker.dart`) queries the
+    GitHub releases API on desktop only, comparing the latest tag against
+    `appVersion`. The dashboard shows a dismissible `MaterialBanner` with a
+    "View Release" link when a newer version exists. Result is cached for the
+    session (`ref.keepAlive()`); dismissal is keyed to the version so a later
+    release re-shows the banner.
 
 - [x] **Investigate ScriptureParser.** `ScriptureParser` currently does not support parsing references with multi-word book names, but it also appears to be unused outside of its own tests (the app uses `ReferenceParser`). Investigate if this is dead code that can be safely removed.
 - [x] **Outdated dependencies.** `flutter pub get` reports that 24 packages have newer versions incompatible with current dependency constraints. Need to review `flutter pub outdated` and update constraints in `pubspec.yaml`.
