@@ -325,6 +325,7 @@ class _ContentManagerScreenState extends ConsumerState<ContentManagerScreen>
             child: Text('Bibles', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
           ),
           ...bibles.map((v) => ListTile(
+            onTap: () {},
             title: Text(v.name),
             subtitle: Text(v.id),
             trailing: buildInstalledTrailing(v.id, v.name, v.about, () async {
@@ -345,6 +346,7 @@ class _ContentManagerScreenState extends ConsumerState<ContentManagerScreen>
             child: Text('Subheadings', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
           ),
           ...subheadings.map((v) => ListTile(
+            onTap: () {},
             title: Text(v.name),
             subtitle: Text(v.id),
             trailing: buildInstalledTrailing(v.id, v.name, v.about, () async {
@@ -364,6 +366,7 @@ class _ContentManagerScreenState extends ConsumerState<ContentManagerScreen>
             child: Text('Commentaries', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
           ),
           ...commentaries.map((c) => ListTile(
+            onTap: () {},
             title: Text(c.abbreviation),
             subtitle: const Text('Commentary'),
             trailing: buildInstalledTrailing(c.abbreviation, c.name, c.about, () async {
@@ -382,6 +385,7 @@ class _ContentManagerScreenState extends ConsumerState<ContentManagerScreen>
             child: Text('Dictionaries', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
           ),
           ...dictionaries.map((d) => ListTile(
+            onTap: () {},
             title: Text(d.abbreviation),
             subtitle: const Text('Dictionary'),
             trailing: buildInstalledTrailing(d.abbreviation, d.name, d.about, () async {
@@ -400,6 +404,7 @@ class _ContentManagerScreenState extends ConsumerState<ContentManagerScreen>
             child: Text('Devotionals', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
           ),
           ...devotionals.map((d) => ListTile(
+            onTap: () {},
             title: Text(d.name),
             subtitle: Text(d.abbreviation),
             trailing: buildInstalledTrailing(d.abbreviation, d.name, d.about, () async {
@@ -522,6 +527,7 @@ class _ContentManagerScreenState extends ConsumerState<ContentManagerScreen>
                   );
 
                   return ListTile(
+                    onTap: () {},
                     title: Row(
                       children: [
                         Expanded(child: Text(m.title)),
@@ -706,6 +712,7 @@ class _ContentManagerScreenState extends ConsumerState<ContentManagerScreen>
                                     );
 
                                     return ListTile(
+                                      onTap: () {},
                                       title: Text(t.title),
                                       subtitle: Text(
                                         '${(t.size / 1024 / 1024).toStringAsFixed(1)} MB',
@@ -886,6 +893,7 @@ class _ContentManagerScreenState extends ConsumerState<ContentManagerScreen>
 
             final dimmed = !canInstall && !isInstalled;
             return ListTile(
+              onTap: dimmed ? null : () {},
               enabled: !dimmed,
               title: Text(m.config.description ?? m.config.name),
               subtitle: Text(
