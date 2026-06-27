@@ -29,7 +29,7 @@ class _TutorialScreenState extends ConsumerState<TutorialScreen> {
       const _TutorialPage(
         icon: Icons.menu_book,
         title: 'Bible Reader',
-        description: 'Read multiple Bible versions side-by-side in parallel or interleaved mode. Tap any word for Strong\'s definitions, and tap verse numbers for cross-references.',
+        description: 'Read multiple Bible versions side-by-side in parallel or interleaved mode. Long press or right-click any word to see definitions from installed dictionaries, and click a verse to see actionable items such as adding notes, comparing verses, and seeing cross-references.',
       ),
       const _TutorialPage(
         icon: Icons.view_sidebar,
