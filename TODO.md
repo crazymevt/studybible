@@ -14,6 +14,8 @@ Running list of known issues and follow-ups.
 
 ## Enhancements
 
+- [ ] **Delete Notes.**
+
 - [ ] **Gesture navigation using PageView.** Implement swipe navigation in the Reader to change chapters by wrapping the content in a `PageView`. This will require refactoring the state to eagerly load adjacent chapters to support smooth swipe animations.
 
 - [x] **Start TTS (read-aloud) from the selected verse, not the chapter
@@ -181,6 +183,8 @@ Running list of known issues and follow-ups.
         commentary/dictionary panels (formatted HTML, no raw markup).
 
 ## Issues
+
+- [ ] **Investigate why Windows can't play audio.**
 
 - [x] **Investigate ScriptureParser.** `ScriptureParser` currently does not support parsing references with multi-word book names, but it also appears to be unused outside of its own tests (the app uses `ReferenceParser`). Investigate if this is dead code that can be safely removed.
 - [x] **Outdated dependencies.** `flutter pub get` reports that 24 packages have newer versions incompatible with current dependency constraints. Need to review `flutter pub outdated` and update constraints in `pubspec.yaml`.
