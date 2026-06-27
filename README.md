@@ -19,15 +19,23 @@ Flathub distribution is planned (see [flatpak/README.md](flatpak/README.md)).
 
 > iOS is supported in the codebase but isn't distributed as a signed build yet — build it from source (see [Getting Started](#getting-started)).
 
-### Windows SmartScreen
+### Windows SmartScreen and Smart App Control
 
-Because this is an unsigned application, Windows SmartScreen may block the installation or execution. To bypass this:
+Because this is an unsigned application, Windows security features may block the installation or execution.
+
+**To bypass Windows SmartScreen:**
 1. When the "Windows protected your PC" dialog appears, click **More info**.
 2. Click the **Run anyway** button that appears at the bottom.
 
 Alternatively, you can unblock the file directly:
 1. Right-click the downloaded file and select **Properties**.
 2. At the bottom of the **General** tab, check the **Unblock** box (if present) and click **OK**.
+
+**To bypass Smart App Control (Windows 11):**
+If Windows blocks the app entirely due to Smart App Control, you may need to disable it:
+1. Open **Windows Security**.
+2. Go to **App & browser control** > **Smart App Control settings**.
+3. Turn Smart App Control **Off**.
 
 ## Screenshots
 
