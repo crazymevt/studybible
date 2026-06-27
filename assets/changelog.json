@@ -1,5 +1,35 @@
 [
   {
+    "version": "26.6.27+1",
+    "date": "2026-06-27",
+    "features": [
+      {
+        "category": "New Features",
+        "title": "comprehensive Help System and Onboarding Tutorial",
+        "description": "",
+        "icon": "star"
+      },
+      {
+        "category": "Bugfixes",
+        "title": "Rewrite search index triggers to fix soft-delete leakage on REPLACE",
+        "description": "",
+        "icon": "bug_report"
+      },
+      {
+        "category": "Bugfixes",
+        "title": "add missing just_audio_windows dependency to fix audio playback on Windows",
+        "description": "",
+        "icon": "bug_report"
+      },
+      {
+        "category": "Bugfixes",
+        "title": "record history when verse of the day is clicked",
+        "description": "",
+        "icon": "bug_report"
+      }
+    ]
+  },
+  {
     "version": "26.6.26+1",
     "date": "2026-06-26",
     "features": [
