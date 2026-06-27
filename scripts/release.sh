@@ -43,7 +43,7 @@ fi
 echo "Successfully updated files for version: $NEW_VERSION"
 
 # Add and commit changes
-git add pubspec.yaml lib/app/version.dart assets/changelog.json
+git add pubspec.yaml lib/app/version.dart assets/changelog.json windows/packaging/appcast.xml
 git commit -m "chore: release $NEW_VERSION"
 
 # Create tag

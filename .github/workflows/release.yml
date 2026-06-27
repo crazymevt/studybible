@@ -145,6 +145,18 @@ jobs:
           files: |
             build/windows/installer/StudyBible-Setup.exe
 
+      - name: Prepare Appcast for GitHub Pages
+        run: |
+          New-Item -ItemType Directory -Force -Path gh-pages-deploy
+          Copy-Item -Path windows\packaging\appcast.xml -Destination gh-pages-deploy\appcast.xml
+          
+      - name: Deploy Appcast to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./gh-pages-deploy
+          keep_files: true
+
   build-flatpak:
     name: Build Flatpak
     runs-on: ubuntu-latest

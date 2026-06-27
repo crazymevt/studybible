@@ -131,6 +131,34 @@ const int buildNumber = $buildNumber;
   changelog.insert(0, newRelease);
   changelogFile.writeAsStringSync(JsonEncoder.withIndent('  ').convert(changelog));
   
+  // Update windows/packaging/appcast.xml
+  final appcastFile = File('windows/packaging/appcast.xml');
+  if (appcastFile.existsSync()) {
+    String appcastContent = appcastFile.readAsStringSync();
+    
+    // Replace Version <title>
+    appcastContent = appcastContent.replaceAll(
+        RegExp(r'<title>Version .*?</title>'),
+        '<title>Version $newVersion</title>');
+    
+    // Replace pubDate
+    appcastContent = appcastContent.replaceAll(
+        RegExp(r'<pubDate>.*?</pubDate>'),
+        '<pubDate>${HttpDate.format(now.toUtc())}</pubDate>');
+    
+    // Replace URL
+    appcastContent = appcastContent.replaceAll(
+        RegExp(r'url="https://github\.com/crazymevt/StudyBible/releases/download/.*?/StudyBible-Setup\.exe"'),
+        'url="https://github.com/crazymevt/StudyBible/releases/download/$newVersion/StudyBible-Setup.exe"');
+        
+    // Replace sparkle:version
+    appcastContent = appcastContent.replaceAll(
+        RegExp(r'sparkle:version=".*?"'),
+        'sparkle:version="$newVersion"');
+        
+    appcastFile.writeAsStringSync(appcastContent);
+  }
+  
   // Output new version so bash script can use it
   print(newVersion);
 }
