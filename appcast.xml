@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
+    <channel>
+        <title>StudyBible Updates</title>
+        <description>Most recent updates to StudyBible</description>
+        <language>en</language>
+        <item>
+            <title>Version 26.6.27+4</title>
+            <sparkle:releaseNotesLink>
+                https://github.com/crazymevt/StudyBible/releases/latest
+            </sparkle:releaseNotesLink>
+            <pubDate>Sat, 27 Jun 2026 19:41:29 GMT</pubDate>
+            <enclosure url="https://github.com/crazymevt/StudyBible/releases/download/26.6.27+4/StudyBible-Setup.exe"
+                       sparkle:version="26.6.27+4"
+                       sparkle:os="windows"
+                       length="0"
+                       type="application/octet-stream" />
+        </item>
+    </channel>
+</rss>
