@@ -390,6 +390,35 @@ class ContentManagerController extends Notifier<Map<String, DownloadProgress>> {
     }
   }
 
+  /// Resolve KJV from the CrossWire catalog and install it. Used by onboarding's
+  /// "Quick Install KJV" so the button can render immediately instead of waiting
+  /// on the full catalog fetch — the catalog is awaited here, on tap, and the
+  /// `cw_KJV` progress key is primed first so the UI gives instant feedback.
+  Future<void> quickInstallKjv() async {
+    const stateKey = 'cw_KJV';
+    state = {...state, stateKey: DownloadProgress(0, 'Preparing...')};
+
+    final CrosswireModule? kjvModule;
+    try {
+      final modules = await ref.read(crosswireCatalogProvider.future);
+      kjvModule = modules.where((m) => m.config.name == 'KJV').firstOrNull;
+    } catch (e, stack) {
+      logError(e, stack, context: 'ContentManager.quickInstallKjv');
+      state = {...state, stateKey: DownloadProgress(0, 'Error: $e')};
+      return;
+    }
+
+    if (kjvModule == null) {
+      state = {
+        ...state,
+        stateKey: DownloadProgress(0, 'Error: KJV not found in catalog'),
+      };
+      return;
+    }
+
+    await downloadAndImportCrosswire(kjvModule);
+  }
+
   /// Import a SWORD module from a local archive ([archiveFile], typically a
   /// CrossWire `.zip` containing `mods.d/<name>.conf` plus the `modules/…`
   /// data files). Unlike the catalog downloads above this rethrows on failure
