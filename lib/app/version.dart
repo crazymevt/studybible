@@ -2,4 +2,4 @@
 // It can be easily parsed or updated by build scripts.
 
 const String appVersion = '26.6.29';
-const int buildNumber = 2;
+const int buildNumber = 3;

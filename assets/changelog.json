@@ -1,5 +1,41 @@
 [
   {
+    "version": "26.6.29+3",
+    "date": "2026-06-29",
+    "features": [
+      {
+        "category": "New Features",
+        "title": "sync to a private Google Drive app folder",
+        "description": "",
+        "icon": "star"
+      },
+      {
+        "category": "New Features",
+        "title": "add dedicated print button to sermon editor",
+        "description": "",
+        "icon": "star"
+      },
+      {
+        "category": "New Features",
+        "title": "configure start day of week for dashboard stats",
+        "description": "",
+        "icon": "star"
+      },
+      {
+        "category": "Bugfixes",
+        "title": "stop the Windows updater from opening the GitHub releases page",
+        "description": "",
+        "icon": "bug_report"
+      },
+      {
+        "category": "New Features",
+        "title": "add recommended resources install to onboarding",
+        "description": "",
+        "icon": "star"
+      }
+    ]
+  },
+  {
     "version": "26.6.29+2",
     "date": "2026-06-29",
     "features": [
