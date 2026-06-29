@@ -9,12 +9,14 @@ class OnboardingScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    final catalogAsync = ref.watch(crosswireCatalogProvider);
     final downloadStates = ref.watch(contentManagerControllerProvider);
 
     // We target KJV from CrossWire
     final kjvProgress = downloadStates['cw_KJV'];
-    final isDownloadingKjv = kjvProgress != null && kjvProgress.percent < 1.0 && kjvProgress.status != 'Done';
+    final isDownloadingKjv = kjvProgress != null &&
+        kjvProgress.percent < 1.0 &&
+        kjvProgress.status != 'Done' &&
+        !kjvProgress.status.startsWith('Error');
 
     // Aggregate progress for the curated "recommended resources" install.
     final recProgress = downloadStates[recommendedDownloadKey];
@@ -124,31 +126,33 @@ class OnboardingScreen extends ConsumerWidget {
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 16),
-                    catalogAsync.when(
-                      data: (modules) {
-                        final kjvModule = modules.where((m) => m.config.name == 'KJV').firstOrNull;
-
-                        return SizedBox(
-                          width: double.infinity,
-                          height: 56,
-                          child: OutlinedButton.icon(
-                            icon: const Icon(Icons.download),
-                            label: const Text(
-                              'Quick Install KJV Bible Only',
-                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                            ),
-                            style: OutlinedButton.styleFrom(
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                            ),
-                            onPressed: kjvModule == null ? null : () {
-                              ref.read(contentManagerControllerProvider.notifier).downloadAndImportCrosswire(kjvModule);
-                            },
-                          ),
-                        );
-                      },
-                      loading: () => const Center(child: CircularProgressIndicator()),
-                      error: (err, st) => Text('Failed to load catalog: $err', style: TextStyle(color: theme.colorScheme.error)),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 56,
+                      child: OutlinedButton.icon(
+                        icon: const Icon(Icons.download),
+                        label: const Text(
+                          'Quick Install KJV Bible Only',
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        ),
+                        onPressed: () {
+                          ref.read(contentManagerControllerProvider.notifier).quickInstallKjv();
+                        },
+                      ),
                     ),
+                    if (kjvProgress != null &&
+                        kjvProgress.status.startsWith('Error')) ...[
+                      const SizedBox(height: 8),
+                      Text(
+                        kjvProgress.status,
+                        style: theme.textTheme.bodySmall
+                            ?.copyWith(color: theme.colorScheme.error),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
                   ],
 
                   const SizedBox(height: 16),
