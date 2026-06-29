@@ -48,7 +48,7 @@ void main() {
     test('extracts a real zip archive', () async {
       final archive = Archive()
         ..addFile(ArchiveFile('module.sqlite3', 3, [1, 2, 3]));
-      final zipped = ZipEncoder().encode(archive)!;
+      final zipped = ZipEncoder().encode(archive);
       final file = await writeFile('real.zip', zipped);
 
       final out = Directory('${tmp.path}/out');
