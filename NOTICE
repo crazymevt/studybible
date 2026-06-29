@@ -22,3 +22,16 @@ This application bundles the Noto Sans font (Copyright The Noto Project
 Authors, https://github.com/notofonts/latin-greek-cyrillic) to render PDF
 output. Noto Sans is licensed under the SIL Open Font License, Version 1.1;
 the full license text is included at assets/fonts/OFL.txt.
+
+------------------------------------------------------------------------------
+This application bundles the following fonts as selectable reader/UI typefaces,
+each licensed under the SIL Open Font License, Version 1.1. The full license
+text for each is included under assets/google_fonts/licenses/.
+
+  Roboto            Copyright 2011 The Roboto Project Authors
+  Lora              Copyright 2011 The Lora Project Authors
+  Open Sans         Copyright 2020 The Open Sans Project Authors
+  Lato              Copyright 2010-2014 tyPoland Lukasz Dziedzic
+  Source Code Pro   Copyright 2010, 2012 Adobe Systems Incorporated
+  Merriweather      Copyright 2020 The Merriweather Project Authors
+  Playfair Display  Copyright 2017 The Playfair Display Project Authors

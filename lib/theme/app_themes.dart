@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class AppThemes {
   static ThemeData buildTheme({
@@ -151,7 +150,10 @@ class AppThemes {
             : fontFamily;
 
     if (actualFontFamily != null) {
-      textTheme = GoogleFonts.getTextTheme(actualFontFamily, textTheme);
+      // The family is bundled and registered in pubspec (see the `fonts:`
+      // section); applying it by name uses the local font with no network
+      // fetch. Flutter resolves the nearest bundled weight per text style.
+      textTheme = textTheme.apply(fontFamily: actualFontFamily);
     }
 
     return ThemeData(

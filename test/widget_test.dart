@@ -12,7 +12,6 @@ import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:study_bible/main.dart';
@@ -32,10 +31,6 @@ class MockBibleVersionsNotifier extends BibleVersionsNotifier {
 void main() {
   testWidgets('App boots into the onboarding shell with no content installed',
       (WidgetTester tester) async {
-    // The theme builds its text theme via GoogleFonts; keep it from making
-    // (timer-scheduling) network requests for fonts in the headless test VM.
-    GoogleFonts.config.allowRuntimeFetching = false;
-
     SharedPreferences.setMockInitialValues({});
     final prefs = await SharedPreferences.getInstance();
 

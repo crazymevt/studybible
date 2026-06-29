@@ -28,7 +28,6 @@ import '../../app/dashboard_providers.dart';
 import '../../app/app_state.dart';
 import 'dart:async';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class ReaderScreen extends ConsumerStatefulWidget {
   const ReaderScreen({super.key});
@@ -869,8 +868,12 @@ class _ChapterPage extends ConsumerWidget {
               padding: const EdgeInsets.only(top: 40.0, bottom: 16.0),
               child: Text(
                 '$bookName $chapter',
-                style: GoogleFonts.lora(
-                  textStyle: Theme.of(context).textTheme.displaySmall,
+                // Always Lora for the chapter header, regardless of the user's
+                // selected UI font. Lora is bundled (see pubspec `fonts:`), so
+                // this resolves locally with no network fetch.
+                style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                  fontFamily: 'Lora',
+                  fontFamilyFallback: const <String>[],
                   fontStyle: FontStyle.italic,
                   fontWeight: FontWeight.w600,
                   color: Theme.of(context)

@@ -3,7 +3,6 @@ import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:study_bible/app/content_providers.dart';
 import 'package:study_bible/app/reader_state.dart';
@@ -17,10 +16,6 @@ void main() {
   testWidgets(
       'ReaderScreen does not throw setState-during-build when the stored '
       'active version is not installed (self-heal path)', (tester) async {
-    // ReaderScreen's chapter header uses GoogleFonts.lora; without this the
-    // font is fetched over the network, which fails in CI's offline sandbox.
-    GoogleFonts.config.allowRuntimeFetching = false;
-
     SharedPreferences.setMockInitialValues({
       'activeVersions': <String>['NLT'],
       'selectedBookName': 'John',

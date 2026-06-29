@@ -36,14 +36,31 @@ void main() {
   runZonedGuarded(() async {
     WidgetsFlutterBinding.ensureInitialized();
 
-    // Surface the bundled Noto Sans font's SIL Open Font License in the in-app
-    // "Open Source Licenses" page. Pub package licenses are collected
-    // automatically; bundled asset fonts must be registered explicitly.
+    // Surface the bundled fonts' SIL Open Font License in the in-app "Open
+    // Source Licenses" page. Pub package licenses are collected automatically;
+    // bundled asset fonts must be registered explicitly. Noto Sans backs PDF
+    // output; the rest are the reader's selectable UI font families.
     LicenseRegistry.addLicense(() async* {
       yield LicenseEntryWithLineBreaks(
         const ['Noto Sans'],
         await rootBundle.loadString('assets/fonts/OFL.txt'),
       );
+      const uiFonts = <String, String>{
+        'Roboto': 'Roboto',
+        'Lora': 'Lora',
+        'Open Sans': 'OpenSans',
+        'Lato': 'Lato',
+        'Source Code Pro': 'SourceCodePro',
+        'Merriweather': 'Merriweather',
+        'Playfair Display': 'PlayfairDisplay',
+      };
+      for (final entry in uiFonts.entries) {
+        yield LicenseEntryWithLineBreaks(
+          [entry.key],
+          await rootBundle
+              .loadString('assets/google_fonts/licenses/${entry.value}-LICENSE.txt'),
+        );
+      }
     });
 
     // Errors caught by the Flutter framework (build/layout/paint, gestures).

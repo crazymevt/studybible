@@ -14,7 +14,7 @@ import 'package:study_bible/ui/sermons/sermons_panel.dart';
 /// No-op achievement evaluation: the real one reads many tables and can fire UI
 /// notifications via main.dart, neither of which this lifecycle test needs.
 class _NoopAchievementService extends AchievementService {
-  _NoopAchievementService(Ref ref) : super(ref);
+  _NoopAchievementService(super.ref);
   @override
   Future<void> evaluateAchievements() async {}
 }
