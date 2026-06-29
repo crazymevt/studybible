@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Study Bible — multi-version reading, study tools & cross-device sync</title>
+<meta name="description" content="A free, cross-platform Study Bible for Android, Windows, macOS, and Linux: multi-version reading, commentaries, dictionaries, study tools, and first-class cross-device sync.">
+<link rel="icon" type="image/png" href="icon.png">
+<meta property="og:title" content="Study Bible">
+<meta property="og:description" content="Multi-version reading, commentaries, dictionaries, study tools, and cross-device sync. Free and cross-platform.">
+<meta property="og:image" content="screenshots/reader.png">
+<meta property="og:type" content="website">
+<style>
+  :root {
+    --bg: #faf6ef;
+    --surface: #ffffff;
+    --ink: #2b2620;
+    --muted: #6b6258;
+    --accent: #8a5a2b;
+    --accent-ink: #fff;
+    --line: #e7ddcd;
+    --radius: 14px;
+    --maxw: 1080px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1b1714;
+      --surface: #241f1a;
+      --ink: #f0e9df;
+      --muted: #b3a896;
+      --accent: #d39a5e;
+      --accent-ink: #1b1714;
+      --line: #3a3128;
+    }
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: var(--ink);
+    background: var(--bg);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
+
+  /* Header */
+  header {
+    border-bottom: 1px solid var(--line);
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    position: sticky; top: 0; z-index: 10;
+    backdrop-filter: saturate(1.2) blur(8px);
+  }
+  .nav { display: flex; align-items: center; gap: 14px; padding: 14px 24px; }
+  .nav img { width: 32px; height: 32px; border-radius: 7px; }
+  .nav strong { font-size: 1.05rem; letter-spacing: .2px; }
+  .nav .spacer { flex: 1; }
+  .nav a.ghost { color: var(--muted); font-size: .95rem; }
+  @media (max-width: 560px) { .nav a.ghost.hide-sm { display: none; } }
+
+  /* Hero */
+  .hero { text-align: center; padding: 72px 0 40px; }
+  .hero img.logo { width: 96px; height: 96px; border-radius: 22px; box-shadow: 0 8px 30px rgba(0,0,0,.18); }
+  .hero h1 { font-size: clamp(2rem, 5vw, 3.1rem); margin: 22px 0 10px; line-height: 1.15; letter-spacing: -.5px; }
+  .hero p.lead { font-size: clamp(1.05rem, 2.5vw, 1.3rem); color: var(--muted); max-width: 680px; margin: 0 auto 28px; }
+  .platforms { color: var(--muted); font-size: .9rem; margin-top: 18px; letter-spacing: .3px; text-transform: uppercase; }
+
+  .btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 13px 24px; border-radius: 999px; font-weight: 600; font-size: 1rem;
+    border: 1px solid var(--line); transition: transform .08s ease, box-shadow .2s ease;
+  }
+  .btn:hover { text-decoration: none; transform: translateY(-1px); }
+  .btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); box-shadow: 0 6px 20px color-mix(in srgb, var(--accent) 35%, transparent); }
+  .btn.secondary { background: var(--surface); color: var(--ink); }
+
+  /* Sections */
+  section { padding: 56px 0; }
+  section h2 { font-size: clamp(1.5rem, 3.5vw, 2rem); text-align: center; margin: 0 0 8px; letter-spacing: -.3px; }
+  section .sub { text-align: center; color: var(--muted); margin: 0 auto 40px; max-width: 600px; }
+
+  /* Features */
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; }
+  .card {
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 22px 22px 20px;
+  }
+  .card .ic { font-size: 1.6rem; margin-bottom: 8px; display: block; }
+  .card h3 { margin: 0 0 6px; font-size: 1.1rem; }
+  .card p { margin: 0; color: var(--muted); font-size: .96rem; }
+
+  /* Screenshots */
+  .shots { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+  @media (max-width: 640px) { .shots { grid-template-columns: 1fr; } }
+  .shots figure { margin: 0; }
+  .shots a { display: block; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; background: var(--surface); }
+  .shots img { display: block; width: 100%; height: auto; }
+  .shots figcaption { text-align: center; color: var(--muted); font-size: .92rem; margin-top: 10px; }
+
+  /* Acknowledgments */
+  .ack { text-align: center; }
+  .ack .chips { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 8px; }
+  .ack .chips a {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 999px;
+    padding: 7px 15px; font-size: .9rem; color: var(--ink);
+  }
+
+  /* Footer */
+  footer { border-top: 1px solid var(--line); padding: 36px 0; color: var(--muted); font-size: .9rem; text-align: center; }
+  footer a { color: var(--muted); text-decoration: underline; }
+  .note { font-size: .82rem; max-width: 720px; margin: 14px auto 0; }
+</style>
+</head>
+<body>
+
+<header>
+  <nav class="nav wrap">
+    <img src="icon.png" alt="Study Bible icon">
+    <strong>Study Bible</strong>
+    <span class="spacer"></span>
+    <a class="ghost hide-sm" href="#features">Features</a>
+    <a class="ghost hide-sm" href="#screenshots">Screenshots</a>
+    <a class="ghost" href="https://github.com/crazymevt/StudyBible">GitHub</a>
+  </nav>
+</header>
+
+<main>
+  <section class="hero wrap">
+    <img class="logo" src="icon.png" alt="Study Bible icon">
+    <h1>A study Bible that goes everywhere with you</h1>
+    <p class="lead">Multi-version reading, commentaries, dictionaries, and rich study tools — with first-class cross-device sync. Free, open source, and cross-platform.</p>
+    <div class="btns">
+      <a class="btn primary" href="https://github.com/crazymevt/StudyBible/releases/latest">⬇ Download latest release</a>
+      <a class="btn secondary" href="https://github.com/crazymevt/StudyBible">View on GitHub</a>
+    </div>
+    <p class="platforms">Android · Windows · macOS · Linux</p>
+  </section>
+
+  <section id="features" class="wrap">
+    <h2>Everything for serious study</h2>
+    <p class="sub">A complete study environment that works offline and stays in sync across your devices.</p>
+    <div class="grid">
+      <div class="card">
+        <span class="ic">📖</span>
+        <h3>Multi-version reader</h3>
+        <p>Parallel panels, version swap, verse selection, verse-by-verse or flowing paragraph view, and highlight bands.</p>
+      </div>
+      <div class="card">
+        <span class="ic">📚</span>
+        <h3>Commentaries &amp; dictionaries</h3>
+        <p>Verse-reference lookup, parallel view, multi-dictionary search, and tap-a-word definitions inline as you read.</p>
+      </div>
+      <div class="card">
+        <span class="ic">✍️</span>
+        <h3>Study tools</h3>
+        <p>Journals, prayer tracker, sermon builder, reading-plan generator, custom notes, and bookmarks.</p>
+      </div>
+      <div class="card">
+        <span class="ic">📊</span>
+        <h3>Progress dashboard</h3>
+        <p>Reading coverage with per-book drill-down, reading pace, achievements and badges, plus a time tracker.</p>
+      </div>
+      <div class="card">
+        <span class="ic">⬇️</span>
+        <h3>Content manager</h3>
+        <p>Install Bibles, commentaries, and dictionaries from ph4.org and SWORD repositories — OSIS, MyBible, and SWORD import.</p>
+      </div>
+      <div class="card">
+        <span class="ic">🔄</span>
+        <h3>Cross-device sync</h3>
+        <p>Highlights, notes, bookmarks, journals, prayers, and progress synced via zero-cost file sync like Syncthing or a cloud folder.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="screenshots" class="wrap">
+    <h2>See it in action</h2>
+    <p class="sub">Click any image to view it full size.</p>
+    <div class="shots">
+      <figure>
+        <a href="screenshots/reader.png"><img src="screenshots/thumbs/reader.png" alt="Multi-version reader" loading="lazy"></a>
+        <figcaption>Multi-version reader</figcaption>
+      </figure>
+      <figure>
+        <a href="screenshots/search.png"><img src="screenshots/thumbs/search.png" alt="Search" loading="lazy"></a>
+        <figcaption>Search</figcaption>
+      </figure>
+      <figure>
+        <a href="screenshots/dashboard.png"><img src="screenshots/thumbs/dashboard.png" alt="Progress dashboard" loading="lazy"></a>
+        <figcaption>Progress dashboard</figcaption>
+      </figure>
+      <figure>
+        <a href="screenshots/content-manager.png"><img src="screenshots/thumbs/content-manager.png" alt="Content manager" loading="lazy"></a>
+        <figcaption>Content manager</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="wrap" style="text-align:center;">
+    <h2>Free, open source, and yours</h2>
+    <p class="sub">No accounts, no subscriptions, no tracking. Built with Flutter for Android, Windows, macOS, and Linux. Linux ships as a portable bundle and a Flatpak.</p>
+    <div class="btns">
+      <a class="btn primary" href="https://github.com/crazymevt/StudyBible/releases/latest">⬇ Download latest release</a>
+      <a class="btn secondary" href="https://github.com/crazymevt/StudyBible/blob/main/CONTRIBUTING.md">Contribute</a>
+    </div>
+  </section>
+
+  <section class="wrap ack">
+    <h2>Built on great open resources</h2>
+    <p class="sub">Study Bible is made possible by these upstream projects and datasets.</p>
+    <div class="chips">
+      <a href="https://ph4.org/">ph4.org</a>
+      <a href="https://mybible.zone/">MyBible</a>
+      <a href="https://crosswire.org/sword/">The SWORD Project</a>
+      <a href="https://bibleproject.com/">BibleProject</a>
+      <a href="https://lumoproject.com/">Lumo Project</a>
+      <a href="https://www.jesusfilm.org/">Jesus Film Project</a>
+      <a href="https://www.openbible.info/">OpenBible.info</a>
+      <a href="https://berean.bible/">Berean Study Bible</a>
+    </div>
+  </section>
+</main>
+
+<footer class="wrap">
+  <p>
+    <a href="https://github.com/crazymevt/StudyBible">GitHub</a> ·
+    <a href="https://github.com/crazymevt/StudyBible/blob/main/DESIGN.md">Design &amp; roadmap</a> ·
+    <a href="https://github.com/crazymevt/StudyBible/releases">Releases</a>
+  </p>
+  <p class="note">Individual Bible modules, commentaries, and dictionaries downloaded into the app remain subject to their respective copyright holders and licenses. Please review the copyright information provided within each module.</p>
+</footer>
+
+</body>
+</html>
