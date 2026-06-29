@@ -1,11 +1,13 @@
 import 'dart:io';
 import 'dart:convert';
 import 'package:html/parser.dart' as html_parser;
+import 'package:path/path.dart' as p;
 import 'package:sqlite3/sqlite3.dart';
 import 'package:drift/drift.dart';
 import '../content_store.dart';
 import '../content_manager_api.dart';
 import 'mybible_verse_parser.dart';
+import '../models/verse_segment.dart';
 import '../mybible_book_map.dart';
 
 class MyBibleImporter {
@@ -148,6 +150,13 @@ class MyBibleImporter {
         bookIdMap[bookNumber] = insertedBookId;
       }
 
+      // Cross-reference modules (e.g. the AV "KJV with cross references") ship a
+      // companion `<base>.commentaries.SQLite3` whose `marker` column ("[1]",
+      // "[2]"…) maps back to the `<f>[N]</f>` markers in the verse text. Without
+      // it those markers carry no readable content. Resolve them here so the
+      // footnote body is the actual cross-reference list.
+      final crossRefs = _loadCrossRefMarkers(sqliteFile);
+
       final versesQuery = db.select(
         'SELECT book_number, chapter, verse, text FROM verses ORDER BY book_number, chapter, verse',
       );
@@ -170,7 +179,13 @@ class MyBibleImporter {
           // Fresh parser per verse: its tag-state fields aren't reset between
           // calls, so a verse with an unclosed tag would otherwise bleed
           // formatting into the next.
-          final segments = MyBibleVerseParser().parseVerse(text);
+          var segments = MyBibleVerseParser().parseVerse(text);
+          if (crossRefs.isNotEmpty) {
+            segments = [
+              for (final s in segments)
+                _resolveFootnote(s, crossRefs, bookNumber, chapter, verse),
+            ];
+          }
           final segmentsJson = jsonEncode(
             segments.map((s) => s.toJson()).toList(),
           );
@@ -556,4 +571,125 @@ class MyBibleImporter {
   String _bookNumberToName(int number) {
     return mybibleBookMap[number] ?? 'Book $number';
   }
+
+  /// Replaces a footnote segment's marker (e.g. "[1]") with the resolved
+  /// cross-reference text from the companion commentaries module, when one is
+  /// found for this verse. Non-footnote segments and unmatched markers pass
+  /// through unchanged.
+  VerseSegment _resolveFootnote(
+    VerseSegment seg,
+    Map<String, String> crossRefs,
+    int bookNumber,
+    int chapter,
+    int verse,
+  ) {
+    if (!seg.isFootnote) return seg;
+    final marker = seg.footnoteText?.trim();
+    if (marker == null || marker.isEmpty) return seg;
+    final resolved = crossRefs['$bookNumber:$chapter:$verse:$marker'];
+    if (resolved == null || resolved.isEmpty) return seg;
+    return VerseSegment(isFootnote: true, footnoteText: resolved);
+  }
+
+  /// Builds a `(book:chapter:verse:marker) -> text` lookup from a Bible
+  /// module's companion `<base>.commentaries.SQLite3`, when it exists and has a
+  /// `marker` column. Returns an empty map for ordinary modules (no companion,
+  /// or a markerless commentary), so callers can no-op cheaply.
+  Map<String, String> _loadCrossRefMarkers(File bibleFile) {
+    final stem = p
+        .basename(bibleFile.path)
+        .replaceAll(RegExp(r'\.sqlite3?$', caseSensitive: false), '');
+    final wanted = '${stem.toLowerCase()}.commentaries.sqlite3';
+
+    File? companion;
+    for (final entity in bibleFile.parent.listSync()) {
+      if (entity is File &&
+          p.basename(entity.path).toLowerCase() == wanted) {
+        companion = entity;
+        break;
+      }
+    }
+    if (companion == null) return const {};
+
+    final db = sqlite3.open(companion.path);
+    try {
+      final hasTable = db
+          .select(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name='commentaries'",
+          )
+          .isNotEmpty;
+      if (!hasTable) return const {};
+
+      final hasMarker = db
+          .select('PRAGMA table_info(commentaries)')
+          .any((r) => r['name']?.toString().toLowerCase() == 'marker');
+      if (!hasMarker) return const {};
+
+      final rows = db.select(
+        "SELECT book_number, chapter_number_from, verse_number_from, marker, text "
+        "FROM commentaries WHERE marker IS NOT NULL AND marker != ''",
+      );
+
+      final map = <String, String>{};
+      for (final row in rows) {
+        if (row['book_number'] == null ||
+            row['chapter_number_from'] == null ||
+            row['verse_number_from'] == null) {
+          continue;
+        }
+        final book = num.parse(row['book_number'].toString()).toInt();
+        final chapter = num.parse(row['chapter_number_from'].toString()).toInt();
+        final verse = num.parse(row['verse_number_from'].toString()).toInt();
+        final marker = row['marker'].toString().trim();
+        final text = renderMyBibleCrossRef(row['text']?.toString() ?? '');
+        if (marker.isEmpty || text.isEmpty) continue;
+        map['$book:$chapter:$verse:$marker'] = text;
+      }
+      return map;
+    } catch (_) {
+      // A malformed companion shouldn't abort the Bible import — just skip the
+      // cross-references and leave the (letterless) markers to be hidden.
+      return const {};
+    } finally {
+      db.close();
+    }
+  }
+}
+
+/// Renders a MyBible cross-reference cell — HTML such as
+/// `<a href='B:500 1:1'>JHN 1:1</a>,<a href='B:500 1:3'>3</a>` — into the
+/// footnote body shown in the reader. Each link becomes a compact, self-
+/// describing token `{book:chapter:verse|label}` (MyBible book numbers, matching
+/// [mybibleBookMap]) that the reader turns into a tappable reference; the
+/// separators between links are kept as plain text. So the example yields
+/// `{500:1:1|JHN 1:1}, {500:1:3|3}`. Input with no links (an ordinary textual
+/// footnote) passes through as plain, de-entitied text.
+String renderMyBibleCrossRef(String rawHtml) {
+  if (rawHtml.isEmpty) return '';
+
+  String plain(String fragment) =>
+      html_parser.parse(fragment).body?.text ?? fragment;
+
+  final anchor = RegExp(
+    "<a\\b[^>]*?href=['\"]B:(\\d+)\\s+(\\d+):(\\d+)[^'\"]*['\"][^>]*>(.*?)</a>",
+    caseSensitive: false,
+    dotAll: true,
+  );
+
+  final out = StringBuffer();
+  var last = 0;
+  for (final m in anchor.allMatches(rawHtml)) {
+    out.write(plain(rawHtml.substring(last, m.start)));
+    final label = plain(m.group(4) ?? '').trim();
+    out.write('{${m.group(1)}:${m.group(2)}:${m.group(3)}|$label}');
+    last = m.end;
+  }
+  out.write(plain(rawHtml.substring(last)));
+
+  return out
+      .toString()
+      .replaceAll(RegExp(r'\s+'), ' ')
+      .replaceAll(RegExp(r'\s*;\s*'), '; ')
+      .replaceAll(RegExp(r'\s*,\s*'), ', ')
+      .trim();
 }

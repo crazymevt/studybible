@@ -133,21 +133,28 @@ class ContentManagerController extends Notifier<Map<String, DownloadProgress>> {
       final store = ref.read(contentStoreProvider);
       final importer = MyBibleImporter(store);
 
-      for (final sqliteFile in sqliteFiles) {
-        final fname = p.basename(sqliteFile.path).toLowerCase();
-        ModuleType inferredType = module.type;
-        if (fname.contains('.commentaries.')) {
-          inferredType = ModuleType.commentary;
-        } else if (fname.contains('.dictionary.')) {
-          inferredType = ModuleType.dictionary;
-        } else if (fname.contains('.subheadings.')) {
-          inferredType = ModuleType.subheadings;
-        } else if (fname.contains('.devotions.')) {
-          inferredType = ModuleType.devotional;
-        }
+      // Import is delete-then-insert; run the whole module (all of its files —
+      // e.g. a Bible plus its companion cross-reference commentary) in one
+      // transaction. A mid-import failure then rolls back instead of leaving a
+      // redownloaded module half-deleted, so the previously-installed copy
+      // survives.
+      await store.transaction(() async {
+        for (final sqliteFile in sqliteFiles) {
+          final fname = p.basename(sqliteFile.path).toLowerCase();
+          ModuleType inferredType = module.type;
+          if (fname.contains('.commentaries.')) {
+            inferredType = ModuleType.commentary;
+          } else if (fname.contains('.dictionary.')) {
+            inferredType = ModuleType.dictionary;
+          } else if (fname.contains('.subheadings.')) {
+            inferredType = ModuleType.subheadings;
+          } else if (fname.contains('.devotions.')) {
+            inferredType = ModuleType.devotional;
+          }
 
-        await importer.importModuleFile(sqliteFile, module, inferredType);
-      }
+          await importer.importModuleFile(sqliteFile, module, inferredType);
+        }
+      });
 
       // Cleanup
       await extractDir.delete(recursive: true);
@@ -296,12 +303,16 @@ class ContentManagerController extends Notifier<Map<String, DownloadProgress>> {
       final store = ref.read(contentStoreProvider);
       final importer = OsisImporter(store);
 
-      await importer.importOsisFile(
-        dlFile,
-        translation.basename.toUpperCase(),
-        translation.title,
-        langCode,
-      );
+      // Atomic delete-then-insert: a failed reimport rolls back rather than
+      // leaving the previously-installed module half-deleted.
+      await store.transaction(() async {
+        await importer.importOsisFile(
+          dlFile,
+          translation.basename.toUpperCase(),
+          translation.title,
+          langCode,
+        );
+      });
 
       // Cleanup
       await dlFile.delete();
@@ -461,21 +472,28 @@ class ContentManagerController extends Notifier<Map<String, DownloadProgress>> {
       state = {...state, stateKey: DownloadProgress(1.0, 'Importing...')};
       final store = ref.read(contentStoreProvider);
 
-      if (config.modDrv.isBible) {
-        await SwordBibleImporter(store).importFromDirectory(extractDir, config);
-      } else if (config.modDrv.isCommentary) {
-        await SwordCommentaryImporter(store)
-            .importFromDirectory(extractDir, config);
-      } else if (config.modDrv.isDictionary) {
-        await SwordDictionaryImporter(store)
-            .importFromDirectory(extractDir, config);
-      } else {
-        throw Exception(
-          'SWORD module "${config.name}" is a '
-          '${config.value('ModDrv') ?? 'non-Bible'} module; only Bible texts, '
-          'commentaries, and dictionaries are supported so far.',
-        );
-      }
+      // Capture a non-null copy: extractDir is nullable for the finally-block
+      // cleanup, and a nullable local loses promotion inside the closure below.
+      final dir = extractDir;
+      // Atomic delete-then-insert: a failed reimport rolls back rather than
+      // leaving the previously-installed module half-deleted.
+      await store.transaction(() async {
+        if (config.modDrv.isBible) {
+          await SwordBibleImporter(store).importFromDirectory(dir, config);
+        } else if (config.modDrv.isCommentary) {
+          await SwordCommentaryImporter(store)
+              .importFromDirectory(dir, config);
+        } else if (config.modDrv.isDictionary) {
+          await SwordDictionaryImporter(store)
+              .importFromDirectory(dir, config);
+        } else {
+          throw Exception(
+            'SWORD module "${config.name}" is a '
+            '${config.value('ModDrv') ?? 'non-Bible'} module; only Bible texts, '
+            'commentaries, and dictionaries are supported so far.',
+          );
+        }
+      });
 
       state = {...state, stateKey: DownloadProgress(1.0, 'Done')};
 

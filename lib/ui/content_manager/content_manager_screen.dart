@@ -457,7 +457,11 @@ class _ContentManagerScreenState extends ConsumerState<ContentManagerScreen>
                   Widget downloadWidget;
                   final isInstalled = installedIds.contains(m.abbr.toUpperCase());
 
-                  if (isInstalled) {
+                  // A redownload of an already-installed module must still show
+                  // its progress/error: let an active download state win over
+                  // the static "installed" check, otherwise the button looks dead.
+                  if (isInstalled &&
+                      (dlState == null || dlState.status == 'Done')) {
                     downloadWidget = Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -628,7 +632,9 @@ class _ContentManagerScreenState extends ConsumerState<ContentManagerScreen>
                                     Widget downloadWidget;
                                     final isInstalled = installedIds.contains(t.basename.toUpperCase());
 
-                                    if (isInstalled) {
+                                    if (isInstalled &&
+                                        (dlState == null ||
+                                            dlState.status == 'Done')) {
                                       downloadWidget = Row(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
@@ -787,7 +793,8 @@ class _ContentManagerScreenState extends ConsumerState<ContentManagerScreen>
                             : null;
             final canInstall = blockReason == null;
 
-            if (isInstalled) {
+            if (isInstalled &&
+                (dlState == null || dlState.status == 'Done')) {
               downloadWidget = Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
