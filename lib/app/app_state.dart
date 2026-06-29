@@ -76,22 +76,38 @@ final navRailSideProvider = NotifierProvider<NavRailSideNotifier, NavRailSide>(
   () => NavRailSideNotifier(),
 );
 
-class ShowDashboardOnStartNotifier extends Notifier<bool> {
+/// The module the app launches into. Limited to the modules that make sense as
+/// a landing page: the reader, the dashboard, or journals & prayers.
+const startupModuleChoices = [
+  AppModule.reader,
+  AppModule.dashboard,
+  AppModule.journalsPrayers,
+];
+
+class StartupModuleNotifier extends Notifier<AppModule> {
   @override
-  bool build() {
+  AppModule build() {
     final prefs = ref.watch(sharedPreferencesProvider);
-    return prefs.getBool('showDashboardOnStart') ?? false;
+    final stored = prefs.getString('startupModule');
+    if (stored != null) {
+      for (final module in startupModuleChoices) {
+        if (module.name == stored) return module;
+      }
+    }
+    // Migrate from the legacy boolean preference.
+    final legacyDashboard = prefs.getBool('showDashboardOnStart') ?? false;
+    return legacyDashboard ? AppModule.dashboard : AppModule.reader;
   }
 
-  void set(bool value) {
-    state = value;
-    ref.read(sharedPreferencesProvider).setBool('showDashboardOnStart', value);
+  void set(AppModule module) {
+    state = module;
+    ref.read(sharedPreferencesProvider).setString('startupModule', module.name);
   }
 }
 
-final showDashboardOnStartProvider =
-    NotifierProvider<ShowDashboardOnStartNotifier, bool>(
-      () => ShowDashboardOnStartNotifier(),
+final startupModuleProvider =
+    NotifierProvider<StartupModuleNotifier, AppModule>(
+      () => StartupModuleNotifier(),
     );
 
 class AppFontFamilyNotifier extends Notifier<String> {
@@ -209,8 +225,7 @@ final audioAdvanceMarksReadProvider =
 class AppModuleNotifier extends Notifier<AppModule> {
   @override
   AppModule build() {
-    final showDashboard = ref.watch(showDashboardOnStartProvider);
-    return showDashboard ? AppModule.dashboard : AppModule.reader;
+    return ref.watch(startupModuleProvider);
   }
 
   void setModule(AppModule module) {

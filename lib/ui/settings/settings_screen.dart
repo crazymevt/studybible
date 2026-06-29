@@ -192,7 +192,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       _initDraftState();
     }
 
-    final showDashboardOnStart = ref.watch(showDashboardOnStartProvider);
+    final startupModule = ref.watch(startupModuleProvider);
     final fontFamily = ref.watch(appFontFamilyProvider);
     final fontSizeDelta = ref.watch(appFontSizeDeltaProvider);
     final themeMode = ref.watch(themeModeProvider);
@@ -215,16 +215,39 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.primary),
             ),
           ),
-          SwitchListTile(
-            title: const Text('Show Dashboard on Startup'),
+          ListTile(
+            title: const Text('Landing Page'),
             subtitle: const Text(
-              'Launch directly to the dashboard instead of the reader',
+              'Which screen the app opens to on startup',
             ),
-            value: showDashboardOnStart,
-            onChanged: (value) {
-              ref.read(showDashboardOnStartProvider.notifier).set(value);
-            },
           ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: SegmentedButton<AppModule>(
+              segments: const [
+                ButtonSegment(
+                  value: AppModule.dashboard,
+                  icon: Icon(Icons.dashboard_outlined),
+                  label: Text('Dashboard'),
+                ),
+                ButtonSegment(
+                  value: AppModule.reader,
+                  icon: Icon(Icons.menu_book_outlined),
+                  label: Text('Reader'),
+                ),
+                ButtonSegment(
+                  value: AppModule.journalsPrayers,
+                  icon: Icon(Icons.edit_note),
+                  label: Text('Journal'),
+                ),
+              ],
+              selected: {startupModule},
+              onSelectionChanged: (Set<AppModule> newSelection) {
+                ref.read(startupModuleProvider.notifier).set(newSelection.first);
+              },
+            ),
+          ),
+          const SizedBox(height: 8),
           ListTile(
             title: const Text("What's New"),
             subtitle: const Text('View the latest features and updates'),
