@@ -15,6 +15,8 @@ Running list of known issues and follow-ups.
 
 ## Research
 
+- [ ] **Google Drive Sync.** Review setting up official sync to Google Drive without having to set up a sync folder.
+
 - [ ] **Import SWORD modules** (CrossWire format — translations, commentaries,
   dictionaries). Implementation lives in `lib/data/importer/sword/`. Phases
   1, 2, 4, and 5 are **DONE** and verified in the macOS app; **Phase 3 is the
@@ -36,6 +38,8 @@ Running list of known issues and follow-ups.
     notes are in git history — see TODO.md prior to this condensation.)
 
 ## Issues
+
+- [ ] **com.example refs.** Still has an existing com.example url for windows. See if there are others and let's update these refs.
 
 ## Archive
 
