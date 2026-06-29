@@ -15,7 +15,12 @@ Running list of known issues and follow-ups.
 
 ## Research
 
-- [ ] **Google Drive Sync.** Review setting up official sync to Google Drive without having to set up a sync folder.
+- [x] **Google Drive Sync.** Official sync to a hidden, app-private Google Drive
+  folder (`appDataFolder`) — no manual sync folder needed. Implemented as a
+  `GoogleDriveSyncStorage` backend (`lib/data/sync/`) with platform-appropriate
+  OAuth (desktop loopback + `google_sign_in` on mobile). Requires per-developer
+  OAuth client IDs supplied via `--dart-define`; see
+  `docs/google-drive-sync-setup.md`.
 
 - [ ] **Import SWORD modules** (CrossWire format — translations, commentaries,
   dictionaries). Implementation lives in `lib/data/importer/sword/`. Phases

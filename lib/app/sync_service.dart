@@ -8,9 +8,13 @@ import 'package:drift/drift.dart';
 import '../data/user_store.dart';
 import '../data/fts_text.dart';
 
+import 'package:http/http.dart' as http;
+
 import '../data/sync/file_sync_engine.dart';
 import '../data/sync/sync_storage.dart';
 import '../data/sync/saf_sync_storage.dart';
+import '../data/sync/google_drive_auth.dart';
+import '../data/sync/google_drive_sync_storage.dart';
 import '../domain/sync/lww_merge.dart';
 import 'user_providers.dart';
 import 'app_state.dart';
@@ -34,11 +38,17 @@ final syncServiceProvider = Provider<SyncService>((ref) {
   return SyncService(userStore, ref);
 });
 
+/// The platform-appropriate Google Drive auth handler (loopback on desktop,
+/// google_sign_in on mobile).
+final googleDriveAuthProvider =
+    Provider<GoogleDriveAuth>((ref) => GoogleDriveAuth());
+
 class SyncService {
   final UserStore _store;
   final Ref _ref;
   FileSyncEngine? _engine;
   FileSystemEntity? _resolvedBookmarkEntity;
+  http.Client? _driveClient;
 
   SyncService(this._store, this._ref);
 
@@ -51,7 +61,26 @@ class SyncService {
     _resolvedBookmarkEntity = null;
     SyncStorage storage;
 
-    if (Platform.isAndroid &&
+    final driveEnabled = _ref.read(googleDriveEnabledProvider);
+    if (!driveEnabled && _driveClient != null) {
+      _driveClient!.close();
+      _driveClient = null;
+    }
+    if (driveEnabled) {
+      // Reuse a connected client across syncs; only re-restore if we lost it.
+      _driveClient ??= await _ref.read(googleDriveAuthProvider).restore();
+      if (_driveClient != null) {
+        final account = _ref.read(googleDriveAccountProvider) ?? 'connected';
+        storage =
+            GoogleDriveSyncStorage(_driveClient!, accountId: account);
+      } else {
+        // Drive is enabled but we have no usable credentials (revoked, or this
+        // build lacks OAuth config). Fall back to the default local folder so
+        // local data is still captured rather than silently dropped.
+        final docs = await appDataDir();
+        storage = IoSyncStorage(Directory(p.join(docs.path, 'StudyBibleSync')));
+      }
+    } else if (Platform.isAndroid &&
         customPath != null &&
         customPath.startsWith('content://')) {
       // On Android a custom folder is a persisted SAF tree URI, accessed

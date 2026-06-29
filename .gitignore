@@ -64,3 +64,6 @@ assets/content.db
 
 # Claude Code settings
 .claude/settings.json
+
+# Google Drive sync OAuth client IDs/secret (do not commit)
+oauth.json

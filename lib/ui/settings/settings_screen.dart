@@ -764,6 +764,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.primary),
             ),
           ),
+          _buildGoogleDriveSync(context, ref),
+          const Divider(),
           _buildSyncFolderSelector(context, ref),
           const Divider(),
 
@@ -820,6 +822,94 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         ],
       ),
     );
+  }
+
+  Widget _buildGoogleDriveSync(BuildContext context, WidgetRef ref) {
+    final enabled = ref.watch(googleDriveEnabledProvider);
+    final account = ref.watch(googleDriveAccountProvider);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: const [
+              Icon(Icons.cloud),
+              SizedBox(width: 8),
+              Text('Google Drive', style: TextStyle(fontSize: 16)),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            enabled
+                ? (account != null && account.isNotEmpty
+                    ? 'Connected as $account'
+                    : 'Connected')
+                : 'Sync your notes, highlights, sermons and reading progress to '
+                    'a private app folder in your Google Drive, shared across '
+                    'all your devices.',
+            style:
+                TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+          ),
+          const SizedBox(height: 12),
+          if (enabled)
+            OutlinedButton.icon(
+              onPressed: () => _disconnectGoogleDrive(context, ref),
+              icon: const Icon(Icons.logout),
+              label: const Text('Disconnect'),
+            )
+          else
+            ElevatedButton.icon(
+              onPressed: () => _connectGoogleDrive(context, ref),
+              icon: const Icon(Icons.cloud_upload),
+              label: const Text('Connect Google Drive'),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _connectGoogleDrive(BuildContext context, WidgetRef ref) async {
+    try {
+      final conn = await ref.read(googleDriveAuthProvider).signIn();
+      if (conn == null) return; // user cancelled
+      // The sync service restores its own client from the now-persisted
+      // credentials, so we don't hand this one through — close it.
+      conn.client.close();
+      ref.read(googleDriveAccountProvider.notifier).setAccount(conn.email);
+      ref.read(googleDriveEnabledProvider.notifier).setEnabled(true);
+      await ref.read(syncServiceProvider).sync();
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('Connected to Google Drive and synced.')),
+        );
+      }
+    } catch (e, stack) {
+      logError(e, stack, context: 'SettingsScreen.connectGoogleDrive');
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Could not connect Google Drive: $e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _disconnectGoogleDrive(
+      BuildContext context, WidgetRef ref) async {
+    try {
+      await ref.read(googleDriveAuthProvider).signOut();
+    } catch (e, stack) {
+      logError(e, stack, context: 'SettingsScreen.disconnectGoogleDrive');
+    }
+    ref.read(googleDriveEnabledProvider.notifier).setEnabled(false);
+    ref.read(googleDriveAccountProvider.notifier).setAccount(null);
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Disconnected from Google Drive.')),
+      );
+    }
   }
 
   Widget _buildSyncFolderSelector(BuildContext context, WidgetRef ref) {

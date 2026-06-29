@@ -374,6 +374,50 @@ final syncFolderBookmarkProvider = NotifierProvider<SyncFolderBookmarkNotifier, 
   () => SyncFolderBookmarkNotifier(),
 );
 
+/// Whether sync should use the user's Google Drive (hidden app-data folder)
+/// instead of a local/SAF folder. When true, [SyncService] builds a Drive-backed
+/// storage from the connected account.
+class GoogleDriveEnabledNotifier extends Notifier<bool> {
+  @override
+  bool build() {
+    final prefs = ref.watch(sharedPreferencesProvider);
+    return prefs.getBool('googleDriveEnabled') ?? false;
+  }
+
+  void setEnabled(bool enabled) {
+    state = enabled;
+    ref.read(sharedPreferencesProvider).setBool('googleDriveEnabled', enabled);
+  }
+}
+
+final googleDriveEnabledProvider =
+    NotifierProvider<GoogleDriveEnabledNotifier, bool>(
+  () => GoogleDriveEnabledNotifier(),
+);
+
+/// The connected Google account email, kept only for display in settings.
+class GoogleDriveAccountNotifier extends Notifier<String?> {
+  @override
+  String? build() {
+    final prefs = ref.watch(sharedPreferencesProvider);
+    return prefs.getString('googleDriveAccount');
+  }
+
+  void setAccount(String? email) {
+    state = email;
+    if (email == null) {
+      ref.read(sharedPreferencesProvider).remove('googleDriveAccount');
+    } else {
+      ref.read(sharedPreferencesProvider).setString('googleDriveAccount', email);
+    }
+  }
+}
+
+final googleDriveAccountProvider =
+    NotifierProvider<GoogleDriveAccountNotifier, String?>(
+  () => GoogleDriveAccountNotifier(),
+);
+
 class CustomLightTextColorNotifier extends Notifier<int?> {
   @override
   int? build() {
