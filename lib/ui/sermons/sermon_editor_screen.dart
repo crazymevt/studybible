@@ -5,6 +5,7 @@ import 'package:flutter_quill/quill_delta.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app/sermon_providers.dart';
 import '../../app/user_providers.dart';
+import '../../data/export/sermon_exporter.dart';
 import '../../data/logging.dart';
 import 'export_dialog.dart';
 import 'sermon_presentation_screen.dart';
@@ -177,6 +178,11 @@ class _SermonEditorScreenState extends ConsumerState<SermonEditorScreen> {
               },
             ),
             IconButton(
+              icon: const Icon(Icons.print),
+              tooltip: 'Print',
+              onPressed: () => _printSermon(context, ref),
+            ),
+            IconButton(
               icon: const Icon(Icons.label),
               tooltip: 'Manage Tags',
               onPressed: () {
@@ -265,6 +271,11 @@ class _SermonEditorScreenState extends ConsumerState<SermonEditorScreen> {
                       },
                     ),
                     IconButton(
+                      icon: const Icon(Icons.print),
+                      tooltip: 'Print',
+                      onPressed: () => _printSermon(context, ref),
+                    ),
+                    IconButton(
                       icon: const Icon(Icons.label),
                       tooltip: 'Manage Tags',
                       onPressed: () {
@@ -301,6 +312,24 @@ class _SermonEditorScreenState extends ConsumerState<SermonEditorScreen> {
         ],
       ),
     );
+  }
+
+  void _printSermon(BuildContext context, WidgetRef ref) {
+    final store = ref.read(userStoreProvider);
+    store.select(store.sermons)
+      ..where((t) => t.id.equals(widget.sermonId))
+      ..getSingleOrNull().then((sermon) {
+        if (sermon != null && context.mounted) {
+          // Printing always produces a PDF, so we skip the export dialog's
+          // format selection entirely.
+          SermonExporter.exportSermons(
+            context,
+            [sermon],
+            ExportFormat.pdf,
+            ExportAction.print,
+          );
+        }
+      });
   }
 
   Future<void> _showOutlineGeneratorDialog(BuildContext context) async {
