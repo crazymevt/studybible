@@ -81,6 +81,10 @@ class _FlowingParagraphViewState extends ConsumerState<FlowingParagraphView> {
 
   void _checkScrollTarget() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      // The PageView mounts/unmounts neighbour chapters as it swipes, so this
+      // deferred callback (and its self-reschedule below) can fire after this
+      // page is gone — touching `ref` then throws.
+      if (!mounted) return;
       final targetVerse = ref.read(targetVerseToScrollProvider);
       if (targetVerse != null) {
         final key = _verseKeys[targetVerse];

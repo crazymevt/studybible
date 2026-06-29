@@ -162,6 +162,12 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
   void _syncPageController(int targetIndex) {
     final c = _pageController;
     if (c == null || !c.hasClients) return;
+    // Never fight an in-progress gesture or settle animation. Syncing while the
+    // user is mid-drag is what made the page snap to the wrong chapter: a
+    // rebuild would see the fractional drag position round back to the old
+    // chapter and animate forward against the finger. onPageChanged already
+    // records the destination once the swipe settles.
+    if (c.position.isScrollingNotifier.value) return;
     final current = (c.page ?? c.initialPage.toDouble()).round();
     if (current == targetIndex) return;
     if ((targetIndex - current).abs() == 1) {
@@ -687,13 +693,15 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
       ),
       data: (versesMap) {
         final isSingleVersion = versesMap.length <= 1;
-        final platform = Theme.of(context).platform;
-        final isTouchMobile = platform == TargetPlatform.android ||
-            platform == TargetPlatform.iOS;
 
-        // Parallel view and non-touch platforms render only the current
-        // chapter — no swipe paging (arrow keys / footer still navigate).
-        if (!isSingleVersion || !isTouchMobile) {
+        // Parallel view renders only the current chapter — no swipe paging
+        // (arrow keys / footer still navigate). Single-version pages through
+        // chapters via the PageView on every platform: the global
+        // AppScrollBehavior enables touch, trackpad, and mouse drag, so
+        // desktop touchscreens (and trackpad swipes) work too. Vertical list
+        // scrolling is unaffected — the gesture arena routes vertical drags to
+        // the verse list and only horizontal drags flip chapters.
+        if (!isSingleVersion) {
           return _ChapterPage(
             bookName: bookName,
             chapter: chapter,
@@ -736,31 +744,44 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
           });
         }
 
-        return PageView.builder(
-          controller: _pageController,
-          itemCount: chapterIndex.length,
-          // Pre-build the adjacent chapters so a swipe animates smoothly
-          // instead of flashing a loading spinner mid-drag.
-          allowImplicitScrolling: true,
-          onPageChanged: _onPageSettled,
-          itemBuilder: (context, i) {
-            final e = chapterIndex[i];
-            return _ChapterPage(
-              bookName: e.bookName,
-              chapter: e.chapter,
-              isFlowing: _isFlowing,
-              searchQuery: _searchQuery,
-              onVerseTap: _onVerseTap,
-              onFootnoteTap: (_) => _openCommentaryPanel(),
-              onStrongTap: _openStrongDictionary,
-              onChooseVersion: _showVersionPicker,
-              onRetry: () => ref.invalidate(
-                chapterVersesProvider(
-                  (bookName: e.bookName, chapter: e.chapter),
-                ),
-              ),
-            );
+        // Commit the new chapter only once scrolling fully stops — NOT via
+        // onPageChanged, which fires the moment the drag crosses 50% and would
+        // rebuild the heavy chapter pages mid-settle, collapsing the animation
+        // into an instant snap. depth == 0 ignores the inner verse list's own
+        // scroll-end notifications.
+        return NotificationListener<ScrollEndNotification>(
+          onNotification: (notification) {
+            if (notification.depth == 0) {
+              final page = _pageController?.page;
+              if (page != null) _onPageSettled(page.round());
+            }
+            return false;
           },
+          child: PageView.builder(
+            controller: _pageController,
+            itemCount: chapterIndex.length,
+            // Pre-build the adjacent chapters so a swipe animates smoothly
+            // instead of flashing a loading spinner mid-drag.
+            allowImplicitScrolling: true,
+            itemBuilder: (context, i) {
+              final e = chapterIndex[i];
+              return _ChapterPage(
+                bookName: e.bookName,
+                chapter: e.chapter,
+                isFlowing: _isFlowing,
+                searchQuery: _searchQuery,
+                onVerseTap: _onVerseTap,
+                onFootnoteTap: (_) => _openCommentaryPanel(),
+                onStrongTap: _openStrongDictionary,
+                onChooseVersion: _showVersionPicker,
+                onRetry: () => ref.invalidate(
+                  chapterVersesProvider(
+                    (bookName: e.bookName, chapter: e.chapter),
+                  ),
+                ),
+              );
+            },
+          ),
         );
       },
     );
