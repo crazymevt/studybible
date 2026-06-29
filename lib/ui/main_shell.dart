@@ -25,6 +25,7 @@ import 'onboarding/tutorial_overlay.dart';
 import 'onboarding/tutorial_keys.dart';
 import 'common/breakpoints.dart';
 import '../app/content_providers.dart';
+import '../app/content_manager_providers.dart';
 import '../app/shared_prefs.dart';
 import '../app/version.dart';
 import 'whats_new_dialog.dart';
@@ -96,7 +97,18 @@ class _MainShellState extends ConsumerState<MainShell> {
       error: (_, _) => false,
     );
 
-    if (hasNoBibles) {
+    // The "recommended resources" batch installs a Bible first, which would
+    // otherwise flip the shell to the reader and hide the still-running
+    // progress for the remaining commentaries/dictionaries. Keep onboarding up
+    // until the whole batch settles.
+    final recProgress =
+        ref.watch(contentManagerControllerProvider)[recommendedDownloadKey];
+    final recInProgress = recProgress != null &&
+        recProgress.status != 'Done' &&
+        !recProgress.status.startsWith('Error') &&
+        !recProgress.status.startsWith('Finished');
+
+    if (hasNoBibles || recInProgress) {
       return const OnboardingScreen();
     }
 

@@ -13,6 +13,7 @@ import '../data/importer/sword/sword_commentary_importer.dart';
 import '../data/importer/sword/sword_config.dart';
 import '../data/importer/sword/sword_dictionary_importer.dart';
 import '../data/logging.dart';
+import 'app_state.dart'; // To get subheadingsSourceProvider
 import 'content_providers.dart'; // To get contentStoreProvider
 
 final contentManagerApiProvider = Provider((ref) => ContentManagerApi());
@@ -42,11 +43,43 @@ class DownloadProgress {
   DownloadProgress(this.percent, this.status);
 }
 
+/// A curated starter set of free MyBible resources from ph4.org, installed by
+/// the onboarding "recommended downloads" action. Listed in install order
+/// (the Bible first so commentaries/dictionaries have a translation to anchor
+/// to). Resolved against the live ph4.org catalog at download time by [abbr];
+/// any entry no longer in the catalog is skipped rather than failing the run.
+const recommendedPh4Modules = <({String abbr, String label})>[
+  (abbr: 'AV', label: 'King James Version (with cross references)'),
+  // ph4 spells the Berean abbr with a curly apostrophe (U+2019); match it
+  // exactly so the catalog lookup resolves.
+  (abbr: 'BSB\u{2019}22', label: 'Berean Standard Bible (2022)'),
+  (abbr: 'ESVGSB', label: 'ESV Global Study Bible'),
+  (abbr: 'MHWBC.commentaries', label: "Matthew Henry's Whole Bible Commentary"),
+  (abbr: 'Pool-c.commentaries', label: "Matthew Poole's Commentary"),
+  (abbr: 'KJV-s.subheadings', label: 'King James subheadings'),
+  (abbr: 'KJVD.dictionary', label: 'King James Dictionary'),
+  (abbr: 'VineOT.dictionary', label: "Vine's Expository Dictionary (Old Testament)"),
+  (abbr: 'VineNT.dictionary', label: "Vine's Expository Dictionary (New Testament)"),
+  (abbr: 'Noah.dictionary', label: "Noah Webster's 1828 Dictionary"),
+  (abbr: 'Webster.dictionary', label: "Webster's Unabridged Dictionary"),
+];
+
+/// State-map key under which [ContentManagerController.downloadRecommended]
+/// publishes its aggregate progress.
+const recommendedDownloadKey = 'recommended';
+
 class ContentManagerController extends Notifier<Map<String, DownloadProgress>> {
   @override
   Map<String, DownloadProgress> build() => {};
 
-  Future<void> downloadAndImportPh4(Ph4Module module) async {
+  /// Download and import a single ph4.org MyBible [module]. When [onProgress]
+  /// is supplied (e.g. by [downloadRecommended]) it receives the download
+  /// fraction (0–1) so a caller can fold it into an aggregate bar; the module's
+  /// own progress is published under its abbr regardless.
+  Future<void> downloadAndImportPh4(
+    Ph4Module module, {
+    void Function(double downloadFraction)? onProgress,
+  }) async {
     final stateKey = module.abbr;
     state = {...state, stateKey: DownloadProgress(0, 'Downloading...')};
 
@@ -67,6 +100,7 @@ class ContentManagerController extends Notifier<Map<String, DownloadProgress>> {
               ...state,
               stateKey: DownloadProgress(received / total, 'Downloading...'),
             };
+            onProgress?.call(received / total);
           }
         },
       );
@@ -133,6 +167,101 @@ class ContentManagerController extends Notifier<Map<String, DownloadProgress>> {
       logError(e, stack, context: 'ContentManager.downloadAndImport');
       state = {...state, stateKey: DownloadProgress(0, 'Error: $e')};
     }
+  }
+
+  /// Download and import the curated [recommendedPh4Modules] set, one after
+  /// another. Aggregate progress (overall fraction + the current item) is
+  /// published under [recommendedDownloadKey]; each module's own progress is
+  /// still mirrored under its abbr by [downloadAndImportPh4]. Individual
+  /// failures are collected and reported at the end rather than aborting the
+  /// run, so one unavailable module doesn't block the rest.
+  Future<void> downloadRecommended() async {
+    const aggKey = recommendedDownloadKey;
+    state = {...state, aggKey: DownloadProgress(0, 'Preparing…')};
+
+    final List<Ph4Module> catalog;
+    try {
+      // Fetch fresh so a retry after a transient network failure isn't served
+      // the provider's cached error.
+      ref.invalidate(ph4CatalogProvider);
+      catalog = await ref.read(ph4CatalogProvider.future);
+    } catch (e, stack) {
+      logError(e, stack, context: 'ContentManager.downloadRecommended');
+      state = {
+        ...state,
+        aggKey: DownloadProgress(0, 'Error: could not reach ph4.org'),
+      };
+      return;
+    }
+
+    final byAbbr = {for (final m in catalog) m.abbr: m};
+    final targets = <Ph4Module>[];
+    for (final rec in recommendedPh4Modules) {
+      final module = byAbbr[rec.abbr];
+      if (module != null) {
+        targets.add(module);
+      } else {
+        logError(
+          'Recommended module "${rec.abbr}" not found in the ph4 catalog',
+          StackTrace.current,
+          context: 'ContentManager.downloadRecommended',
+        );
+      }
+    }
+
+    final total = targets.length;
+    if (total == 0) {
+      state = {
+        ...state,
+        aggKey: DownloadProgress(0, 'Error: no recommended modules available'),
+      };
+      return;
+    }
+
+    final failed = <String>[];
+    for (var i = 0; i < total; i++) {
+      final module = targets[i];
+      void setAgg(double moduleFraction) {
+        state = {
+          ...state,
+          aggKey: DownloadProgress(
+            (i + moduleFraction) / total,
+            '(${i + 1} of $total) ${module.title}…',
+          ),
+        };
+      }
+
+      setAgg(0);
+      await downloadAndImportPh4(module, onProgress: setAgg);
+      final result = state[module.abbr];
+      if (result == null || result.status.startsWith('Error')) {
+        failed.add(module.title);
+      }
+    }
+
+    // Default the reader's subheadings source to the King James subheadings,
+    // if that module installed successfully. The MyBible importer keys a
+    // subheadings version by its uppercased abbr, so resolve against the
+    // freshly-reloaded source list to confirm it's actually present.
+    const kjvSubheadingsAbbr = 'KJV-s.subheadings';
+    final kjvSubheadingsId = kjvSubheadingsAbbr.toUpperCase();
+    try {
+      final sources = await ref.read(subheadingSourcesProvider.future);
+      if (sources.any((v) => v.id == kjvSubheadingsId)) {
+        ref.read(subheadingsSourceProvider.notifier).setSource(kjvSubheadingsId);
+      }
+    } catch (e, stack) {
+      logError(e, stack,
+          context: 'ContentManager.downloadRecommended:setSubheadings');
+    }
+
+    state = {
+      ...state,
+      aggKey: failed.isEmpty
+          ? DownloadProgress(1.0, 'Done')
+          : DownloadProgress(
+              1.0, 'Finished — ${failed.length} of $total could not be installed'),
+    };
   }
 
   Future<void> downloadAndImportOsis(

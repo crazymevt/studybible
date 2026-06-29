@@ -11,10 +11,19 @@ class OnboardingScreen extends ConsumerWidget {
     final theme = Theme.of(context);
     final catalogAsync = ref.watch(crosswireCatalogProvider);
     final downloadStates = ref.watch(contentManagerControllerProvider);
-    
+
     // We target KJV from CrossWire
     final kjvProgress = downloadStates['cw_KJV'];
-    final isDownloading = kjvProgress != null && kjvProgress.percent < 1.0 && kjvProgress.status != 'Done';
+    final isDownloadingKjv = kjvProgress != null && kjvProgress.percent < 1.0 && kjvProgress.status != 'Done';
+
+    // Aggregate progress for the curated "recommended resources" install.
+    final recProgress = downloadStates[recommendedDownloadKey];
+    final isDownloadingRec = recProgress != null &&
+        recProgress.status != 'Done' &&
+        !recProgress.status.startsWith('Error') &&
+        !recProgress.status.startsWith('Finished');
+
+    final isDownloading = isDownloadingKjv || isDownloadingRec;
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
@@ -52,7 +61,7 @@ class OnboardingScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'To get started, you need to download a Bible. You can quickly install the King James Version (KJV with Strong\'s), or browse the Content Manager to find your preferred translation.',
+                    'To get started, download the recommended study set — Bibles, commentaries, and dictionaries — or quickly install just the King James Version. You can always browse the Content Manager for more.',
                     style: theme.textTheme.bodyLarge?.copyWith(
                       color: theme.colorScheme.onSurfaceVariant,
                       height: 1.5,
@@ -62,33 +71,73 @@ class OnboardingScreen extends ConsumerWidget {
                   const SizedBox(height: 48),
                   
                   if (isDownloading) ...[
-                    Text(
-                      kjvProgress.status,
-                      style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 8),
-                    LinearProgressIndicator(
-                      value: kjvProgress.percent,
-                      minHeight: 8,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    const SizedBox(height: 8),
-                    Text('${(kjvProgress.percent * 100).toStringAsFixed(1)}%'),
+                    Builder(builder: (context) {
+                      // Show whichever install is currently running.
+                      final active = isDownloadingRec ? recProgress : kjvProgress!;
+                      return Column(
+                        children: [
+                          Text(
+                            active.status,
+                            style: theme.textTheme.bodyMedium
+                                ?.copyWith(fontWeight: FontWeight.bold),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 8),
+                          LinearProgressIndicator(
+                            value: active.percent,
+                            minHeight: 8,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          const SizedBox(height: 8),
+                          Text('${(active.percent * 100).toStringAsFixed(0)}%'),
+                        ],
+                      );
+                    }),
                   ] else ...[
+                    SizedBox(
+                      width: double.infinity,
+                      height: 56,
+                      child: FilledButton.icon(
+                        icon: const Icon(Icons.auto_awesome),
+                        label: const Text(
+                          'Download Recommended Resources',
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
+                        style: FilledButton.styleFrom(
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        ),
+                        onPressed: () {
+                          ref
+                              .read(contentManagerControllerProvider.notifier)
+                              .downloadRecommended();
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Includes the KJV, Berean Standard & ESV Global Study Bibles, '
+                      'Matthew Henry & Poole commentaries, and Vine\'s, Webster\'s, '
+                      'and King James dictionaries.',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 16),
                     catalogAsync.when(
                       data: (modules) {
                         final kjvModule = modules.where((m) => m.config.name == 'KJV').firstOrNull;
-                        
+
                         return SizedBox(
                           width: double.infinity,
                           height: 56,
-                          child: FilledButton.icon(
+                          child: OutlinedButton.icon(
                             icon: const Icon(Icons.download),
                             label: const Text(
-                              'Quick Install KJV Bible',
+                              'Quick Install KJV Bible Only',
                               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                             ),
-                            style: FilledButton.styleFrom(
+                            style: OutlinedButton.styleFrom(
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                             ),
                             onPressed: kjvModule == null ? null : () {
@@ -103,7 +152,7 @@ class OnboardingScreen extends ConsumerWidget {
                   ],
 
                   const SizedBox(height: 16),
-                  
+
                   SizedBox(
                     width: double.infinity,
                     height: 56,
