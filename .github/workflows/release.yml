@@ -9,6 +9,34 @@ permissions:
   contents: write
 
 jobs:
+  create-release:
+    name: Create release with notes
+    runs-on: ubuntu-latest
+    env:
+      ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+
+      - name: Render release notes from changelog
+        # Reuse the same assets/changelog.json that drives the in-app "What's
+        # New" screen so the published notes can never drift from the app.
+        run: dart scripts/release_notes.dart > RELEASE_NOTES.md
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          make_latest: "true"
+          body_path: RELEASE_NOTES.md
+          # Append GitHub's auto-generated commit/PR list below the curated
+          # changelog notes.
+          generate_release_notes: true
+
   build-ubuntu:
     name: Build Android, Linux, Web
     runs-on: ubuntu-latest
