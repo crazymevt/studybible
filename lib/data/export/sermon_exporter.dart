@@ -120,7 +120,7 @@ class SermonExporter {
   }
 
   static Future<Uint8List> _generatePdf(List<Sermon> sermons) async {
-    final pdf = pw.Document();
+    final pdf = pw.Document(theme: await loadPdfTheme());
 
     for (final sermon in sermons) {
       // Render the Quill delta with its formatting (headings, lists, bold…)

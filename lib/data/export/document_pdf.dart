@@ -1,7 +1,31 @@
 import 'dart:typed_data';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
+import 'package:printing/printing.dart';
 import 'print_service.dart';
+
+pw.ThemeData? _cachedTheme;
+
+/// A PDF theme backed by Noto Sans (regular/bold/italic) so non-ASCII glyphs —
+/// the "•" bullet, and later Greek/Hebrew/Cyrillic Bible text — render. The
+/// built-in PDF fonts are Latin-only and can't draw them. Fonts are fetched via
+/// the printing package (cached after first use); returns null if the fetch
+/// fails (e.g. offline), in which case the document falls back to the built-in
+/// fonts rather than failing to print.
+Future<pw.ThemeData?> loadPdfTheme() async {
+  if (_cachedTheme != null) return _cachedTheme;
+  try {
+    _cachedTheme = pw.ThemeData.withFont(
+      base: await PdfGoogleFonts.notoSansRegular(),
+      bold: await PdfGoogleFonts.notoSansBold(),
+      italic: await PdfGoogleFonts.notoSansItalic(),
+      boldItalic: await PdfGoogleFonts.notoSansBoldItalic(),
+    );
+    return _cachedTheme;
+  } catch (_) {
+    return null; // offline / fetch failed — retry on the next print
+  }
+}
 
 /// One titled block in a plain-text PDF — e.g. a single note (heading = its
 /// verse reference) or a journal entry (heading = title, subheading = date).
@@ -23,7 +47,7 @@ Future<Uint8List> buildPlainTextPdf({
   required String title,
   required List<PdfDocSection> sections,
 }) async {
-  final pdf = pw.Document();
+  final pdf = pw.Document(theme: await loadPdfTheme());
   pdf.addPage(
     pw.MultiPage(
       pageFormat: PdfPageFormat.letter,
