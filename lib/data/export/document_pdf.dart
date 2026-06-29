@@ -1,29 +1,33 @@
 import 'dart:typed_data';
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'package:printing/printing.dart';
 import 'print_service.dart';
 
 pw.ThemeData? _cachedTheme;
 
+Future<pw.Font> _loadFont(String asset) async =>
+    pw.Font.ttf(await rootBundle.load('assets/fonts/$asset'));
+
 /// A PDF theme backed by Noto Sans (regular/bold/italic) so non-ASCII glyphs —
-/// the "•" bullet, and later Greek/Hebrew/Cyrillic Bible text — render. The
-/// built-in PDF fonts are Latin-only and can't draw them. Fonts are fetched via
-/// the printing package (cached after first use); returns null if the fetch
-/// fails (e.g. offline), in which case the document falls back to the built-in
+/// the "•" bullet, and the Latin/Greek/Cyrillic Bible text — render. The
+/// built-in PDF fonts are Latin-only and can't draw them. The fonts are bundled
+/// as assets (SIL Open Font License, see `assets/fonts/OFL.txt`) and loaded from
+/// the app bundle, so printing works fully offline. Returns null only if an
+/// asset fails to load, in which case the document falls back to the built-in
 /// fonts rather than failing to print.
 Future<pw.ThemeData?> loadPdfTheme() async {
   if (_cachedTheme != null) return _cachedTheme;
   try {
     _cachedTheme = pw.ThemeData.withFont(
-      base: await PdfGoogleFonts.notoSansRegular(),
-      bold: await PdfGoogleFonts.notoSansBold(),
-      italic: await PdfGoogleFonts.notoSansItalic(),
-      boldItalic: await PdfGoogleFonts.notoSansBoldItalic(),
+      base: await _loadFont('NotoSans-Regular.ttf'),
+      bold: await _loadFont('NotoSans-Bold.ttf'),
+      italic: await _loadFont('NotoSans-Italic.ttf'),
+      boldItalic: await _loadFont('NotoSans-BoldItalic.ttf'),
     );
     return _cachedTheme;
   } catch (_) {
-    return null; // offline / fetch failed — retry on the next print
+    return null; // asset load failed — fall back to built-in fonts
   }
 }
 

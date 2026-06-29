@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_quill/flutter_quill.dart' show FlutterQuillLocalizations;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -34,6 +35,16 @@ void main() {
   // installed) are reported rather than silently lost.
   runZonedGuarded(() async {
     WidgetsFlutterBinding.ensureInitialized();
+
+    // Surface the bundled Noto Sans font's SIL Open Font License in the in-app
+    // "Open Source Licenses" page. Pub package licenses are collected
+    // automatically; bundled asset fonts must be registered explicitly.
+    LicenseRegistry.addLicense(() async* {
+      yield LicenseEntryWithLineBreaks(
+        const ['Noto Sans'],
+        await rootBundle.loadString('assets/fonts/OFL.txt'),
+      );
+    });
 
     // Errors caught by the Flutter framework (build/layout/paint, gestures).
     FlutterError.onError = (FlutterErrorDetails details) {
