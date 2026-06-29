@@ -6,7 +6,10 @@ Running list of known issues and follow-ups.
 
 ## Enhancements
 
-- [ ] **Printing.** Allow users to print content (e.g. the current chapter, search results, notes/journals/sermons) to a physical printer or PDF.
+- [x] **Printing.** Print notes, journals, and sermons to a physical printer or
+  PDF (cross-platform, via `printing`/`pdf` with an embedded Noto Sans font).
+  Reader-chapter and search-results printing were intentionally left out — not
+  adding them unless requested.
 
 ## Research
 
