@@ -5,13 +5,13 @@
         <description>Most recent updates to StudyBible</description>
         <language>en</language>
         <item>
-            <title>Version 26.6.28+2</title>
+            <title>Version 26.6.29+1</title>
             <sparkle:releaseNotesLink>
                 https://github.com/crazymevt/StudyBible/releases/latest
             </sparkle:releaseNotesLink>
-            <pubDate>Mon, 29 Jun 2026 00:53:18 GMT</pubDate>
-            <enclosure url="https://github.com/crazymevt/StudyBible/releases/download/26.6.28+2/StudyBible-Setup.exe"
-                       sparkle:version="26.6.28+2"
+            <pubDate>Mon, 29 Jun 2026 10:20:17 GMT</pubDate>
+            <enclosure url="https://github.com/crazymevt/StudyBible/releases/download/26.6.29+1/StudyBible-Setup.exe"
+                       sparkle:version="26.6.29+1"
                        sparkle:os="windows"
                        length="0"
                        type="application/octet-stream" />
