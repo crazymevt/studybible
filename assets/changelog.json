@@ -1,5 +1,35 @@
 [
   {
+    "version": "26.6.29+2",
+    "date": "2026-06-29",
+    "features": [
+      {
+        "category": "New Features",
+        "title": "let users choose the landing page (Dashboard, Reader, or Journal)",
+        "description": "",
+        "icon": "star"
+      },
+      {
+        "category": "Bugfixes",
+        "title": "show a clear error when a ph4.org module download is unavailable",
+        "description": "",
+        "icon": "bug_report"
+      },
+      {
+        "category": "Updates",
+        "title": "bundle reader UI fonts so they work offline without a CDN",
+        "description": "",
+        "icon": "update"
+      },
+      {
+        "category": "Bugfixes",
+        "title": "bundle the PDF font so printing works offline",
+        "description": "",
+        "icon": "bug_report"
+      }
+    ]
+  },
+  {
     "version": "26.6.29+1",
     "date": "2026-06-29",
     "features": [
