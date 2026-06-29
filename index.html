@@ -109,6 +109,19 @@
     padding: 7px 15px; font-size: .9rem; color: var(--ink);
   }
 
+  /* Download */
+  .dl-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(165px, 1fr)); gap: 14px; max-width: 800px; margin: 0 auto; }
+  .dl {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 24px 16px; text-align: center; transition: transform .08s ease, border-color .2s ease, box-shadow .2s ease;
+  }
+  .dl:hover { text-decoration: none; transform: translateY(-2px); border-color: var(--accent); box-shadow: 0 8px 24px rgba(0,0,0,.12); }
+  .dl .dl-ic { font-size: 2.1rem; line-height: 1; }
+  .dl .dl-name { font-weight: 600; font-size: 1.08rem; color: var(--ink); margin-top: 4px; }
+  .dl .dl-sub { font-size: .85rem; color: var(--muted); }
+  .dl-extra { text-align: center; color: var(--muted); font-size: .92rem; margin-top: 22px; max-width: 640px; margin-left: auto; margin-right: auto; }
+
   /* Footer */
   footer { border-top: 1px solid var(--line); padding: 36px 0; color: var(--muted); font-size: .9rem; text-align: center; }
   footer a { color: var(--muted); text-decoration: underline; }
@@ -124,6 +137,7 @@
     <span class="spacer"></span>
     <a class="ghost hide-sm" href="#features">Features</a>
     <a class="ghost hide-sm" href="#screenshots">Screenshots</a>
+    <a class="ghost" href="#download">Download</a>
     <a class="ghost" href="https://github.com/crazymevt/StudyBible">GitHub</a>
   </nav>
 </header>
@@ -134,7 +148,7 @@
     <h1>A study Bible that goes everywhere with you</h1>
     <p class="lead">Multi-version reading, commentaries, dictionaries, and rich study tools — with first-class cross-device sync. Free, open source, and cross-platform.</p>
     <div class="btns">
-      <a class="btn primary" href="https://github.com/crazymevt/StudyBible/releases/latest">⬇ Download latest release</a>
+      <a class="btn primary" href="#download">⬇ Download</a>
       <a class="btn secondary" href="https://github.com/crazymevt/StudyBible">View on GitHub</a>
     </div>
     <p class="platforms">Android · Windows · macOS · Linux</p>
@@ -200,13 +214,29 @@
     </div>
   </section>
 
-  <section class="wrap" style="text-align:center;">
-    <h2>Free, open source, and yours</h2>
-    <p class="sub">No accounts, no subscriptions, no tracking. Built with Flutter for Android, Windows, macOS, and Linux. Linux ships as a portable bundle and a Flatpak.</p>
-    <div class="btns">
-      <a class="btn primary" href="https://github.com/crazymevt/StudyBible/releases/latest">⬇ Download latest release</a>
-      <a class="btn secondary" href="https://github.com/crazymevt/StudyBible/blob/main/CONTRIBUTING.md">Contribute</a>
+  <section id="download" class="wrap" style="text-align:center;">
+    <h2>Download</h2>
+    <p class="sub">Free and open source — no accounts, no tracking. Every link points to the newest release automatically.</p>
+    <div class="dl-grid">
+      <a class="dl" href="https://github.com/crazymevt/StudyBible/releases/latest/download/StudyBible-Android.apk">
+        <span class="dl-ic">🤖</span><span class="dl-name">Android</span><span class="dl-sub">APK</span>
+      </a>
+      <a class="dl" href="https://github.com/crazymevt/StudyBible/releases/latest/download/StudyBible-Setup.exe">
+        <span class="dl-ic">🪟</span><span class="dl-name">Windows</span><span class="dl-sub">Installer · .exe</span>
+      </a>
+      <a class="dl" href="https://github.com/crazymevt/StudyBible/releases/latest/download/StudyBible-macOS.zip">
+        <span class="dl-ic">🍎</span><span class="dl-name">macOS</span><span class="dl-sub">.zip</span>
+      </a>
+      <a class="dl" href="https://github.com/crazymevt/StudyBible/releases/latest/download/StudyBible-Linux.tar.gz">
+        <span class="dl-ic">🐧</span><span class="dl-name">Linux</span><span class="dl-sub">Portable · .tar.gz</span>
+      </a>
     </div>
+    <p class="dl-extra">
+      Linux also ships as a <a href="https://github.com/crazymevt/StudyBible/releases/latest/download/StudyBible-Linux.flatpak">Flatpak</a>.
+      Windows &amp; macOS builds are unsigned — see the <a href="https://github.com/crazymevt/StudyBible#download">install notes</a> for the one-time bypass.
+      iOS isn't distributed yet — <a href="https://github.com/crazymevt/StudyBible#getting-started">build from source</a>.
+      <br><a href="https://github.com/crazymevt/StudyBible/releases">All releases &amp; changelog →</a>
+    </p>
   </section>
 
   <section class="wrap ack">
