@@ -368,7 +368,12 @@ class _SermonEditorScreenState extends ConsumerState<SermonEditorScreen> {
       ..insert('Conclusion')
       ..insert('\n', {'header': 2})
       ..insert('\n');
-      
-    _controller.document.compose(delta, ChangeSource.local);
+
+    // Compose through the controller (not _controller.document) so its change
+    // listeners fire — _saveSermonContent is one of them. Editing the document
+    // directly updates the on-screen editor but skips that notification, so a
+    // generated outline was never persisted unless the user also typed
+    // something afterward (which does go through the controller).
+    _controller.compose(delta, _controller.selection, ChangeSource.local);
   }
 }
