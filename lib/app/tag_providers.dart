@@ -280,13 +280,12 @@ final entitiesForTagProvider = FutureProvider.family<List<SearchResult>, String>
 });
 
 // 4. Fetch verses with tags in current chapter
-final chapterVersesWithTagsProvider = StreamProvider<Set<int>>((ref) {
+final chapterVersesWithTagsFamilyProvider = StreamProvider.family<Set<int>,
+    ({String bookName, int chapter})>((ref, args) {
   final db = ref.watch(userStoreProvider);
-  final bookName = ref.watch(selectedBookNameProvider);
-  final chapter = ref.watch(selectedChapterProvider);
-  
-  final prefix = 'Verse:$bookName|$chapter|%';
-  
+
+  final prefix = 'Verse:${args.bookName}|${args.chapter}|%';
+
   return (db.select(db.entityTags)
     ..where((et) => et.entityType.equals('verse'))
     ..where((et) => et.entityId.like(prefix))
@@ -302,4 +301,15 @@ final chapterVersesWithTagsProvider = StreamProvider<Set<int>>((ref) {
      }
      return set;
   });
+});
+
+/// Verses with tags for the currently-selected chapter. Delegates to
+/// [chapterVersesWithTagsFamilyProvider] so each reader swipe page can load its
+/// own chapter.
+final chapterVersesWithTagsProvider = Provider<AsyncValue<Set<int>>>((ref) {
+  final bookName = ref.watch(selectedBookNameProvider);
+  final chapter = ref.watch(selectedChapterProvider);
+  return ref.watch(
+    chapterVersesWithTagsFamilyProvider((bookName: bookName, chapter: chapter)),
+  );
 });

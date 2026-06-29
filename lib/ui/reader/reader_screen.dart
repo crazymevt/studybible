@@ -55,6 +55,11 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
   final FocusNode _mainFocusNode = FocusNode();
   final TextEditingController _searchController = TextEditingController();
 
+  // Swipe navigation: pages the single-version reader through the flat
+  // [chapterIndexProvider] address space. Created lazily once the chapter
+  // index is available so we can seed it with the correct initial page.
+  PageController? _pageController;
+
   /// Returns the sorted list of verse numbers whose text contains [query]
   /// (case-insensitive) across all displayed versions. Single source of truth
   /// for the in-page find — used by both the input handler and build().
@@ -145,7 +150,45 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
     _searchFocusNode.dispose();
     _mainFocusNode.dispose();
     _searchController.dispose();
+    _pageController?.dispose();
     super.dispose();
+  }
+
+  /// Moves the swipe [PageView] to [targetIndex] when the chapter selection
+  /// changes from outside the PageView (book chooser, search, history, etc.).
+  /// Adjacent moves animate like a swipe; longer jumps are instant. A no-op
+  /// when the controller is already on the target page, which is what keeps
+  /// user swipes (whose [onPageChanged] sets the selection) from looping.
+  void _syncPageController(int targetIndex) {
+    final c = _pageController;
+    if (c == null || !c.hasClients) return;
+    final current = (c.page ?? c.initialPage.toDouble()).round();
+    if (current == targetIndex) return;
+    if ((targetIndex - current).abs() == 1) {
+      c.animateToPage(
+        targetIndex,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    } else {
+      c.jumpToPage(targetIndex);
+    }
+  }
+
+  /// Applies a user swipe: records the chapter the PageView settled on as the
+  /// new global selection. Guarded against re-applying the current selection so
+  /// programmatic page moves don't double-record history.
+  void _onPageSettled(int i) {
+    final index = ref.read(chapterIndexProvider).value;
+    if (index == null || i < 0 || i >= index.length) return;
+    final entry = index[i];
+    if (entry.bookName == ref.read(selectedBookNameProvider) &&
+        entry.chapter == ref.read(selectedChapterProvider)) {
+      return;
+    }
+    ref.read(selectedBookNameProvider.notifier).set(entry.bookName);
+    ref.read(selectedChapterProvider.notifier).set(entry.chapter);
+    ref.read(navigationControllerProvider).recordHistory();
   }
 
   void _nextMatch(List<int> matchVerses) {
@@ -280,21 +323,12 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
     final parallelVersesAsync = ref.watch(parallelVersesProvider);
     final bookName = ref.watch(selectedBookNameProvider);
     final chapter = ref.watch(selectedChapterProvider);
-    final showStrongNumbers = ref.watch(appShowStrongNumbersProvider);
-    final savedHighlightsAsync = ref.watch(chapterHighlightsProvider);
-    final savedHighlights = savedHighlightsAsync.value ?? <int, String>{};
     final selectedVerses = ref.watch(selectedVersesProvider);
-    
-    final versesWithNotesAsync = ref.watch(chapterVersesWithNotesProvider);
-    final versesWithNotes = versesWithNotesAsync.value ?? <int>{};
-    
-    final versesWithTagsAsync = ref.watch(chapterVersesWithTagsProvider);
-    final versesWithTags = versesWithTagsAsync.value ?? <int>{};
 
+    // Per-chapter verse decorations (highlights, notes, tags, subheadings) are
+    // now watched per page by _ChapterPage so the swipe PageView can load each
+    // chapter independently.
     final audioData = ref.watch(chapterAudioProvider);
-
-    final subheadingsAsync = ref.watch(chapterSubheadingsProvider((bookName: bookName, chapter: chapter)));
-    final subheadings = subheadingsAsync.value ?? <int, List<String>>{};
 
     // Auto-tracking logic
     ref.listen<String>(selectedBookNameProvider, (prev, next) {
@@ -613,139 +647,277 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
               ),
             ),
           Expanded(
-            child: parallelVersesAsync.when(
-        data: (versesMap) {
-          if (versesMap.isEmpty) {
-            return _ReaderMessage(
-              icon: Icons.menu_book_outlined,
-              title: 'Nothing to show here',
-              message:
-                  'No verses were found for $bookName $chapter in the selected version.',
-              actionLabel: 'Choose another version',
-              onAction: _showVersionPicker,
-            );
-          }
-
-          final headerWidget = Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(top: 40.0, bottom: 16.0),
-                child: Text(
-                  '$bookName $chapter',
-                  style: GoogleFonts.lora(
-                    textStyle: Theme.of(context).textTheme.displaySmall,
-                    fontStyle: FontStyle.italic,
-                    fontWeight: FontWeight.w600,
-                    color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.85),
+            child: Stack(
+              children: [
+                Positioned.fill(
+                  child: _buildReaderBody(context, bookName, chapter),
+                ),
+                if (selectedVerses.isNotEmpty)
+                  Positioned(
+                    // Lift the bar above the system navigation bar / gesture
+                    // area so it isn't clipped by the Android nav buttons.
+                    bottom: 16 + MediaQuery.viewPaddingOf(context).bottom,
+                    left: 0,
+                    right: 0,
+                    child: const Center(child: VerseActionBar()),
                   ),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-              Container(
-                width: 250,
-                height: 1,
-                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.5),
-                margin: const EdgeInsets.only(bottom: 32.0),
-              ),
-            ],
-          );
-
-          Widget content;
-          final trueActiveVersions = versesMap.keys.toList();
-          if (trueActiveVersions.length == 1) {
-            final versionId = trueActiveVersions.first;
-            final verses = versesMap[versionId] ?? [];
-            content = _isFlowing
-                ? FlowingParagraphView(
-                    verses: verses,
-                    selectedVerses: selectedVerses,
-                    savedHighlights: savedHighlights,
-                    versesWithNotes: versesWithNotes,
-                    versesWithTags: versesWithTags,
-                    subheadings: subheadings,
-                    onVerseTap: _onVerseTap,
-                    onFootnoteTap: (verseId) => _openCommentaryPanel(),
-                    onStrongTap: _openStrongDictionary,
-                    showStrongNumbers: showStrongNumbers,
-                    searchQuery: _searchQuery,
-                    headerWidget: headerWidget,
-                  )
-                : VerseListView(
-                    verses: verses,
-                    selectedVerses: selectedVerses,
-                    savedHighlights: savedHighlights,
-                    versesWithNotes: versesWithNotes,
-                    versesWithTags: versesWithTags,
-                    subheadings: subheadings,
-                    onVerseTap: _onVerseTap,
-                    onFootnoteTap: (verseId) => _openCommentaryPanel(),
-                    onStrongTap: _openStrongDictionary,
-                    showStrongNumbers: showStrongNumbers,
-                    searchQuery: _searchQuery,
-                    headerWidget: headerWidget,
-                  );
-            // Cap the single-column reading measure so verse text doesn't
-            // stretch the full pane width on desktop; centered with margins.
-            // (Parallel view keeps the full width for its side-by-side columns.)
-            content = Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 720),
-                child: content,
-              ),
-            );
-          } else {
-            content = ParallelView(
-              versesMap: versesMap,
-              isFlowing: _isFlowing,
-              selectedVerses: selectedVerses,
-              savedHighlights: savedHighlights,
-              versesWithNotes: versesWithNotes,
-              versesWithTags: versesWithTags,
-              subheadings: subheadings,
-              onVerseTap: _onVerseTap,
-              onFootnoteTap: (verseId) => _openCommentaryPanel(),
-              onStrongTap: _openStrongDictionary,
-              showStrongNumbers: showStrongNumbers,
-              searchQuery: _searchQuery,
-              headerWidget: headerWidget,
-            );
-          }
-
-          return Stack(
-            children: [
-              Positioned.fill(
-                child: Column(
-                  children: [
-                    Expanded(child: content),
-                  ],
-                ),
-              ),
-              if (selectedVerses.isNotEmpty)
-                Positioned(
-                  // Lift the bar above the system navigation bar / gesture area
-                  // so it isn't clipped by the Android nav buttons.
-                  bottom: 16 + MediaQuery.viewPaddingOf(context).bottom,
-                  left: 0,
-                  right: 0,
-                  child: const Center(child: VerseActionBar()),
-                ),
-            ],
-          );
-        },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, stack) => _ReaderMessage(
-          icon: Icons.error_outline,
-          title: 'Couldn\'t load this chapter',
-          message: 'Something went wrong while loading $bookName $chapter.',
-          actionLabel: 'Try again',
-          onAction: () => ref.invalidate(parallelVersesProvider),
-        ),
-      ),
-    ),
+              ],
+            ),
+          ),
         ],
       ),
     ));
+  }
+
+  /// Builds the scrollable reading area. On touch devices showing a single
+  /// version it pages through every chapter via a [PageView] (smooth swipe
+  /// navigation, with adjacent chapters pre-built). Parallel view, desktop, and
+  /// the pre-index window fall back to rendering just the current chapter.
+  Widget _buildReaderBody(BuildContext context, String bookName, int chapter) {
+    final currentChapterAsync = ref.watch(parallelVersesProvider);
+
+    return currentChapterAsync.when(
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (err, stack) => _ReaderMessage(
+        icon: Icons.error_outline,
+        title: 'Couldn\'t load this chapter',
+        message: 'Something went wrong while loading $bookName $chapter.',
+        actionLabel: 'Try again',
+        onAction: () => ref.invalidate(parallelVersesProvider),
+      ),
+      data: (versesMap) {
+        final isSingleVersion = versesMap.length <= 1;
+        final platform = Theme.of(context).platform;
+        final isTouchMobile = platform == TargetPlatform.android ||
+            platform == TargetPlatform.iOS;
+
+        // Parallel view and non-touch platforms render only the current
+        // chapter — no swipe paging (arrow keys / footer still navigate).
+        if (!isSingleVersion || !isTouchMobile) {
+          return _ChapterPage(
+            bookName: bookName,
+            chapter: chapter,
+            isFlowing: _isFlowing,
+            searchQuery: _searchQuery,
+            onVerseTap: _onVerseTap,
+            onFootnoteTap: (_) => _openCommentaryPanel(),
+            onStrongTap: _openStrongDictionary,
+            onChooseVersion: _showVersionPicker,
+            onRetry: () => ref.invalidate(parallelVersesProvider),
+          );
+        }
+
+        final chapterIndex = ref.watch(chapterIndexProvider).value;
+        if (chapterIndex == null || chapterIndex.isEmpty) {
+          return _ChapterPage(
+            bookName: bookName,
+            chapter: chapter,
+            isFlowing: _isFlowing,
+            searchQuery: _searchQuery,
+            onVerseTap: _onVerseTap,
+            onFootnoteTap: (_) => _openCommentaryPanel(),
+            onStrongTap: _openStrongDictionary,
+            onChooseVersion: _showVersionPicker,
+            onRetry: () => ref.invalidate(parallelVersesProvider),
+          );
+        }
+
+        final currentIndex = chapterIndex.indexWhere(
+          (e) => e.bookName == bookName && e.chapter == chapter,
+        );
+        final safeIndex = currentIndex < 0 ? 0 : currentIndex;
+        _pageController ??= PageController(initialPage: safeIndex);
+
+        // Realign the controller when the chapter changes from outside the
+        // PageView (book chooser, search, history, arrow keys, footer).
+        if (currentIndex >= 0) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) _syncPageController(currentIndex);
+          });
+        }
+
+        return PageView.builder(
+          controller: _pageController,
+          itemCount: chapterIndex.length,
+          // Pre-build the adjacent chapters so a swipe animates smoothly
+          // instead of flashing a loading spinner mid-drag.
+          allowImplicitScrolling: true,
+          onPageChanged: _onPageSettled,
+          itemBuilder: (context, i) {
+            final e = chapterIndex[i];
+            return _ChapterPage(
+              bookName: e.bookName,
+              chapter: e.chapter,
+              isFlowing: _isFlowing,
+              searchQuery: _searchQuery,
+              onVerseTap: _onVerseTap,
+              onFootnoteTap: (_) => _openCommentaryPanel(),
+              onStrongTap: _openStrongDictionary,
+              onChooseVersion: _showVersionPicker,
+              onRetry: () => ref.invalidate(
+                chapterVersesProvider(
+                  (bookName: e.bookName, chapter: e.chapter),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+}
+
+/// Renders a single chapter's verses (single-version or parallel) for the
+/// reader. Self-contained: it watches its own chapter's verses and decorations
+/// via the `(bookName, chapter)` provider families, so several instances can be
+/// kept alive side-by-side inside the reader's swipe [PageView].
+class _ChapterPage extends ConsumerWidget {
+  final String bookName;
+  final int chapter;
+  final bool isFlowing;
+  final String searchQuery;
+  final void Function(int verseId) onVerseTap;
+  final void Function(int verseId) onFootnoteTap;
+  final void Function(String strongNumber) onStrongTap;
+  final VoidCallback onChooseVersion;
+  final VoidCallback onRetry;
+
+  const _ChapterPage({
+    required this.bookName,
+    required this.chapter,
+    required this.isFlowing,
+    required this.searchQuery,
+    required this.onVerseTap,
+    required this.onFootnoteTap,
+    required this.onStrongTap,
+    required this.onChooseVersion,
+    required this.onRetry,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final key = (bookName: bookName, chapter: chapter);
+    final versesAsync = ref.watch(chapterVersesProvider(key));
+    final showStrongNumbers = ref.watch(appShowStrongNumbersProvider);
+    final selectedVerses = ref.watch(selectedVersesProvider);
+    final savedHighlights =
+        ref.watch(chapterHighlightsFamilyProvider(key)).value ?? <int, String>{};
+    final versesWithNotes =
+        ref.watch(chapterVersesWithNotesFamilyProvider(key)).value ?? <int>{};
+    final versesWithTags =
+        ref.watch(chapterVersesWithTagsFamilyProvider(key)).value ?? <int>{};
+    final subheadings = ref.watch(chapterSubheadingsProvider(key)).value ??
+        <int, List<String>>{};
+
+    return versesAsync.when(
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (err, stack) => _ReaderMessage(
+        icon: Icons.error_outline,
+        title: 'Couldn\'t load this chapter',
+        message: 'Something went wrong while loading $bookName $chapter.',
+        actionLabel: 'Try again',
+        onAction: onRetry,
+      ),
+      data: (versesMap) {
+        if (versesMap.isEmpty) {
+          return _ReaderMessage(
+            icon: Icons.menu_book_outlined,
+            title: 'Nothing to show here',
+            message:
+                'No verses were found for $bookName $chapter in the selected version.',
+            actionLabel: 'Choose another version',
+            onAction: onChooseVersion,
+          );
+        }
+
+        final headerWidget = Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(top: 40.0, bottom: 16.0),
+              child: Text(
+                '$bookName $chapter',
+                style: GoogleFonts.lora(
+                  textStyle: Theme.of(context).textTheme.displaySmall,
+                  fontStyle: FontStyle.italic,
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context)
+                      .colorScheme
+                      .primary
+                      .withValues(alpha: 0.85),
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            Container(
+              width: 250,
+              height: 1,
+              color:
+                  Theme.of(context).colorScheme.primary.withValues(alpha: 0.5),
+              margin: const EdgeInsets.only(bottom: 32.0),
+            ),
+          ],
+        );
+
+        final versionIds = versesMap.keys.toList();
+        if (versionIds.length == 1) {
+          final verses = versesMap[versionIds.first] ?? [];
+          final Widget view = isFlowing
+              ? FlowingParagraphView(
+                  verses: verses,
+                  selectedVerses: selectedVerses,
+                  savedHighlights: savedHighlights,
+                  versesWithNotes: versesWithNotes,
+                  versesWithTags: versesWithTags,
+                  subheadings: subheadings,
+                  onVerseTap: onVerseTap,
+                  onFootnoteTap: onFootnoteTap,
+                  onStrongTap: onStrongTap,
+                  showStrongNumbers: showStrongNumbers,
+                  searchQuery: searchQuery,
+                  headerWidget: headerWidget,
+                )
+              : VerseListView(
+                  verses: verses,
+                  selectedVerses: selectedVerses,
+                  savedHighlights: savedHighlights,
+                  versesWithNotes: versesWithNotes,
+                  versesWithTags: versesWithTags,
+                  subheadings: subheadings,
+                  onVerseTap: onVerseTap,
+                  onFootnoteTap: onFootnoteTap,
+                  onStrongTap: onStrongTap,
+                  showStrongNumbers: showStrongNumbers,
+                  searchQuery: searchQuery,
+                  headerWidget: headerWidget,
+                );
+          // Cap the single-column reading measure so verse text doesn't
+          // stretch the full pane width on desktop; centered with margins.
+          return Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 720),
+              child: view,
+            ),
+          );
+        }
+
+        return ParallelView(
+          versesMap: versesMap,
+          isFlowing: isFlowing,
+          selectedVerses: selectedVerses,
+          savedHighlights: savedHighlights,
+          versesWithNotes: versesWithNotes,
+          versesWithTags: versesWithTags,
+          subheadings: subheadings,
+          onVerseTap: onVerseTap,
+          onFootnoteTap: onFootnoteTap,
+          onStrongTap: onStrongTap,
+          showStrongNumbers: showStrongNumbers,
+          searchQuery: searchQuery,
+          headerWidget: headerWidget,
+        );
+      },
+    );
   }
 }
 

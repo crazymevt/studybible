@@ -236,9 +236,8 @@ final chapterSubheadingsProvider = FutureProvider.family<Map<int, List<String>>,
 /// Pure derivation — it must not write back to [activeVersionsProvider]. The
 /// stored preference is self-healed by [ActiveVersionsNotifier] instead;
 /// mutating a watched dependency here threw "setState() called during build".
-final parallelVersesProvider = FutureProvider<Map<String, List<Verse>>>((
-  ref,
-) async {
+final chapterVersesProvider = FutureProvider.family<Map<String, List<Verse>>,
+    ({String bookName, int chapter})>((ref, args) async {
   final activeVersions = ref.watch(activeVersionsProvider);
   final installedVersions = ref.watch(versionsProvider.select((v) => v.value));
 
@@ -254,17 +253,15 @@ final parallelVersesProvider = FutureProvider<Map<String, List<Verse>>>((
     versions = valid.isEmpty ? [installedVersions.first.id] : valid;
   }
 
-  final bookName = ref.watch(selectedBookNameProvider);
-  final chapter = ref.watch(selectedChapterProvider);
-
   final map = <String, List<Verse>>{};
   for (final versionId in versions) {
     final book = await ref.watch(
-      bookByNameProvider((versionId: versionId, name: bookName)).future,
+      bookByNameProvider((versionId: versionId, name: args.bookName)).future,
     );
     if (book != null) {
       final verses = await ref.watch(
-        versesForChapterProvider((bookId: book.id, chapter: chapter)).future,
+        versesForChapterProvider((bookId: book.id, chapter: args.chapter))
+            .future,
       );
       map[versionId] = verses;
     } else {
@@ -272,6 +269,41 @@ final parallelVersesProvider = FutureProvider<Map<String, List<Verse>>>((
     }
   }
   return map;
+});
+
+/// The verse map for the currently-selected chapter. Thin wrapper over
+/// [chapterVersesProvider] so swipe-adjacent chapters can be loaded by the same
+/// family without every call site needing to pass the chapter explicitly.
+final parallelVersesProvider = FutureProvider<Map<String, List<Verse>>>((ref) {
+  final bookName = ref.watch(selectedBookNameProvider);
+  final chapter = ref.watch(selectedChapterProvider);
+  return ref
+      .watch(chapterVersesProvider((bookName: bookName, chapter: chapter)).future);
+});
+
+/// A flat, ordered list of every (book, chapter) in the primary version — the
+/// linear address space the reader's swipe [PageView] indexes into. Rebuilds
+/// when the active/installed versions change.
+final chapterIndexProvider =
+    FutureProvider<List<({String bookName, int chapter})>>((ref) async {
+  final activeVersions = ref.watch(activeVersionsProvider);
+  final installedVersions = ref.watch(versionsProvider.select((v) => v.value));
+  if (installedVersions == null || installedVersions.isEmpty) return [];
+
+  final valid = activeVersions
+      .where((av) => installedVersions.any((iv) => iv.id == av))
+      .toList();
+  final primary = valid.isEmpty ? installedVersions.first.id : valid.first;
+
+  final books = await ref.watch(booksForVersionProvider(primary).future);
+  final index = <({String bookName, int chapter})>[];
+  for (final book in books) {
+    final count = await ref.watch(chapterCountProvider(book.id).future);
+    for (var c = 1; c <= count; c++) {
+      index.add((bookName: book.name, chapter: c));
+    }
+  }
+  return index;
 });
 
 class CompareResult {

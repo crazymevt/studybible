@@ -16,19 +16,30 @@ final userStoreProvider = Provider<UserStore>((ref) {
 });
 
 // A stream provider that emits the Map of highlighted verses for the current book/chapter.
-final chapterHighlightsProvider = StreamProvider<Map<int, String>>((ref) {
+final chapterHighlightsFamilyProvider = StreamProvider.family<Map<int, String>,
+    ({String bookName, int chapter})>((ref, args) {
   final store = ref.watch(userStoreProvider);
-  final bookName = ref.watch(selectedBookNameProvider);
-  final chapter = ref.watch(selectedChapterProvider);
 
   return (store.select(store.highlights)..where(
         (h) =>
-            (h.bookName.equals(bookName)) &
-            (h.chapter.equals(chapter)) &
+            (h.bookName.equals(args.bookName)) &
+            (h.chapter.equals(args.chapter)) &
             (h.deleted.equals(false)),
       ))
       .watch()
       .map((highlights) => {for (var h in highlights) h.verse: h.colorHex});
+});
+
+/// Highlights for the currently-selected chapter. Delegates to
+/// [chapterHighlightsFamilyProvider] so the reader's swipe pages can each load
+/// their own chapter's highlights.
+final chapterHighlightsProvider =
+    Provider<AsyncValue<Map<int, String>>>((ref) {
+  final bookName = ref.watch(selectedBookNameProvider);
+  final chapter = ref.watch(selectedChapterProvider);
+  return ref.watch(
+    chapterHighlightsFamilyProvider((bookName: bookName, chapter: chapter)),
+  );
 });
 
 final highlightActionProvider = Provider((ref) {
@@ -125,18 +136,47 @@ class HighlightAction {
 }
 
 // NOTES
-final chapterNotesProvider = StreamProvider<List<Note>>((ref) {
+final chapterNotesFamilyProvider = StreamProvider.family<List<Note>,
+    ({String bookName, int chapter})>((ref, args) {
   final store = ref.watch(userStoreProvider);
-  final bookName = ref.watch(selectedBookNameProvider);
-  final chapter = ref.watch(selectedChapterProvider);
 
   return (store.select(store.notes)..where(
         (n) =>
-            (n.bookName.equals(bookName)) &
-            (n.chapter.equals(chapter)) &
+            (n.bookName.equals(args.bookName)) &
+            (n.chapter.equals(args.chapter)) &
             (n.deleted.equals(false)),
       ))
       .watch();
+});
+
+/// Notes for the currently-selected chapter. Delegates to
+/// [chapterNotesFamilyProvider] so each reader swipe page loads its own chapter.
+final chapterNotesProvider = Provider<AsyncValue<List<Note>>>((ref) {
+  final bookName = ref.watch(selectedBookNameProvider);
+  final chapter = ref.watch(selectedChapterProvider);
+  return ref.watch(
+    chapterNotesFamilyProvider((bookName: bookName, chapter: chapter)),
+  );
+});
+
+final chapterVersesWithNotesFamilyProvider =
+    Provider.family<AsyncValue<Set<int>>, ({String bookName, int chapter})>(
+        (ref, args) {
+  final notesAsync = ref.watch(chapterNotesFamilyProvider(args));
+  return notesAsync.whenData((notes) {
+    final set = <int>{};
+    for (final n in notes) {
+      if (n.verse != null) set.add(n.verse!);
+      if (n.selectedVerses != null) {
+        final verses = n.selectedVerses!
+            .split(',')
+            .map((e) => int.tryParse(e.trim()))
+            .whereType<int>();
+        set.addAll(verses);
+      }
+    }
+    return set;
+  });
 });
 
 final chapterVersesWithNotesProvider = Provider<AsyncValue<Set<int>>>((ref) {
