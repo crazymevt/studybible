@@ -32,7 +32,7 @@ class UserStore extends _$UserStore {
   UserStore([QueryExecutor? e]) : super(e ?? _openConnection());
 
   @override
-  int get schemaVersion => 16;
+  int get schemaVersion => 17;
 
   @override
   MigrationStrategy get migration {
@@ -42,110 +42,7 @@ class UserStore extends _$UserStore {
         await customStatement('''
           CREATE VIRTUAL TABLE IF NOT EXISTS user_search USING fts5(type UNINDEXED, reference_id UNINDEXED, text_content);
         ''');
-        await customStatement('''
-          CREATE TRIGGER IF NOT EXISTS notes_ai AFTER INSERT ON notes 
-          WHEN new.deleted = 0
-          BEGIN
-            INSERT INTO user_search(type, reference_id, text_content) VALUES ('note', new.id, new.content);
-          END;
-        ''');
-        await customStatement('''
-          CREATE TRIGGER IF NOT EXISTS notes_au AFTER UPDATE ON notes 
-          WHEN new.deleted = 0
-          BEGIN
-            UPDATE user_search SET text_content = new.content WHERE type = 'note' AND reference_id = new.id;
-          END;
-        ''');
-        await customStatement('''
-          CREATE TRIGGER IF NOT EXISTS notes_ad AFTER DELETE ON notes BEGIN
-            DELETE FROM user_search WHERE type = 'note' AND reference_id = old.id;
-          END;
-        ''');
-        await customStatement('''
-          CREATE TRIGGER IF NOT EXISTS notes_soft_delete_au AFTER UPDATE ON notes 
-          WHEN new.deleted = 1 AND old.deleted = 0
-          BEGIN
-            DELETE FROM user_search WHERE type = 'note' AND reference_id = old.id;
-          END;
-        ''');
-        await customStatement('''
-          CREATE TRIGGER IF NOT EXISTS sermons_ai AFTER INSERT ON sermons 
-          WHEN new.deleted = 0
-          BEGIN
-            INSERT INTO user_search(type, reference_id, text_content) VALUES ('sermon', new.id, new.title || ' ' || COALESCE(new.series, '') || ' ' || COALESCE(new.content_plain, ''));
-          END;
-        ''');
-        await customStatement('''
-          CREATE TRIGGER IF NOT EXISTS sermons_au AFTER UPDATE ON sermons 
-          WHEN new.deleted = 0
-          BEGIN
-            UPDATE user_search SET text_content = new.title || ' ' || COALESCE(new.series, '') || ' ' || COALESCE(new.content_plain, '') WHERE type = 'sermon' AND reference_id = new.id;
-          END;
-        ''');
-        await customStatement('''
-          CREATE TRIGGER IF NOT EXISTS sermons_ad AFTER DELETE ON sermons BEGIN
-            DELETE FROM user_search WHERE type = 'sermon' AND reference_id = old.id;
-          END;
-        ''');
-        await customStatement('''
-          CREATE TRIGGER IF NOT EXISTS sermons_soft_delete_au AFTER UPDATE ON sermons 
-          WHEN new.deleted = 1 AND old.deleted = 0
-          BEGIN
-            DELETE FROM user_search WHERE type = 'sermon' AND reference_id = old.id;
-          END;
-        ''');
-        await customStatement('''
-          CREATE TRIGGER IF NOT EXISTS journals_ai AFTER INSERT ON journals 
-          WHEN new.deleted = 0
-          BEGIN
-            INSERT INTO user_search(type, reference_id, text_content) VALUES ('journal', new.id, new.title || ' ' || new.content);
-          END;
-        ''');
-        await customStatement('''
-          CREATE TRIGGER IF NOT EXISTS journals_au AFTER UPDATE ON journals 
-          WHEN new.deleted = 0
-          BEGIN
-            UPDATE user_search SET text_content = new.title || ' ' || new.content WHERE type = 'journal' AND reference_id = new.id;
-          END;
-        ''');
-        await customStatement('''
-          CREATE TRIGGER IF NOT EXISTS journals_ad AFTER DELETE ON journals BEGIN
-            DELETE FROM user_search WHERE type = 'journal' AND reference_id = old.id;
-          END;
-        ''');
-        await customStatement('''
-          CREATE TRIGGER IF NOT EXISTS journals_soft_delete_au AFTER UPDATE ON journals 
-          WHEN new.deleted = 1 AND old.deleted = 0
-          BEGIN
-            DELETE FROM user_search WHERE type = 'journal' AND reference_id = old.id;
-          END;
-        ''');
-        await customStatement('''
-          CREATE TRIGGER IF NOT EXISTS prayers_ai AFTER INSERT ON prayers 
-          WHEN new.deleted = 0
-          BEGIN
-            INSERT INTO user_search(type, reference_id, text_content) VALUES ('prayer', new.id, new.name || ' ' || new.description);
-          END;
-        ''');
-        await customStatement('''
-          CREATE TRIGGER IF NOT EXISTS prayers_au AFTER UPDATE ON prayers 
-          WHEN new.deleted = 0
-          BEGIN
-            UPDATE user_search SET text_content = new.name || ' ' || new.description WHERE type = 'prayer' AND reference_id = new.id;
-          END;
-        ''');
-        await customStatement('''
-          CREATE TRIGGER IF NOT EXISTS prayers_ad AFTER DELETE ON prayers BEGIN
-            DELETE FROM user_search WHERE type = 'prayer' AND reference_id = old.id;
-          END;
-        ''');
-        await customStatement('''
-          CREATE TRIGGER IF NOT EXISTS prayers_soft_delete_au AFTER UPDATE ON prayers 
-          WHEN new.deleted = 1 AND old.deleted = 0
-          BEGIN
-            DELETE FROM user_search WHERE type = 'prayer' AND reference_id = old.id;
-          END;
-        ''');
+        await _installSearchTriggers();
       },
       onUpgrade: (Migrator m, int from, int to) async {
         if (from < 2) {
@@ -592,8 +489,87 @@ class UserStore extends _$UserStore {
             DELETE FROM user_search WHERE type = 'prayer' AND reference_id IN (SELECT id FROM prayers WHERE deleted = 1);
           ''');
         }
+        if (from < 17) {
+          // The v14-v16 migration blocks ran out of order (the `from < 16`
+          // block executes before `from < 15` in source order), so every
+          // upgraded DB ended up with the old WHEN-based triggers. Those leak
+          // soft-deleted rows into the FTS index on INSERT OR REPLACE, because
+          // REPLACE's implicit row delete does not fire the AFTER DELETE
+          // trigger while recursive_triggers is off. Reinstall the robust
+          // triggers and rebuild the index from scratch to heal every install.
+          await _installSearchTriggers();
+          await _rebuildSearchIndex();
+        }
       },
     );
+  }
+
+  /// (Re)installs the FTS maintenance triggers for the user-content tables in
+  /// their robust form: every INSERT/UPDATE first clears any stale index row
+  /// for the id, then re-indexes only when the row is live. The unconditional
+  /// DELETE is what makes INSERT OR REPLACE safe -- REPLACE deletes the old
+  /// row without firing the AFTER DELETE trigger (recursive_triggers is off),
+  /// so the leak is closed inside the INSERT/UPDATE triggers themselves.
+  Future<void> _installSearchTriggers() async {
+    const configs = [
+      ['note', 'notes', 'new.content'],
+      [
+        'sermon',
+        'sermons',
+        "new.title || ' ' || COALESCE(new.series, '') || ' ' || COALESCE(new.content_plain, '')"
+      ],
+      ['journal', 'journals', "new.title || ' ' || new.content"],
+      ['prayer', 'prayers', "new.name || ' ' || new.description"],
+    ];
+    for (final c in configs) {
+      final type = c[0];
+      final table = c[1];
+      final expr = c[2];
+      // Drop every prior variant, including the v14-v16 *_soft_delete_au helpers.
+      await customStatement('DROP TRIGGER IF EXISTS ${table}_ai;');
+      await customStatement('DROP TRIGGER IF EXISTS ${table}_au;');
+      await customStatement('DROP TRIGGER IF EXISTS ${table}_ad;');
+      await customStatement('DROP TRIGGER IF EXISTS ${table}_soft_delete_au;');
+      await customStatement('''
+        CREATE TRIGGER ${table}_ai AFTER INSERT ON $table BEGIN
+          DELETE FROM user_search WHERE type = '$type' AND reference_id = new.id;
+          INSERT INTO user_search(type, reference_id, text_content) SELECT '$type', new.id, $expr WHERE new.deleted = 0;
+        END;
+      ''');
+      await customStatement('''
+        CREATE TRIGGER ${table}_au AFTER UPDATE ON $table BEGIN
+          DELETE FROM user_search WHERE type = '$type' AND reference_id = new.id;
+          INSERT INTO user_search(type, reference_id, text_content) SELECT '$type', new.id, $expr WHERE new.deleted = 0;
+        END;
+      ''');
+      await customStatement('''
+        CREATE TRIGGER ${table}_ad AFTER DELETE ON $table BEGIN
+          DELETE FROM user_search WHERE type = '$type' AND reference_id = old.id;
+        END;
+      ''');
+    }
+  }
+
+  /// Wipes and repopulates the entire FTS index from the live (non-deleted)
+  /// rows of every indexed source, including entity tags.
+  Future<void> _rebuildSearchIndex() async {
+    await customStatement('DELETE FROM user_search;');
+    await customStatement(
+        "INSERT INTO user_search(type, reference_id, text_content) SELECT 'note', id, content FROM notes WHERE deleted = 0;");
+    await customStatement(
+        "INSERT INTO user_search(type, reference_id, text_content) SELECT 'journal', id, title || ' ' || content FROM journals WHERE deleted = 0;");
+    await customStatement(
+        "INSERT INTO user_search(type, reference_id, text_content) SELECT 'sermon', id, title || ' ' || COALESCE(series, '') || ' ' || COALESCE(content_plain, '') FROM sermons WHERE deleted = 0;");
+    await customStatement(
+        "INSERT INTO user_search(type, reference_id, text_content) SELECT 'prayer', id, name || ' ' || description FROM prayers WHERE deleted = 0;");
+    // Restore tag rows, which share (type, reference_id) with their content row.
+    await customStatement('''
+      INSERT INTO user_search(type, reference_id, text_content)
+      SELECT et.entity_type, et.entity_id, '#' || t.name
+      FROM entity_tags et
+      JOIN tags t ON et.tag_id = t.id
+      WHERE et.deleted = 0;
+    ''');
   }
 }
 
