@@ -1,0 +1,32 @@
+name: Deploy site
+
+# Publishes the static landing page in docs/ to the gh-pages branch.
+# gh-pages also hosts appcast.xml (the Windows auto-update feed deployed by
+# release.yml), so this uses keep_files: true to leave that file untouched.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/**'
+      - '.github/workflows/deploy-site.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    name: Publish landing page
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Deploy docs/ to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs
+          keep_files: true
+          exclude_assets: '.DS_Store'
