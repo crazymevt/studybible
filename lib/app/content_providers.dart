@@ -550,13 +550,14 @@ final dictionaryEntriesProvider = FutureProvider<List<DictionaryEntryWithDict>>(
     final term = query.term.trim();
     if (term.isEmpty) return [];
 
-    Future<List<DictionaryEntryWithDict>> runLike(String pattern) async {
+    Future<List<DictionaryEntryWithDict>> runWhere(
+        Expression<bool> predicate) async {
       final q = store.select(store.dictionaryEntries).join([
         innerJoin(
           store.dictionaries,
           store.dictionaries.id.equalsExp(store.dictionaryEntries.dictionaryId),
         ),
-      ])..where(store.dictionaryEntries.word.like(pattern));
+      ])..where(predicate);
 
       final results = await q.get();
       return results.map((row) {
@@ -567,13 +568,55 @@ final dictionaryEntriesProvider = FutureProvider<List<DictionaryEntryWithDict>>(
       }).toList();
     }
 
+    // A Strong's number (e.g. tapped in the reader, or typed as "H7225") has to
+    // resolve a lexicon headword even when the two were authored with different
+    // padding/prefix conventions — a module emitting "H07225" against a lexicon
+    // keyed "H7225". Match the numeric value (plus optional H/G prefix) across
+    // every plausible surface form rather than the literal string.
+    final strongsForms = strongsLookupForms(term);
+    if (strongsForms.isNotEmpty) {
+      final word = store.dictionaryEntries.word;
+      // LIKE (no wildcards) gives a case-insensitive exact match per form.
+      final predicate = strongsForms
+          .map((f) => word.like(f))
+          .reduce((a, b) => a | b);
+      return runWhere(predicate);
+    }
+
     // LIKE with no wildcards is an exact, case-insensitive match, so a tapped
     // lowercase word still resolves a capitalised headword. Exact lookups don't
     // fall back to a substring search: showing unrelated words that merely
     // contain the term is worse than an honest "not found".
-    return runLike(query.exact ? term : '%$term%');
+    final pattern = query.exact ? term : '%$term%';
+    return runWhere(store.dictionaryEntries.word.like(pattern));
   },
 );
+
+/// Expands a Strong's token into the headword forms a lexicon might store it
+/// under. Returns an empty list when [term] is not a Strong's number, so the
+/// caller can fall back to an ordinary word search.
+///
+/// Modules and lexicons disagree on padding and on whether the testament prefix
+/// is present: the same lemma turns up as `H7225`, `H07225`, `07225`, or
+/// `7225`. We key off the numeric value (leading zeros stripped) and re-emit it
+/// padded to the common widths, with and without the uppercased prefix, so a
+/// tap in one module resolves a headword imported from another.
+List<String> strongsLookupForms(String term) {
+  final m = RegExp(r'^([GgHh]?)0*(\d+)$').firstMatch(term.trim());
+  if (m == null) return const [];
+  final prefix = m.group(1)!.toUpperCase();
+  final digits = m.group(2)!; // leading zeros stripped; always ≥ 1 digit
+  final numbers = <String>{digits};
+  for (var width = 2; width <= 5; width++) {
+    numbers.add(digits.padLeft(width, '0'));
+  }
+  final forms = <String>{};
+  for (final n in numbers) {
+    forms.add(n);
+    if (prefix.isNotEmpty) forms.add('$prefix$n');
+  }
+  return forms.toList();
+}
 
 class NavigationController {
   final Ref ref;

@@ -122,6 +122,15 @@ class _DictionaryPanelState extends ConsumerState<DictionaryPanel> {
                                 fontWeight: FontWeight.bold,
                               ),
                         ),
+                        // The headword being defined (e.g. the Strong's number
+                        // "H7225"), so it's clear which entry you're reading —
+                        // important when several codes resolve similar glosses.
+                        if (item.entry.word.isNotEmpty)
+                          Text(
+                            item.entry.word,
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(fontWeight: FontWeight.bold),
+                          ),
                         const SizedBox(height: 8),
                         HtmlWidget(
                           item.entry.definition,

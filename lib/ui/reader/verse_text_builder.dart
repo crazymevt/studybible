@@ -130,50 +130,67 @@ List<InlineSpan> buildVerseSpans({
             ),
           ),
         );
-      } else if (showStrongNumbers && seg.strongs != null && seg.strongs!.isNotEmpty) {
-        spans.add(
-          WidgetSpan(
-            alignment: PlaceholderAlignment.top,
-            child: GestureDetector(
-              onTap: () {
-                onStrongTap?.call(seg.strongs!);
-              },
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
-                margin: const EdgeInsets.only(left: 2, right: 2),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.secondaryContainer,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Text(
-                  seg.strongs!,
-                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: Theme.of(context).colorScheme.onSecondaryContainer,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 10,
+      } else {
+        // Render the word text first. Some modules (OSIS/GBF/ThML) carry the
+        // Strong's number *on the same segment* as the word it annotates, so the
+        // chip must be appended *beside* the word — not in place of it. Others
+        // (MyBible) emit the Strong's number as a separate text-less segment that
+        // already follows its word, so here `seg.text` is simply empty.
+        if (seg.text.isNotEmpty) {
+          final style = Theme.of(context).textTheme.bodyLarge?.copyWith(
+            height: 1.8,
+            backgroundColor: bgColor,
+            fontStyle: seg.isItalic ? FontStyle.italic : null,
+            color: seg.isJesusWords ? jesusWordsColor : null,
+          );
+
+          spans.addAll(_buildHighlightedSpans(
+            seg.text,
+            style,
+            onVerseTap: () => onVerseTap(verse.verse),
+            onWordRightClick: onWordRightClick,
+            searchQuery: searchQuery,
+            context: context,
+            recognizers: recognizers,
+          ));
+        }
+
+        if (showStrongNumbers && seg.strongs != null && seg.strongs!.isNotEmpty) {
+          // A single word can carry several Strong's codes (e.g. Genesis 1:1's
+          // direct-object marker, lemma "strong:H0853 strong:H01254"). The
+          // parser space-joins them; render one chip per code so each is its own
+          // tappable lexicon link rather than a single un-resolvable blob.
+          for (final code in seg.strongs!.split(' ')) {
+            if (code.isEmpty) continue;
+            spans.add(
+              WidgetSpan(
+                alignment: PlaceholderAlignment.top,
+                child: GestureDetector(
+                  onTap: () {
+                    onStrongTap?.call(code);
+                  },
+                  child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
+                    margin: const EdgeInsets.only(left: 2, right: 2),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.secondaryContainer,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Text(
+                      code,
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: Theme.of(context).colorScheme.onSecondaryContainer,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 10,
+                      ),
+                    ),
                   ),
                 ),
               ),
-            ),
-          ),
-        );
-      } else {
-        final style = Theme.of(context).textTheme.bodyLarge?.copyWith(
-          height: 1.8,
-          backgroundColor: bgColor,
-          fontStyle: seg.isItalic ? FontStyle.italic : null,
-          color: seg.isJesusWords ? jesusWordsColor : null,
-        );
-
-        spans.addAll(_buildHighlightedSpans(
-          seg.text,
-          style,
-          onVerseTap: () => onVerseTap(verse.verse),
-          onWordRightClick: onWordRightClick,
-          searchQuery: searchQuery,
-          context: context,
-          recognizers: recognizers,
-        ));
+            );
+          }
+        }
       }
     }
     
