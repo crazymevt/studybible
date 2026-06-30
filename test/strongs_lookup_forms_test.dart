@@ -32,6 +32,21 @@ void main() {
       expect(strongsLookupForms('430'), contains('0430'));
     });
 
+    test('a bare MyBible token resolves a prefixed lexicon headword', () {
+      // MyBible Bibles emit "<S n="430">" (bare); their Strong's lexicon keys
+      // the entry "H0430". With no testament in the token, try both H and G.
+      final forms = strongsLookupForms('430');
+      expect(forms, contains('H0430'));
+      expect(forms, contains('G0430'));
+      expect(forms, contains('430'));
+    });
+
+    test('an explicit prefix is not cross-matched to the other testament', () {
+      // "H7225" should never offer a Greek "G..." form.
+      final forms = strongsLookupForms('H7225');
+      expect(forms.where((f) => f.startsWith('G')), isEmpty);
+    });
+
     test('a plain word is not a Strong\'s number', () {
       expect(strongsLookupForms('beginning'), isEmpty);
       expect(strongsLookupForms('love'), isEmpty);

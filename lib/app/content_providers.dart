@@ -599,8 +599,13 @@ final dictionaryEntriesProvider = FutureProvider<List<DictionaryEntryWithDict>>(
 /// Modules and lexicons disagree on padding and on whether the testament prefix
 /// is present: the same lemma turns up as `H7225`, `H07225`, `07225`, or
 /// `7225`. We key off the numeric value (leading zeros stripped) and re-emit it
-/// padded to the common widths, with and without the uppercased prefix, so a
-/// tap in one module resolves a headword imported from another.
+/// padded to the common widths under each plausible prefix, so a tap in one
+/// module resolves a headword imported from another.
+///
+/// A bare number carries no testament — MyBible Bibles emit `<S n="430">` and
+/// leave H/G implicit in the book — yet its lexicon keys the entry `H0430`. So
+/// a prefix-less token is matched against both `H` and `G` forms (plus the bare
+/// form); an explicit `H`/`G` is honoured as given.
 List<String> strongsLookupForms(String term) {
   final m = RegExp(r'^([GgHh]?)0*(\d+)$').firstMatch(term.trim());
   if (m == null) return const [];
@@ -610,10 +615,13 @@ List<String> strongsLookupForms(String term) {
   for (var width = 2; width <= 5; width++) {
     numbers.add(digits.padLeft(width, '0'));
   }
+  final prefixes =
+      prefix.isNotEmpty ? <String>{'', prefix} : <String>{'', 'H', 'G'};
   final forms = <String>{};
   for (final n in numbers) {
-    forms.add(n);
-    if (prefix.isNotEmpty) forms.add('$prefix$n');
+    for (final p in prefixes) {
+      forms.add('$p$n');
+    }
   }
   return forms.toList();
 }
