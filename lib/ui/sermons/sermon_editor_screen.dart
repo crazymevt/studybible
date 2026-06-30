@@ -4,6 +4,7 @@ import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter_quill/quill_delta.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app/sermon_providers.dart';
+import '../../app/revision_common.dart';
 import '../../app/user_providers.dart';
 import '../../data/export/sermon_exporter.dart';
 import '../../data/logging.dart';

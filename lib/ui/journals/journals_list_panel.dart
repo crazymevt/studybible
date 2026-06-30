@@ -4,6 +4,7 @@ import '../../data/user_store.dart';
 import '../../app/journal_providers.dart';
 import 'journal_editor_panel.dart';
 import '../common/breakpoints.dart';
+import '../common/sync_button.dart';
 
 class SelectedJournalIdNotifier extends Notifier<String?> {
   @override
@@ -123,6 +124,7 @@ class JournalsListPanel extends ConsumerWidget {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  const SyncButton(),
                   if (!isDesktop)
                     IconButton(
                       icon: const Icon(Icons.calendar_month),
@@ -141,6 +143,7 @@ class JournalsListPanel extends ConsumerWidget {
                               builder: (_) => Scaffold(
                                 appBar: AppBar(
                                   title: const Text('Journal Editor'),
+                                  actions: const [SyncButton()],
                                 ),
                                 body: const JournalEditorPanel(),
                               ),
@@ -226,7 +229,10 @@ class JournalsListPanel extends ConsumerWidget {
                         Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (_) => Scaffold(
-                              appBar: AppBar(title: const Text('Edit Journal')),
+                              appBar: AppBar(
+                                title: const Text('Edit Journal'),
+                                actions: const [SyncButton()],
+                              ),
                               body: const JournalEditorPanel(),
                             ),
                           ),

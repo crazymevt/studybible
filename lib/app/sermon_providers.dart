@@ -5,11 +5,9 @@ import '../data/user_store.dart';
 import '../data/fts_text.dart';
 import 'tag_providers.dart';
 import 'user_providers.dart';
-// Imported for deviceIdProvider. sync_service imports this file back (for
-// RevisionKind/kMaxAutoRevisions); the cycle is benign because Riverpod
-// provider definitions are lazy and nothing runs at import time.
-import 'sync_service.dart';
+import 'sync_service.dart'; // for deviceIdProvider
 import 'achievement_service.dart';
+import 'revision_common.dart';
 
 final allSermonsProvider = StreamProvider<List<Sermon>>((ref) {
   final store = ref.watch(userStoreProvider);
@@ -27,18 +25,6 @@ final sermonByIdProvider =
   return (store.select(store.sermons)..where((t) => t.id.equals(id)))
       .watchSingleOrNull();
 });
-
-/// Kinds of [SermonRevision]. Manual revisions are user-initiated and kept
-/// forever; the automatic kinds are capped per sermon by [kMaxAutoRevisions].
-class RevisionKind {
-  static const manual = 'manual';
-  static const conflict = 'conflict';
-  static const restore = 'restore';
-}
-
-/// How many automatic (conflict / pre-restore) revisions to retain per sermon
-/// before the oldest are pruned. Manual revisions are never auto-pruned.
-const int kMaxAutoRevisions = 20;
 
 /// Live, newest-first list of a sermon's saved revisions.
 final sermonRevisionsProvider =

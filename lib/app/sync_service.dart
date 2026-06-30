@@ -19,7 +19,7 @@ import '../domain/sync/lww_merge.dart';
 import 'user_providers.dart';
 import 'app_state.dart';
 import 'achievement_service.dart';
-import 'sermon_providers.dart';
+import 'revision_common.dart';
 import 'package:macos_secure_bookmarks/macos_secure_bookmarks.dart';
 
 final deviceIdProvider = FutureProvider<String>((ref) async {
@@ -131,6 +131,8 @@ class SyncService {
       final localNotes = await _store.select(_store.notes).get();
       final localBookmarks = await _store.select(_store.bookmarks).get();
       final localJournals = await _store.select(_store.journals).get();
+      final localJournalRevisions =
+          await _store.select(_store.journalRevisions).get();
       final localSermons = await _store.select(_store.sermons).get();
       final localSermonRevisions =
           await _store.select(_store.sermonRevisions).get();
@@ -236,6 +238,26 @@ class SyncService {
               'title': item.title,
               'series': item.series,
               'content': item.content,
+            },
+          ),
+        ),
+      );
+      localRecords.addAll(
+        localJournalRevisions.map(
+          (item) => GenericSyncRecord(
+            id: item.id,
+            updatedAt: item.updatedAt,
+            deviceId: item.deviceId,
+            deleted: item.deleted,
+            payload: {
+              'type': 'journalRevision',
+              'journalId': item.journalId,
+              'createdAt': item.createdAt,
+              'title': item.title,
+              'content': item.content,
+              'tags': item.tags,
+              'label': item.label,
+              'kind': item.kind,
             },
           ),
         ),
@@ -434,10 +456,11 @@ class SyncService {
 
       // 4. Update local DB
       final deviceId = await _ref.read(deviceIdProvider.future);
-      // Sermons whose local content this merge overwrote with a different
-      // device's version; we snapshot the losing content (below) and prune
-      // those snapshots after the transaction.
+      // Sermons / journals whose local content this merge overwrote with a
+      // different device's version; we snapshot the losing content (below) and
+      // prune those snapshots after the transaction.
       final conflictedSermonIds = <String>{};
+      final conflictedJournalIds = <String>{};
       await _store.transaction(() async {
         for (final rec in merged) {
           final type = rec.payload['type'] as String?;
@@ -485,13 +508,48 @@ class SyncService {
                 .into(_store.bookmarks)
                 .insert(item, mode: InsertMode.replace);
           } else if (type == 'journal') {
+            final content = rec.payload['content'] as String;
+            // Failsafe (mirrors sermons): snapshot the local losing content
+            // before a different winning version overwrites it. This matters
+            // more for journals — their updatedAt is the entry's date, so
+            // same-day edits on two devices tie and break on deviceId.
+            final localJournal = await (_store.select(_store.journals)
+                  ..where((t) => t.id.equals(rec.id)))
+                .getSingleOrNull();
+            if (localJournal != null &&
+                !localJournal.deleted &&
+                localJournal.content != content) {
+              final already = await (_store.select(_store.journalRevisions)
+                    ..where((t) =>
+                        t.journalId.equals(rec.id) &
+                        t.deleted.equals(false) &
+                        t.content.equals(localJournal.content)))
+                  .getSingleOrNull();
+              if (already == null) {
+                await _store.into(_store.journalRevisions).insert(
+                      JournalRevisionsCompanion.insert(
+                        id: const Uuid().v4(),
+                        updatedAt: DateTime.now().millisecondsSinceEpoch,
+                        deviceId: deviceId,
+                        createdAt: localJournal.updatedAt,
+                        journalId: rec.id,
+                        title: localJournal.title,
+                        content: localJournal.content,
+                        tags: Value(localJournal.tags),
+                        label: const Value('Overwritten by another device'),
+                        kind: RevisionKind.conflict,
+                      ),
+                    );
+                conflictedJournalIds.add(rec.id);
+              }
+            }
             final item = Journal(
               id: rec.id,
               updatedAt: rec.updatedAt,
               deviceId: rec.deviceId,
               deleted: rec.deleted,
               title: rec.payload['title'] as String,
-              content: rec.payload['content'] as String,
+              content: content,
               tags: rec.payload['tags'] as String?,
             );
             await _store
@@ -569,6 +627,23 @@ class SyncService {
             );
             await _store
                 .into(_store.sermonRevisions)
+                .insert(item, mode: InsertMode.replace);
+          } else if (type == 'journalRevision') {
+            final item = JournalRevision(
+              id: rec.id,
+              updatedAt: rec.updatedAt,
+              deviceId: rec.deviceId,
+              deleted: rec.deleted,
+              journalId: rec.payload['journalId'] as String,
+              createdAt: (rec.payload['createdAt'] as num).toInt(),
+              title: rec.payload['title'] as String,
+              content: rec.payload['content'] as String,
+              tags: rec.payload['tags'] as String?,
+              label: rec.payload['label'] as String?,
+              kind: rec.payload['kind'] as String,
+            );
+            await _store
+                .into(_store.journalRevisions)
                 .insert(item, mode: InsertMode.replace);
           } else if (type == 'prayer') {
             final item = Prayer(
@@ -711,7 +786,7 @@ class SyncService {
         }
       });
 
-      // 4b. Prune the conflict-backup revisions just created to the per-sermon
+      // 4b. Prune the conflict-backup revisions just created to the per-entity
       // retention cap (manual revisions are excluded and never pruned).
       for (final sermonId in conflictedSermonIds) {
         final auto = await (_store.select(_store.sermonRevisions)
@@ -728,6 +803,27 @@ class SyncService {
                 ..where((t) => t.id.equals(stale.id)))
               .write(
             SermonRevisionsCompanion(
+              deleted: const Value(true),
+              updatedAt: Value(pruneTs),
+            ),
+          );
+        }
+      }
+      for (final journalId in conflictedJournalIds) {
+        final auto = await (_store.select(_store.journalRevisions)
+              ..where((t) =>
+                  t.journalId.equals(journalId) &
+                  t.deleted.equals(false) &
+                  t.kind.equals(RevisionKind.manual).not())
+              ..orderBy([(t) => OrderingTerm.desc(t.createdAt)]))
+            .get();
+        if (auto.length <= kMaxAutoRevisions) continue;
+        final pruneTs = DateTime.now().millisecondsSinceEpoch;
+        for (final stale in auto.skip(kMaxAutoRevisions)) {
+          await (_store.update(_store.journalRevisions)
+                ..where((t) => t.id.equals(stale.id)))
+              .write(
+            JournalRevisionsCompanion(
               deleted: const Value(true),
               updatedAt: Value(pruneTs),
             ),

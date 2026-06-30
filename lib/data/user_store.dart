@@ -25,6 +25,7 @@ part 'user_store.g.dart';
     ReadingPlanItems,
     Sermons,
     SermonRevisions,
+    JournalRevisions,
     Tags,
     EntityTags,
   ],
@@ -33,7 +34,7 @@ class UserStore extends _$UserStore {
   UserStore([QueryExecutor? e]) : super(e ?? _openConnection());
 
   @override
-  int get schemaVersion => 18;
+  int get schemaVersion => 19;
 
   @override
   MigrationStrategy get migration {
@@ -503,6 +504,9 @@ class UserStore extends _$UserStore {
         }
         if (from < 18) {
           await m.createTable(sermonRevisions);
+        }
+        if (from < 19) {
+          await m.createTable(journalRevisions);
         }
       },
     );

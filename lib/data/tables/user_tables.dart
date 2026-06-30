@@ -64,6 +64,30 @@ class Journals extends Table {
   Set<Column> get primaryKey => {id};
 }
 
+/// A point-in-time snapshot of a [Journals] row. Like [SermonRevisions], a
+/// revision's content is never edited after creation — only created or
+/// tombstoned — so Last-Writer-Wins needs no special handling for them.
+@DataClassName('JournalRevision')
+class JournalRevisions extends Table {
+  TextColumn get id => text()(); // UUID of the revision
+  IntColumn get updatedAt => integer()(); // == createdAt; for the sync contract
+  TextColumn get deviceId => text()(); // device that captured the snapshot
+  BoolColumn get deleted => boolean().withDefault(const Constant(false))();
+
+  TextColumn get journalId => text()(); // the journal this snapshots
+  IntColumn get createdAt => integer()(); // epoch ms the snapshot was taken
+  TextColumn get title => text()(); // snapshot of the journal title
+  TextColumn get content => text()(); // snapshot of the (markdown) content
+  TextColumn get tags => text().nullable()(); // snapshot of the tags string
+  TextColumn get label => text().nullable()(); // optional user-supplied label
+  // 'manual', 'conflict', or 'restore' — see RevisionKind. Manual revisions are
+  // kept forever; the automatic kinds are capped per journal.
+  TextColumn get kind => text()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
 @DataClassName('Sermon')
 class Sermons extends Table {
   TextColumn get id => text()();

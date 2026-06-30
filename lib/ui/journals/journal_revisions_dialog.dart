@@ -1,54 +1,50 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import '../../app/sermon_providers.dart';
+import '../../app/journal_providers.dart';
 import '../../app/revision_common.dart';
-import '../../data/fts_text.dart';
 import '../../data/user_store.dart';
 
-/// Lists a sermon's saved revisions and lets the user save the current state as
-/// a new revision, delete revisions, or restore one.
+/// Lists a journal's saved revisions and lets the user save the current state
+/// as a revision, delete revisions, or restore one.
 ///
-/// Restoring does not write the sermon here — it pops with the chosen revision
-/// so the open editor can apply the restore and reload its document in one
-/// place (avoiding the stale-editor problem this whole feature guards against).
-class SermonRevisionsDialog extends ConsumerWidget {
-  final String sermonId;
+/// Restoring pops with the chosen revision so the open editor applies the
+/// restore and reloads in one place (avoiding a stale editor clobbering it).
+class JournalRevisionsDialog extends ConsumerWidget {
+  final String journalId;
   final String currentTitle;
-  final String? currentSeries;
   final String currentContent;
+  final String? currentTags;
 
-  const SermonRevisionsDialog({
+  const JournalRevisionsDialog({
     super.key,
-    required this.sermonId,
+    required this.journalId,
     required this.currentTitle,
-    this.currentSeries,
     required this.currentContent,
+    this.currentTags,
   });
 
-  /// Shows the dialog. Resolves to the [SermonRevision] the user chose to
-  /// restore, or `null` if they just closed it.
-  static Future<SermonRevision?> show(
+  static Future<JournalRevision?> show(
     BuildContext context, {
-    required String sermonId,
+    required String journalId,
     required String currentTitle,
-    String? currentSeries,
     required String currentContent,
+    String? currentTags,
   }) {
-    return showDialog<SermonRevision?>(
+    return showDialog<JournalRevision?>(
       context: context,
-      builder: (_) => SermonRevisionsDialog(
-        sermonId: sermonId,
+      builder: (_) => JournalRevisionsDialog(
+        journalId: journalId,
         currentTitle: currentTitle,
-        currentSeries: currentSeries,
         currentContent: currentContent,
+        currentTags: currentTags,
       ),
     );
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final revisionsAsync = ref.watch(sermonRevisionsProvider(sermonId));
+    final revisionsAsync = ref.watch(journalRevisionsProvider(journalId));
 
     return AlertDialog(
       title: const Text('Revision History'),
@@ -108,18 +104,17 @@ class SermonRevisionsDialog extends ConsumerWidget {
   }
 
   Future<void> _saveCurrent(BuildContext context, WidgetRef ref) async {
-    // Returns the (possibly empty) trimmed label on Save, or null on Cancel.
     final label = await showDialog<String?>(
       context: context,
       builder: (_) => const _SaveRevisionDialog(),
     );
     if (label == null) return; // cancelled
 
-    await ref.read(sermonRevisionActionProvider).saveRevision(
-          sermonId: sermonId,
+    await ref.read(journalRevisionActionProvider).saveRevision(
+          journalId: journalId,
           title: currentTitle,
-          series: currentSeries,
           content: currentContent,
+          tags: currentTags,
           label: label.isEmpty ? null : label,
           kind: RevisionKind.manual,
         );
@@ -132,11 +127,9 @@ class SermonRevisionsDialog extends ConsumerWidget {
 }
 
 /// Optional-label prompt for saving a revision. A [StatefulWidget] so its
-/// controller is disposed in [State.dispose] — i.e. after the route is fully
-/// removed — rather than the instant `showDialog` returns, which races the
-/// dismiss animation and throws "TextEditingController used after disposed"
-/// (see _NewSermonDialog in sermons_panel.dart). Pops with the trimmed label on
-/// Save, or null on Cancel.
+/// controller is disposed in [State.dispose] rather than the instant
+/// `showDialog` returns (which races the dismiss animation and throws
+/// "TextEditingController used after disposed").
 class _SaveRevisionDialog extends StatefulWidget {
   const _SaveRevisionDialog();
 
@@ -162,7 +155,7 @@ class _SaveRevisionDialogState extends State<_SaveRevisionDialog> {
         autofocus: true,
         decoration: const InputDecoration(
           labelText: 'Label (optional)',
-          hintText: 'e.g. First draft',
+          hintText: 'e.g. Morning entry',
         ),
         onSubmitted: (_) =>
             Navigator.of(context).pop(_labelController.text.trim()),
@@ -183,7 +176,7 @@ class _SaveRevisionDialogState extends State<_SaveRevisionDialog> {
 }
 
 class _RevisionTile extends ConsumerWidget {
-  final SermonRevision revision;
+  final JournalRevision revision;
 
   const _RevisionTile({required this.revision});
 
@@ -192,7 +185,7 @@ class _RevisionTile extends ConsumerWidget {
     final when = DateFormat('MMM d, y · h:mm a').format(
       DateTime.fromMillisecondsSinceEpoch(revision.createdAt).toLocal(),
     );
-    final preview = deltaToPlainText(revision.content).trim();
+    final preview = revision.content.trim();
     final snippet =
         preview.length > 120 ? '${preview.substring(0, 120)}…' : preview;
 
@@ -201,10 +194,7 @@ class _RevisionTile extends ConsumerWidget {
           Icons.warning_amber_rounded,
           'Backup — overwritten by another device',
         ),
-      RevisionKind.restore => (
-          Icons.history,
-          'Snapshot before a restore',
-        ),
+      RevisionKind.restore => (Icons.history, 'Snapshot before a restore'),
       _ => (Icons.bookmark_outline, 'Saved manually'),
     };
 
@@ -220,11 +210,7 @@ class _RevisionTile extends ConsumerWidget {
           if (snippet.isNotEmpty)
             Padding(
               padding: const EdgeInsets.only(top: 2),
-              child: Text(
-                snippet,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
+              child: Text(snippet, maxLines: 2, overflow: TextOverflow.ellipsis),
             ),
         ],
       ),
@@ -268,8 +254,6 @@ class _RevisionTile extends ConsumerWidget {
       ),
     );
     if (ok == true && context.mounted) {
-      // Pop the whole revisions dialog with this revision so the editor applies
-      // the restore and reloads.
       Navigator.of(context).pop(revision);
     }
   }
@@ -294,7 +278,7 @@ class _RevisionTile extends ConsumerWidget {
     );
     if (ok == true) {
       await ref
-          .read(sermonRevisionActionProvider)
+          .read(journalRevisionActionProvider)
           .deleteRevision(revision.id);
     }
   }

@@ -7383,6 +7383,655 @@ class SermonRevisionsCompanion extends UpdateCompanion<SermonRevision> {
   }
 }
 
+class $JournalRevisionsTable extends JournalRevisions
+    with TableInfo<$JournalRevisionsTable, JournalRevision> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $JournalRevisionsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<int> updatedAt = GeneratedColumn<int>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _deviceIdMeta = const VerificationMeta(
+    'deviceId',
+  );
+  @override
+  late final GeneratedColumn<String> deviceId = GeneratedColumn<String>(
+    'device_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _deletedMeta = const VerificationMeta(
+    'deleted',
+  );
+  @override
+  late final GeneratedColumn<bool> deleted = GeneratedColumn<bool>(
+    'deleted',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("deleted" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _journalIdMeta = const VerificationMeta(
+    'journalId',
+  );
+  @override
+  late final GeneratedColumn<String> journalId = GeneratedColumn<String>(
+    'journal_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<int> createdAt = GeneratedColumn<int>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+    'title',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _contentMeta = const VerificationMeta(
+    'content',
+  );
+  @override
+  late final GeneratedColumn<String> content = GeneratedColumn<String>(
+    'content',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _tagsMeta = const VerificationMeta('tags');
+  @override
+  late final GeneratedColumn<String> tags = GeneratedColumn<String>(
+    'tags',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _labelMeta = const VerificationMeta('label');
+  @override
+  late final GeneratedColumn<String> label = GeneratedColumn<String>(
+    'label',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _kindMeta = const VerificationMeta('kind');
+  @override
+  late final GeneratedColumn<String> kind = GeneratedColumn<String>(
+    'kind',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    updatedAt,
+    deviceId,
+    deleted,
+    journalId,
+    createdAt,
+    title,
+    content,
+    tags,
+    label,
+    kind,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'journal_revisions';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<JournalRevision> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('device_id')) {
+      context.handle(
+        _deviceIdMeta,
+        deviceId.isAcceptableOrUnknown(data['device_id']!, _deviceIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_deviceIdMeta);
+    }
+    if (data.containsKey('deleted')) {
+      context.handle(
+        _deletedMeta,
+        deleted.isAcceptableOrUnknown(data['deleted']!, _deletedMeta),
+      );
+    }
+    if (data.containsKey('journal_id')) {
+      context.handle(
+        _journalIdMeta,
+        journalId.isAcceptableOrUnknown(data['journal_id']!, _journalIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_journalIdMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+        _titleMeta,
+        title.isAcceptableOrUnknown(data['title']!, _titleMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('content')) {
+      context.handle(
+        _contentMeta,
+        content.isAcceptableOrUnknown(data['content']!, _contentMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_contentMeta);
+    }
+    if (data.containsKey('tags')) {
+      context.handle(
+        _tagsMeta,
+        tags.isAcceptableOrUnknown(data['tags']!, _tagsMeta),
+      );
+    }
+    if (data.containsKey('label')) {
+      context.handle(
+        _labelMeta,
+        label.isAcceptableOrUnknown(data['label']!, _labelMeta),
+      );
+    }
+    if (data.containsKey('kind')) {
+      context.handle(
+        _kindMeta,
+        kind.isAcceptableOrUnknown(data['kind']!, _kindMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_kindMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  JournalRevision map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return JournalRevision(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}updated_at'],
+      )!,
+      deviceId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}device_id'],
+      )!,
+      deleted: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}deleted'],
+      )!,
+      journalId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}journal_id'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}created_at'],
+      )!,
+      title: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}title'],
+      )!,
+      content: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}content'],
+      )!,
+      tags: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}tags'],
+      ),
+      label: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}label'],
+      ),
+      kind: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}kind'],
+      )!,
+    );
+  }
+
+  @override
+  $JournalRevisionsTable createAlias(String alias) {
+    return $JournalRevisionsTable(attachedDatabase, alias);
+  }
+}
+
+class JournalRevision extends DataClass implements Insertable<JournalRevision> {
+  final String id;
+  final int updatedAt;
+  final String deviceId;
+  final bool deleted;
+  final String journalId;
+  final int createdAt;
+  final String title;
+  final String content;
+  final String? tags;
+  final String? label;
+  final String kind;
+  const JournalRevision({
+    required this.id,
+    required this.updatedAt,
+    required this.deviceId,
+    required this.deleted,
+    required this.journalId,
+    required this.createdAt,
+    required this.title,
+    required this.content,
+    this.tags,
+    this.label,
+    required this.kind,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['updated_at'] = Variable<int>(updatedAt);
+    map['device_id'] = Variable<String>(deviceId);
+    map['deleted'] = Variable<bool>(deleted);
+    map['journal_id'] = Variable<String>(journalId);
+    map['created_at'] = Variable<int>(createdAt);
+    map['title'] = Variable<String>(title);
+    map['content'] = Variable<String>(content);
+    if (!nullToAbsent || tags != null) {
+      map['tags'] = Variable<String>(tags);
+    }
+    if (!nullToAbsent || label != null) {
+      map['label'] = Variable<String>(label);
+    }
+    map['kind'] = Variable<String>(kind);
+    return map;
+  }
+
+  JournalRevisionsCompanion toCompanion(bool nullToAbsent) {
+    return JournalRevisionsCompanion(
+      id: Value(id),
+      updatedAt: Value(updatedAt),
+      deviceId: Value(deviceId),
+      deleted: Value(deleted),
+      journalId: Value(journalId),
+      createdAt: Value(createdAt),
+      title: Value(title),
+      content: Value(content),
+      tags: tags == null && nullToAbsent ? const Value.absent() : Value(tags),
+      label: label == null && nullToAbsent
+          ? const Value.absent()
+          : Value(label),
+      kind: Value(kind),
+    );
+  }
+
+  factory JournalRevision.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return JournalRevision(
+      id: serializer.fromJson<String>(json['id']),
+      updatedAt: serializer.fromJson<int>(json['updatedAt']),
+      deviceId: serializer.fromJson<String>(json['deviceId']),
+      deleted: serializer.fromJson<bool>(json['deleted']),
+      journalId: serializer.fromJson<String>(json['journalId']),
+      createdAt: serializer.fromJson<int>(json['createdAt']),
+      title: serializer.fromJson<String>(json['title']),
+      content: serializer.fromJson<String>(json['content']),
+      tags: serializer.fromJson<String?>(json['tags']),
+      label: serializer.fromJson<String?>(json['label']),
+      kind: serializer.fromJson<String>(json['kind']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'updatedAt': serializer.toJson<int>(updatedAt),
+      'deviceId': serializer.toJson<String>(deviceId),
+      'deleted': serializer.toJson<bool>(deleted),
+      'journalId': serializer.toJson<String>(journalId),
+      'createdAt': serializer.toJson<int>(createdAt),
+      'title': serializer.toJson<String>(title),
+      'content': serializer.toJson<String>(content),
+      'tags': serializer.toJson<String?>(tags),
+      'label': serializer.toJson<String?>(label),
+      'kind': serializer.toJson<String>(kind),
+    };
+  }
+
+  JournalRevision copyWith({
+    String? id,
+    int? updatedAt,
+    String? deviceId,
+    bool? deleted,
+    String? journalId,
+    int? createdAt,
+    String? title,
+    String? content,
+    Value<String?> tags = const Value.absent(),
+    Value<String?> label = const Value.absent(),
+    String? kind,
+  }) => JournalRevision(
+    id: id ?? this.id,
+    updatedAt: updatedAt ?? this.updatedAt,
+    deviceId: deviceId ?? this.deviceId,
+    deleted: deleted ?? this.deleted,
+    journalId: journalId ?? this.journalId,
+    createdAt: createdAt ?? this.createdAt,
+    title: title ?? this.title,
+    content: content ?? this.content,
+    tags: tags.present ? tags.value : this.tags,
+    label: label.present ? label.value : this.label,
+    kind: kind ?? this.kind,
+  );
+  JournalRevision copyWithCompanion(JournalRevisionsCompanion data) {
+    return JournalRevision(
+      id: data.id.present ? data.id.value : this.id,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deviceId: data.deviceId.present ? data.deviceId.value : this.deviceId,
+      deleted: data.deleted.present ? data.deleted.value : this.deleted,
+      journalId: data.journalId.present ? data.journalId.value : this.journalId,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      title: data.title.present ? data.title.value : this.title,
+      content: data.content.present ? data.content.value : this.content,
+      tags: data.tags.present ? data.tags.value : this.tags,
+      label: data.label.present ? data.label.value : this.label,
+      kind: data.kind.present ? data.kind.value : this.kind,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('JournalRevision(')
+          ..write('id: $id, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deviceId: $deviceId, ')
+          ..write('deleted: $deleted, ')
+          ..write('journalId: $journalId, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('title: $title, ')
+          ..write('content: $content, ')
+          ..write('tags: $tags, ')
+          ..write('label: $label, ')
+          ..write('kind: $kind')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    updatedAt,
+    deviceId,
+    deleted,
+    journalId,
+    createdAt,
+    title,
+    content,
+    tags,
+    label,
+    kind,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is JournalRevision &&
+          other.id == this.id &&
+          other.updatedAt == this.updatedAt &&
+          other.deviceId == this.deviceId &&
+          other.deleted == this.deleted &&
+          other.journalId == this.journalId &&
+          other.createdAt == this.createdAt &&
+          other.title == this.title &&
+          other.content == this.content &&
+          other.tags == this.tags &&
+          other.label == this.label &&
+          other.kind == this.kind);
+}
+
+class JournalRevisionsCompanion extends UpdateCompanion<JournalRevision> {
+  final Value<String> id;
+  final Value<int> updatedAt;
+  final Value<String> deviceId;
+  final Value<bool> deleted;
+  final Value<String> journalId;
+  final Value<int> createdAt;
+  final Value<String> title;
+  final Value<String> content;
+  final Value<String?> tags;
+  final Value<String?> label;
+  final Value<String> kind;
+  final Value<int> rowid;
+  const JournalRevisionsCompanion({
+    this.id = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deviceId = const Value.absent(),
+    this.deleted = const Value.absent(),
+    this.journalId = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.title = const Value.absent(),
+    this.content = const Value.absent(),
+    this.tags = const Value.absent(),
+    this.label = const Value.absent(),
+    this.kind = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  JournalRevisionsCompanion.insert({
+    required String id,
+    required int updatedAt,
+    required String deviceId,
+    this.deleted = const Value.absent(),
+    required String journalId,
+    required int createdAt,
+    required String title,
+    required String content,
+    this.tags = const Value.absent(),
+    this.label = const Value.absent(),
+    required String kind,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       updatedAt = Value(updatedAt),
+       deviceId = Value(deviceId),
+       journalId = Value(journalId),
+       createdAt = Value(createdAt),
+       title = Value(title),
+       content = Value(content),
+       kind = Value(kind);
+  static Insertable<JournalRevision> custom({
+    Expression<String>? id,
+    Expression<int>? updatedAt,
+    Expression<String>? deviceId,
+    Expression<bool>? deleted,
+    Expression<String>? journalId,
+    Expression<int>? createdAt,
+    Expression<String>? title,
+    Expression<String>? content,
+    Expression<String>? tags,
+    Expression<String>? label,
+    Expression<String>? kind,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deviceId != null) 'device_id': deviceId,
+      if (deleted != null) 'deleted': deleted,
+      if (journalId != null) 'journal_id': journalId,
+      if (createdAt != null) 'created_at': createdAt,
+      if (title != null) 'title': title,
+      if (content != null) 'content': content,
+      if (tags != null) 'tags': tags,
+      if (label != null) 'label': label,
+      if (kind != null) 'kind': kind,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  JournalRevisionsCompanion copyWith({
+    Value<String>? id,
+    Value<int>? updatedAt,
+    Value<String>? deviceId,
+    Value<bool>? deleted,
+    Value<String>? journalId,
+    Value<int>? createdAt,
+    Value<String>? title,
+    Value<String>? content,
+    Value<String?>? tags,
+    Value<String?>? label,
+    Value<String>? kind,
+    Value<int>? rowid,
+  }) {
+    return JournalRevisionsCompanion(
+      id: id ?? this.id,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deviceId: deviceId ?? this.deviceId,
+      deleted: deleted ?? this.deleted,
+      journalId: journalId ?? this.journalId,
+      createdAt: createdAt ?? this.createdAt,
+      title: title ?? this.title,
+      content: content ?? this.content,
+      tags: tags ?? this.tags,
+      label: label ?? this.label,
+      kind: kind ?? this.kind,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<int>(updatedAt.value);
+    }
+    if (deviceId.present) {
+      map['device_id'] = Variable<String>(deviceId.value);
+    }
+    if (deleted.present) {
+      map['deleted'] = Variable<bool>(deleted.value);
+    }
+    if (journalId.present) {
+      map['journal_id'] = Variable<String>(journalId.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<int>(createdAt.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (content.present) {
+      map['content'] = Variable<String>(content.value);
+    }
+    if (tags.present) {
+      map['tags'] = Variable<String>(tags.value);
+    }
+    if (label.present) {
+      map['label'] = Variable<String>(label.value);
+    }
+    if (kind.present) {
+      map['kind'] = Variable<String>(kind.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('JournalRevisionsCompanion(')
+          ..write('id: $id, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deviceId: $deviceId, ')
+          ..write('deleted: $deleted, ')
+          ..write('journalId: $journalId, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('title: $title, ')
+          ..write('content: $content, ')
+          ..write('tags: $tags, ')
+          ..write('label: $label, ')
+          ..write('kind: $kind, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $TagsTable extends Tags with TableInfo<$TagsTable, Tag> {
   @override
   final GeneratedDatabase attachedDatabase;
@@ -8282,6 +8931,9 @@ abstract class _$UserStore extends GeneratedDatabase {
   late final $SermonRevisionsTable sermonRevisions = $SermonRevisionsTable(
     this,
   );
+  late final $JournalRevisionsTable journalRevisions = $JournalRevisionsTable(
+    this,
+  );
   late final $TagsTable tags = $TagsTable(this);
   late final $EntityTagsTable entityTags = $EntityTagsTable(this);
   @override
@@ -8303,6 +8955,7 @@ abstract class _$UserStore extends GeneratedDatabase {
     readingPlanItems,
     sermons,
     sermonRevisions,
+    journalRevisions,
     tags,
     entityTags,
   ];
@@ -12003,6 +12656,326 @@ typedef $$SermonRevisionsTableProcessedTableManager =
       SermonRevision,
       PrefetchHooks Function()
     >;
+typedef $$JournalRevisionsTableCreateCompanionBuilder =
+    JournalRevisionsCompanion Function({
+      required String id,
+      required int updatedAt,
+      required String deviceId,
+      Value<bool> deleted,
+      required String journalId,
+      required int createdAt,
+      required String title,
+      required String content,
+      Value<String?> tags,
+      Value<String?> label,
+      required String kind,
+      Value<int> rowid,
+    });
+typedef $$JournalRevisionsTableUpdateCompanionBuilder =
+    JournalRevisionsCompanion Function({
+      Value<String> id,
+      Value<int> updatedAt,
+      Value<String> deviceId,
+      Value<bool> deleted,
+      Value<String> journalId,
+      Value<int> createdAt,
+      Value<String> title,
+      Value<String> content,
+      Value<String?> tags,
+      Value<String?> label,
+      Value<String> kind,
+      Value<int> rowid,
+    });
+
+class $$JournalRevisionsTableFilterComposer
+    extends Composer<_$UserStore, $JournalRevisionsTable> {
+  $$JournalRevisionsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get deviceId => $composableBuilder(
+    column: $table.deviceId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get deleted => $composableBuilder(
+    column: $table.deleted,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get journalId => $composableBuilder(
+    column: $table.journalId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get content => $composableBuilder(
+    column: $table.content,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get tags => $composableBuilder(
+    column: $table.tags,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get label => $composableBuilder(
+    column: $table.label,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get kind => $composableBuilder(
+    column: $table.kind,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$JournalRevisionsTableOrderingComposer
+    extends Composer<_$UserStore, $JournalRevisionsTable> {
+  $$JournalRevisionsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get deviceId => $composableBuilder(
+    column: $table.deviceId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get deleted => $composableBuilder(
+    column: $table.deleted,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get journalId => $composableBuilder(
+    column: $table.journalId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get content => $composableBuilder(
+    column: $table.content,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get tags => $composableBuilder(
+    column: $table.tags,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get label => $composableBuilder(
+    column: $table.label,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get kind => $composableBuilder(
+    column: $table.kind,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$JournalRevisionsTableAnnotationComposer
+    extends Composer<_$UserStore, $JournalRevisionsTable> {
+  $$JournalRevisionsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get deviceId =>
+      $composableBuilder(column: $table.deviceId, builder: (column) => column);
+
+  GeneratedColumn<bool> get deleted =>
+      $composableBuilder(column: $table.deleted, builder: (column) => column);
+
+  GeneratedColumn<String> get journalId =>
+      $composableBuilder(column: $table.journalId, builder: (column) => column);
+
+  GeneratedColumn<int> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get content =>
+      $composableBuilder(column: $table.content, builder: (column) => column);
+
+  GeneratedColumn<String> get tags =>
+      $composableBuilder(column: $table.tags, builder: (column) => column);
+
+  GeneratedColumn<String> get label =>
+      $composableBuilder(column: $table.label, builder: (column) => column);
+
+  GeneratedColumn<String> get kind =>
+      $composableBuilder(column: $table.kind, builder: (column) => column);
+}
+
+class $$JournalRevisionsTableTableManager
+    extends
+        RootTableManager<
+          _$UserStore,
+          $JournalRevisionsTable,
+          JournalRevision,
+          $$JournalRevisionsTableFilterComposer,
+          $$JournalRevisionsTableOrderingComposer,
+          $$JournalRevisionsTableAnnotationComposer,
+          $$JournalRevisionsTableCreateCompanionBuilder,
+          $$JournalRevisionsTableUpdateCompanionBuilder,
+          (
+            JournalRevision,
+            BaseReferences<
+              _$UserStore,
+              $JournalRevisionsTable,
+              JournalRevision
+            >,
+          ),
+          JournalRevision,
+          PrefetchHooks Function()
+        > {
+  $$JournalRevisionsTableTableManager(
+    _$UserStore db,
+    $JournalRevisionsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$JournalRevisionsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$JournalRevisionsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$JournalRevisionsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<int> updatedAt = const Value.absent(),
+                Value<String> deviceId = const Value.absent(),
+                Value<bool> deleted = const Value.absent(),
+                Value<String> journalId = const Value.absent(),
+                Value<int> createdAt = const Value.absent(),
+                Value<String> title = const Value.absent(),
+                Value<String> content = const Value.absent(),
+                Value<String?> tags = const Value.absent(),
+                Value<String?> label = const Value.absent(),
+                Value<String> kind = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => JournalRevisionsCompanion(
+                id: id,
+                updatedAt: updatedAt,
+                deviceId: deviceId,
+                deleted: deleted,
+                journalId: journalId,
+                createdAt: createdAt,
+                title: title,
+                content: content,
+                tags: tags,
+                label: label,
+                kind: kind,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required int updatedAt,
+                required String deviceId,
+                Value<bool> deleted = const Value.absent(),
+                required String journalId,
+                required int createdAt,
+                required String title,
+                required String content,
+                Value<String?> tags = const Value.absent(),
+                Value<String?> label = const Value.absent(),
+                required String kind,
+                Value<int> rowid = const Value.absent(),
+              }) => JournalRevisionsCompanion.insert(
+                id: id,
+                updatedAt: updatedAt,
+                deviceId: deviceId,
+                deleted: deleted,
+                journalId: journalId,
+                createdAt: createdAt,
+                title: title,
+                content: content,
+                tags: tags,
+                label: label,
+                kind: kind,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$JournalRevisionsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$UserStore,
+      $JournalRevisionsTable,
+      JournalRevision,
+      $$JournalRevisionsTableFilterComposer,
+      $$JournalRevisionsTableOrderingComposer,
+      $$JournalRevisionsTableAnnotationComposer,
+      $$JournalRevisionsTableCreateCompanionBuilder,
+      $$JournalRevisionsTableUpdateCompanionBuilder,
+      (
+        JournalRevision,
+        BaseReferences<_$UserStore, $JournalRevisionsTable, JournalRevision>,
+      ),
+      JournalRevision,
+      PrefetchHooks Function()
+    >;
 typedef $$TagsTableCreateCompanionBuilder =
     TagsCompanion Function({
       required String id,
@@ -12479,6 +13452,8 @@ class $UserStoreManager {
       $$SermonsTableTableManager(_db, _db.sermons);
   $$SermonRevisionsTableTableManager get sermonRevisions =>
       $$SermonRevisionsTableTableManager(_db, _db.sermonRevisions);
+  $$JournalRevisionsTableTableManager get journalRevisions =>
+      $$JournalRevisionsTableTableManager(_db, _db.journalRevisions);
   $$TagsTableTableManager get tags => $$TagsTableTableManager(_db, _db.tags);
   $$EntityTagsTableTableManager get entityTags =>
       $$EntityTagsTableTableManager(_db, _db.entityTags);
