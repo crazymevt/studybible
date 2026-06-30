@@ -12,6 +12,7 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 
 import '../data/importer/cross_reference_importer.dart';
+import '../data/importer/mybible_verse_parser.dart';
 import '../data/logging.dart';
 import 'package:flutter/widgets.dart';
 
@@ -336,6 +337,56 @@ final primaryBookOrderProvider = FutureProvider<Map<String, int>>((ref) async {
   if (primary == null) return {};
   final books = await ref.watch(booksForVersionProvider(primary).future);
   return {for (final b in books) b.name: b.bookOrder};
+});
+
+/// Cleaned plain text for every verse of a chapter in the primary version,
+/// keyed by verse number. Family-cached per chapter, so the highlights list can
+/// load each row's text lazily while rows that share a chapter resolve once.
+final chapterVerseTextProvider = FutureProvider.family<Map<int, String>,
+    ({String bookName, int chapter})>((ref, args) async {
+  final primary = ref.watch(primaryVersionIdProvider);
+  if (primary == null) return {};
+  final book = await ref.watch(
+    bookByNameProvider((versionId: primary, name: args.bookName)).future,
+  );
+  if (book == null) return {};
+  final verses = await ref.watch(
+    versesForChapterProvider((bookId: book.id, chapter: args.chapter)).future,
+  );
+  final parser = MyBibleVerseParser();
+  return {
+    for (final v in verses)
+      v.verse: parser
+          .parseVerse(v.textContent)
+          .map((s) => s.text)
+          .join('')
+          .replaceAll(RegExp(r'\s+'), ' ')
+          .trim(),
+  };
+});
+
+/// Builds a "bookName|chapter|verse" key for the aggregate highlight-text map.
+String highlightTextKey(String bookName, int chapter, int verse) =>
+    '$bookName|$chapter|$verse';
+
+/// Verse text for *every* highlighted verse, keyed by [highlightTextKey].
+/// Reuses [chapterVerseTextProvider]'s per-chapter cache, so this only does
+/// work for chapters not already loaded by scrolling. Watched by the highlights
+/// panel solely while a text search is active, keeping normal browsing lazy.
+final allHighlightTextsProvider =
+    FutureProvider<Map<String, String>>((ref) async {
+  final highlights = ref.watch(allHighlightsProvider).value ?? const [];
+  final chapters = <({String bookName, int chapter})>{
+    for (final h in highlights) (bookName: h.bookName, chapter: h.chapter),
+  };
+  final result = <String, String>{};
+  for (final ch in chapters) {
+    final map = await ref.watch(chapterVerseTextProvider(ch).future);
+    map.forEach((verse, text) {
+      result[highlightTextKey(ch.bookName, ch.chapter, verse)] = text;
+    });
+  }
+  return result;
 });
 
 class CompareResult {
