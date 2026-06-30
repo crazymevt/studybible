@@ -412,6 +412,7 @@ class _SermonEditorScreenState extends ConsumerState<SermonEditorScreen> {
                   children: [
                     IconButton(
                       icon: const Icon(Icons.arrow_back),
+                      tooltip: 'Back to sermons',
                       onPressed: () {
                         ref.read(selectedSermonIdProvider.notifier).set(null);
                       },

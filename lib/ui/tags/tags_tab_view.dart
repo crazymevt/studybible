@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app/tag_providers.dart';
 import 'tag_results_list.dart';
+import '../common/empty_state.dart';
+import '../common/skeleton.dart';
 
 class TagsTabView extends ConsumerStatefulWidget {
   const TagsTabView({super.key});
@@ -26,6 +28,7 @@ class _TagsTabViewState extends ConsumerState<TagsTabView> {
               children: [
                 IconButton(
                   icon: const Icon(Icons.arrow_back),
+                  tooltip: 'Back to all tags',
                   onPressed: () => setState(() {
                     _selectedTagId = null;
                     _selectedTagName = null;
@@ -53,8 +56,10 @@ class _TagsTabViewState extends ConsumerState<TagsTabView> {
     return allTagsAsync.when(
       data: (tags) {
         if (tags.isEmpty) {
-          return const Center(
-            child: Text('You haven\'t created any tags yet.\nSelect verses or notes to add tags!'),
+          return const EmptyState(
+            icon: Icons.label_outline,
+            title: 'No tags yet',
+            message: 'Select verses or notes to add your first tag.',
           );
         }
 
@@ -90,8 +95,11 @@ class _TagsTabViewState extends ConsumerState<TagsTabView> {
           ),
         );
       },
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, _) => Center(child: Text('Error: $e')),
+      loading: () => const SkeletonList(),
+      error: (e, _) => const EmptyState(
+        icon: Icons.error_outline,
+        title: 'Couldn\'t load tags',
+      ),
     );
   }
 }

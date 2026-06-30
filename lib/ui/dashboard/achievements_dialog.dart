@@ -31,6 +31,7 @@ class AchievementsDialog extends StatelessWidget {
                 ),
                 IconButton(
                   icon: const Icon(Icons.close),
+                  tooltip: 'Close',
                   onPressed: () => Navigator.of(context).pop(),
                 ),
               ],

@@ -68,6 +68,7 @@ class NotesPanel extends ConsumerWidget {
                       ),
                     IconButton(
                       icon: const Icon(Icons.close),
+                      tooltip: 'Close',
                       onPressed: () {
                         ref.read(activeToolProvider.notifier).close();
                         if (Navigator.of(context).canPop()) {

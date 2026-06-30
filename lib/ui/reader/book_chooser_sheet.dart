@@ -44,6 +44,7 @@ class _BookChooserSheetState extends ConsumerState<BookChooserSheet> {
                 if (selectedBookId != null)
                   IconButton(
                     icon: const Icon(Icons.arrow_back),
+                    tooltip: 'Back to books',
                     onPressed: () {
                       setState(() {
                         selectedBookId = null;
@@ -62,6 +63,7 @@ class _BookChooserSheetState extends ConsumerState<BookChooserSheet> {
                 ),
                 IconButton(
                   icon: const Icon(Icons.close),
+                  tooltip: 'Close',
                   onPressed: () => Navigator.pop(context),
                 ),
               ],

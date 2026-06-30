@@ -15,6 +15,8 @@ import '../../app/content_providers.dart';
 import '../../app/search_providers.dart';
 import '../../data/importer/sword/sword_versification.dart';
 import '../app_drawer.dart';
+import '../common/empty_state.dart';
+import '../common/skeleton.dart';
 
 class ContentManagerScreen extends ConsumerStatefulWidget {
   const ContentManagerScreen({super.key});
@@ -216,13 +218,19 @@ class _ContentManagerScreenState extends ConsumerState<ContentManagerScreen>
     final subheadingSourcesAsync = ref.watch(subheadingSourcesProvider);
 
     if (versionsAsync.isLoading || commentariesAsync.isLoading || dictionariesAsync.isLoading || devotionalsAsync.isLoading || bibleVersionsAsync.isLoading || subheadingSourcesAsync.isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return const SkeletonList();
     }
 
-    if (versionsAsync.hasError) return Center(child: Text('Error: ${versionsAsync.error}'));
-    if (commentariesAsync.hasError) return Center(child: Text('Error: ${commentariesAsync.error}'));
-    if (dictionariesAsync.hasError) return Center(child: Text('Error: ${dictionariesAsync.error}'));
-    if (devotionalsAsync.hasError) return Center(child: Text('Error: ${devotionalsAsync.error}'));
+    if (versionsAsync.hasError ||
+        commentariesAsync.hasError ||
+        dictionariesAsync.hasError ||
+        devotionalsAsync.hasError) {
+      return const EmptyState(
+        icon: Icons.error_outline,
+        title: 'Couldn\'t load content',
+        message: 'Something went wrong reading your installed content.',
+      );
+    }
 
     final versions = versionsAsync.value ?? [];
     final allCommentaries = commentariesAsync.value ?? [];
@@ -230,7 +238,11 @@ class _ContentManagerScreenState extends ConsumerState<ContentManagerScreen>
     final allDevotionals = devotionalsAsync.value ?? [];
 
     if (versions.isEmpty && allCommentaries.isEmpty && allDictionaries.isEmpty && allDevotionals.isEmpty) {
-      return const Center(child: Text('No content installed.'));
+      return const EmptyState(
+        icon: Icons.inventory_2_outlined,
+        title: 'No content installed',
+        message: 'Browse the catalog to download Bibles, commentaries, and more.',
+      );
     }
 
     final bibleVersionIds = (bibleVersionsAsync.value ?? []).map((v) => v.id).toSet();
@@ -286,8 +298,10 @@ class _ContentManagerScreenState extends ConsumerState<ContentManagerScreen>
         commentaries.isEmpty &&
         dictionaries.isEmpty &&
         devotionals.isEmpty) {
-      return Center(
-        child: Text('No installed content matches "${_searchController.text}".'),
+      return EmptyState(
+        icon: Icons.search_off,
+        title: 'No matches',
+        message: 'No installed content matches "${_searchController.text}".',
       );
     }
 
@@ -444,8 +458,12 @@ class _ContentManagerScreenState extends ConsumerState<ContentManagerScreen>
     final installedIds = installedIdsAsync.value ?? {};
 
     return catalogAsync.when(
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error: (err, _) => Center(child: Text('Error: $err')),
+            loading: () => const SkeletonList(),
+            error: (err, _) => const EmptyState(
+              icon: Icons.cloud_off_outlined,
+              title: 'Couldn\'t load the catalog',
+              message: 'Check your connection and try again.',
+            ),
             data: (modules) {
               final filtered = modules
                   .where(
@@ -457,10 +475,16 @@ class _ContentManagerScreenState extends ConsumerState<ContentManagerScreen>
                   .toList();
 
               if (filtered.isEmpty) {
-                return Center(
-                  child: Text(_filterQuery.isEmpty
-                      ? 'No modules available.'
-                      : 'No modules match "${_searchController.text}".'),
+                return EmptyState(
+                  icon: _filterQuery.isEmpty
+                      ? Icons.cloud_outlined
+                      : Icons.search_off,
+                  title: _filterQuery.isEmpty
+                      ? 'No modules available'
+                      : 'No matches',
+                  message: _filterQuery.isEmpty
+                      ? null
+                      : 'No modules match "${_searchController.text}".',
                 );
               }
 
@@ -588,8 +612,12 @@ class _ContentManagerScreenState extends ConsumerState<ContentManagerScreen>
     final installedIds = installedIdsAsync.value ?? {};
 
     return languagesAsync.when(
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error: (err, _) => Center(child: Text('Error: $err')),
+            loading: () => const SkeletonList(),
+            error: (err, _) => const EmptyState(
+              icon: Icons.cloud_off_outlined,
+              title: 'Couldn\'t load languages',
+              message: 'Check your connection and try again.',
+            ),
             data: (languages) {
               final filtered = languages
                   .where(
@@ -600,10 +628,16 @@ class _ContentManagerScreenState extends ConsumerState<ContentManagerScreen>
                   .toList();
 
               if (filtered.isEmpty) {
-                return Center(
-                  child: Text(_filterQuery.isEmpty
-                      ? 'No languages available.'
-                      : 'No languages match "${_searchController.text}".'),
+                return EmptyState(
+                  icon: _filterQuery.isEmpty
+                      ? Icons.language_outlined
+                      : Icons.search_off,
+                  title: _filterQuery.isEmpty
+                      ? 'No languages available'
+                      : 'No matches',
+                  message: _filterQuery.isEmpty
+                      ? null
+                      : 'No languages match "${_searchController.text}".',
                 );
               }
 
@@ -632,7 +666,15 @@ class _ContentManagerScreenState extends ConsumerState<ContentManagerScreen>
                                 padding: EdgeInsets.all(16.0),
                                 child: CircularProgressIndicator(),
                               ),
-                              error: (err, _) => Text('Error: $err'),
+                              error: (err, _) => Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Text(
+                                  'Couldn\'t load translations.',
+                                  style: TextStyle(
+                                    color: Theme.of(context).colorScheme.error,
+                                  ),
+                                ),
+                              ),
                               data: (translations) {
                                 if (translations.isEmpty) {
                                   return const Padding(
@@ -762,8 +804,12 @@ class _ContentManagerScreenState extends ConsumerState<ContentManagerScreen>
     final installedIds = installedIdsAsync.value ?? {};
 
     return catalogAsync.when(
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (err, _) => Center(child: Text('Error: $err')),
+      loading: () => const SkeletonList(),
+      error: (err, _) => const EmptyState(
+        icon: Icons.cloud_off_outlined,
+        title: 'Couldn\'t load the catalog',
+        message: 'Check your connection and try again.',
+      ),
       data: (modules) {
         final filtered = modules.where((m) {
           final desc = m.config.description?.toLowerCase() ?? '';
@@ -772,10 +818,12 @@ class _ContentManagerScreenState extends ConsumerState<ContentManagerScreen>
         }).toList();
 
         if (filtered.isEmpty) {
-          return Center(
-            child: Text(_filterQuery.isEmpty
-                ? 'No modules available.'
-                : 'No modules match "${_searchController.text}".'),
+          return EmptyState(
+            icon: _filterQuery.isEmpty ? Icons.cloud_outlined : Icons.search_off,
+            title: _filterQuery.isEmpty ? 'No modules available' : 'No matches',
+            message: _filterQuery.isEmpty
+                ? null
+                : 'No modules match "${_searchController.text}".',
           );
         }
 

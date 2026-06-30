@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app/journal_providers.dart';
 import '../tags/tag_editor_dialog.dart';
+import '../common/empty_state.dart';
+import '../common/skeleton.dart';
 
 class HideAnsweredPrayersNotifier extends Notifier<bool> {
   @override
@@ -45,6 +47,7 @@ class PrayerTrackerPanel extends ConsumerWidget {
                   ),
                   IconButton(
                     icon: const Icon(Icons.add),
+                    tooltip: 'Add Prayer',
                     onPressed: () => _showAddPrayerDialog(context, ref),
                   ),
                 ],
@@ -54,14 +57,24 @@ class PrayerTrackerPanel extends ConsumerWidget {
         ),
         const Divider(height: 1),
         Expanded(
-          child: prayersAsync.when(
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 250),
+            child: prayersAsync.when(
             data: (prayers) {
               final visiblePrayers = hideAnswered
                   ? prayers.where((p) => p.answeredAt == null).toList()
                   : prayers;
 
               if (visiblePrayers.isEmpty) {
-                return const Center(child: Text('No prayers found.'));
+                return EmptyState(
+                  icon: hideAnswered
+                      ? Icons.volunteer_activism
+                      : Icons.favorite_outline,
+                  title: hideAnswered ? 'No open prayers' : 'No prayers yet',
+                  message: hideAnswered
+                      ? 'Every prayer here has been answered.'
+                      : 'Tap + to add someone or something to pray for.',
+                );
               }
 
               return ListView.separated(
@@ -197,8 +210,12 @@ class PrayerTrackerPanel extends ConsumerWidget {
                 },
               );
             },
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error: (err, stack) => Center(child: Text('Error: $err')),
+            loading: () => const SkeletonList(),
+            error: (err, stack) => const EmptyState(
+              icon: Icons.error_outline,
+              title: 'Couldn\'t load prayers',
+            ),
+          ),
           ),
         ),
       ],

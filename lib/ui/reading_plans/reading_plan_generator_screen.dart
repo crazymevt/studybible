@@ -193,7 +193,21 @@ class _ReadingPlanGeneratorScreenState
     return Scaffold(
       appBar: AppBar(title: const Text('Create Reading Plan')),
       body: _isGenerating
-          ? const Center(child: CircularProgressIndicator())
+          ? Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const CircularProgressIndicator(),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Generating your plan…',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                  ),
+                ],
+              ),
+            )
           : Stepper(
               currentStep: _currentStep,
               onStepContinue: () {

@@ -49,6 +49,7 @@ class ReadingPlanPanel extends ConsumerWidget {
                 ),
                 IconButton(
                   icon: const Icon(Icons.close),
+                  tooltip: 'Close',
                   onPressed: () {
                     if (MediaQuery.sizeOf(context).width > Breakpoints.compact) {
                       ref.read(activeToolProvider.notifier).close();

@@ -4,6 +4,8 @@ import '../../data/user_store.dart';
 import '../../app/journal_providers.dart';
 import 'journal_editor_panel.dart';
 import '../common/breakpoints.dart';
+import '../common/empty_state.dart';
+import '../common/skeleton.dart';
 
 class SelectedJournalIdNotifier extends Notifier<String?> {
   @override
@@ -86,7 +88,11 @@ class JournalsListPanel extends ConsumerWidget {
         if (journals.isEmpty) {
           return const SliverFillRemaining(
             hasScrollBody: false,
-            child: Center(child: Text('No journal entries yet.')),
+            child: EmptyState(
+              icon: Icons.book_outlined,
+              title: 'No journal entries yet',
+              message: 'Pick a date or start writing to add your first entry.',
+            ),
           );
         }
         return SliverList.builder(
@@ -112,6 +118,7 @@ class JournalsListPanel extends ConsumerWidget {
               ),
               trailing: IconButton(
                 icon: const Icon(Icons.delete_outline, size: 20),
+                tooltip: 'Delete Journal',
                 onPressed: () async {
                   final confirm = await showDialog<bool>(
                     context: context,
@@ -165,10 +172,14 @@ class JournalsListPanel extends ConsumerWidget {
         );
       },
       loading: () => const SliverFillRemaining(
-        child: Center(child: CircularProgressIndicator()),
+        child: SkeletonList(),
       ),
-      error: (err, stack) =>
-          SliverFillRemaining(child: Center(child: Text('Error: $err'))),
+      error: (err, stack) => const SliverFillRemaining(
+        child: EmptyState(
+          icon: Icons.error_outline,
+          title: 'Couldn\'t load journals',
+        ),
+      ),
     );
 
     return CustomScrollView(

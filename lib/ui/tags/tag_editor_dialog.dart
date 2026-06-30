@@ -97,6 +97,7 @@ class _TagEditorDialogState extends ConsumerState<TagEditorDialog> {
                 const Spacer(),
                 IconButton(
                   icon: const Icon(Icons.close),
+                  tooltip: 'Close',
                   onPressed: () => Navigator.of(context).pop(),
                 ),
               ],
@@ -134,7 +135,11 @@ class _TagEditorDialogState extends ConsumerState<TagEditorDialog> {
                 padding: EdgeInsets.only(bottom: 16),
                 child: Center(child: CircularProgressIndicator()),
               ),
-              error: (e, _) => Text('Error: $e'),
+              error: (e, _) => Text(
+                'Couldn\'t load tags.',
+                style: theme.textTheme.bodyMedium
+                    ?.copyWith(color: theme.colorScheme.error),
+              ),
             ),
 
             // Input Field
@@ -153,6 +158,7 @@ class _TagEditorDialogState extends ConsumerState<TagEditorDialog> {
                 contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 suffixIcon: IconButton(
                   icon: const Icon(Icons.add),
+                  tooltip: 'Add tag',
                   onPressed: _isSaving ? null : () => _addTag(_controller.text),
                 ),
               ),
@@ -196,7 +202,11 @@ class _TagEditorDialogState extends ConsumerState<TagEditorDialog> {
                   );
                 },
                 loading: () => const Center(child: CircularProgressIndicator()),
-                error: (e, _) => Text('Error: $e'),
+                error: (e, _) => Text(
+                  'Couldn\'t load tags.',
+                  style: theme.textTheme.bodySmall
+                      ?.copyWith(color: theme.colorScheme.error),
+                ),
               ),
             ),
           ],

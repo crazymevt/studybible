@@ -108,11 +108,13 @@ class _MediaPlayerDialogState extends State<MediaPlayerDialog> {
                     color: Colors.white,
                     size: 24,
                   ),
+                  tooltip: _isFullscreen ? 'Exit full screen' : 'Full screen',
                   onPressed: _toggleFullscreen,
                 ),
               const SizedBox(width: 8),
               IconButton(
                 icon: const Icon(Icons.close, color: Colors.white, size: 24),
+                tooltip: 'Close',
                 onPressed: () => Navigator.of(context).pop(),
               ),
             ],

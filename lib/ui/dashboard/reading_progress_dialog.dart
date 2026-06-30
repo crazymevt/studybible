@@ -29,6 +29,7 @@ class ReadingProgressDialog extends ConsumerWidget {
                   ),
                   IconButton(
                     icon: const Icon(Icons.close),
+                    tooltip: 'Close',
                     onPressed: () => Navigator.pop(context),
                   ),
                 ],

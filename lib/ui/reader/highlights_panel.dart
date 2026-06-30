@@ -152,6 +152,7 @@ class _HighlightsPanelState extends ConsumerState<HighlightsPanel> {
           ),
           IconButton(
             icon: const Icon(Icons.close),
+            tooltip: 'Close',
             onPressed: () {
               ref.read(activeToolProvider.notifier).close();
               if (Navigator.of(context).canPop()) {
@@ -181,6 +182,7 @@ class _HighlightsPanelState extends ConsumerState<HighlightsPanel> {
                   ? null
                   : IconButton(
                       icon: const Icon(Icons.clear),
+                      tooltip: 'Clear search',
                       onPressed: () {
                         _searchController.clear();
                         setState(() => _query = '');

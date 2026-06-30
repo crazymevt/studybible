@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../app/action_providers.dart';
 import '../../app/app_state.dart';
+import '../common/empty_state.dart';
+import '../common/skeleton.dart';
 
 class DashboardActionItemsWidget extends ConsumerWidget {
   const DashboardActionItemsWidget({super.key});
@@ -58,7 +60,11 @@ class DashboardActionItemsWidget extends ConsumerWidget {
               data: (allActions) {
                 final actions = allActions.where((a) => a.completedAt == null).toList();
                 if (actions.isEmpty) {
-                  return const Center(child: Text('No action items.'));
+                  return const EmptyState(
+                    icon: Icons.task_alt,
+                    title: 'All caught up',
+                    message: 'No open action items.',
+                  );
                 }
                 return ListView.builder(
                   itemExtent: itemHeight,
@@ -131,8 +137,11 @@ class DashboardActionItemsWidget extends ConsumerWidget {
                   },
                 );
               },
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (err, stack) => Center(child: Text('Error: $err')),
+              loading: () => const SkeletonList(rows: 4),
+              error: (err, stack) => const EmptyState(
+                icon: Icons.error_outline,
+                title: 'Couldn\'t load action items',
+              ),
             ),
           ),
         ],

@@ -63,6 +63,7 @@ class _DictionaryPanelState extends ConsumerState<DictionaryPanel> {
                     ),
                     IconButton(
                       icon: const Icon(Icons.close),
+                      tooltip: 'Close',
                       onPressed: () {
                         ref.read(activeToolProvider.notifier).close();
                         if (Navigator.of(context).canPop()) {

@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../app/action_providers.dart';
 import '../../data/user_store.dart';
+import '../common/empty_state.dart';
+import '../common/skeleton.dart';
 
 class HideCompletedActionsNotifier extends Notifier<bool> {
   @override
@@ -55,13 +57,23 @@ class ActionItemsPanel extends ConsumerWidget {
         ),
         const Divider(height: 1),
         Expanded(
-          child: actionsAsync.when(
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 250),
+            child: actionsAsync.when(
             data: (actions) {
               final visible = hideCompleted
                   ? actions.where((a) => a.completedAt == null).toList()
                   : actions;
               if (visible.isEmpty) {
-                return const Center(child: Text('No actions yet.'));
+                return EmptyState(
+                  icon: hideCompleted
+                      ? Icons.task_alt
+                      : Icons.checklist_outlined,
+                  title: hideCompleted ? 'Nothing outstanding' : 'No actions yet',
+                  message: hideCompleted
+                      ? 'All caught up — no open actions.'
+                      : 'Tap + to add a follow-up action.',
+                );
               }
               return ListView.separated(
                 itemCount: visible.length,
@@ -70,8 +82,12 @@ class ActionItemsPanel extends ConsumerWidget {
                     _ActionTile(action: visible[index]),
               );
             },
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error: (err, stack) => Center(child: Text('Error: $err')),
+            loading: () => const SkeletonList(),
+            error: (err, stack) => const EmptyState(
+              icon: Icons.error_outline,
+              title: 'Couldn\'t load actions',
+            ),
+          ),
           ),
         ),
       ],

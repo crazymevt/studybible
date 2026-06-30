@@ -688,7 +688,12 @@ class DashboardScreen extends ConsumerWidget {
                   );
                 },
                 loading: () => const CircularProgressIndicator(),
-                error: (err, _) => Text('Error: $err'),
+                error: (err, _) => Text(
+                  'Couldn\'t load achievements.',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
               ),
             ],
           ),
@@ -758,7 +763,12 @@ class DashboardScreen extends ConsumerWidget {
                 );
               },
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (err, st) => Text('Error: $err'),
+              error: (err, st) => Text(
+                'Couldn\'t load reading plans.',
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
             ),
           ],
         ),

@@ -56,6 +56,7 @@ class DevotionalsPanel extends ConsumerWidget {
                 ),
                 IconButton(
                   icon: const Icon(Icons.close),
+                  tooltip: 'Close',
                   onPressed: () {
                     if (MediaQuery.sizeOf(context).width > Breakpoints.compact) {
                       ref.read(activeToolProvider.notifier).close();
@@ -114,6 +115,7 @@ class DevotionalsPanel extends ConsumerWidget {
                   children: [
                     IconButton(
                       icon: const Icon(Icons.chevron_left),
+                      tooltip: 'Previous day',
                       onPressed: selectedDay > 1
                           ? () => ref.read(selectedDevotionalDayProvider.notifier).decrement()
                           : null,
@@ -135,6 +137,7 @@ class DevotionalsPanel extends ConsumerWidget {
                     ),
                     IconButton(
                       icon: const Icon(Icons.chevron_right),
+                      tooltip: 'Next day',
                       onPressed: selectedDay < 366
                           ? () => ref.read(selectedDevotionalDayProvider.notifier).increment()
                           : null,

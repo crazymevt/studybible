@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app/tag_providers.dart';
 import '../reader/search_panel.dart';
+import '../common/empty_state.dart';
+import '../common/skeleton.dart';
 
 class TagResultsList extends ConsumerWidget {
   final String tagId;
@@ -16,7 +18,11 @@ class TagResultsList extends ConsumerWidget {
     return resultsAsync.when(
       data: (results) {
         if (results.isEmpty) {
-          return Center(child: Text('No entities tagged with #$tagName yet.'));
+          return EmptyState(
+            icon: Icons.label_off_outlined,
+            title: 'Nothing tagged yet',
+            message: 'Nothing is tagged with #$tagName yet.',
+          );
         }
 
         final verses = results.where((r) => r.type == 'verse').toList();
@@ -50,7 +56,11 @@ class TagResultsList extends ConsumerWidget {
         }
 
         if (tabs.isEmpty) {
-          return const Center(child: Text('No supported entities found.'));
+          return const EmptyState(
+            icon: Icons.label_off_outlined,
+            title: 'Nothing to show',
+            message: 'No supported entities found for this tag.',
+          );
         }
 
         return DefaultTabController(
@@ -71,8 +81,11 @@ class TagResultsList extends ConsumerWidget {
           ),
         );
       },
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, _) => Center(child: Text('Error: $e')),
+      loading: () => const SkeletonList(),
+      error: (e, _) => const EmptyState(
+        icon: Icons.error_outline,
+        title: 'Couldn\'t load tagged items',
+      ),
     );
   }
 }

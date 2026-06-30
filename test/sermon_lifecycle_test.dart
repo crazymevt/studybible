@@ -72,7 +72,7 @@ void main() {
 
     // Let the (empty) sermons stream resolve.
     await _settle(tester);
-    expect(find.text('No sermons yet. Tap + to create one.'), findsOneWidget);
+    expect(find.text('No sermons yet'), findsOneWidget);
 
     // Open the New Sermon dialog.
     await tester.tap(find.byTooltip('New Sermon'));

@@ -5,6 +5,8 @@ import '../../app/sermon_providers.dart';
 import 'export_dialog.dart';
 import 'sermon_editor_screen.dart';
 import '../common/breakpoints.dart';
+import '../common/empty_state.dart';
+import '../common/skeleton.dart';
 
 class SermonsPanel extends ConsumerWidget {
   const SermonsPanel({super.key});
@@ -62,6 +64,7 @@ class SermonsPanel extends ConsumerWidget {
                     ),
                     IconButton(
                       icon: const Icon(Icons.close),
+                      tooltip: 'Close',
                       onPressed: () {
                         ref.read(activeToolProvider.notifier).close();
                         if (Navigator.of(context).canPop()) {
@@ -76,10 +79,16 @@ class SermonsPanel extends ConsumerWidget {
           ),
           const Divider(height: 1),
           Expanded(
-            child: sermonsAsync.when(
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 250),
+              child: sermonsAsync.when(
               data: (sermons) {
                 if (sermons.isEmpty) {
-                  return const Center(child: Text('No sermons yet. Tap + to create one.'));
+                  return const EmptyState(
+                    icon: Icons.menu_book_outlined,
+                    title: 'No sermons yet',
+                    message: 'Tap + to start your first sermon.',
+                  );
                 }
                 return ListView.builder(
                   itemCount: sermons.length,
@@ -127,8 +136,12 @@ class SermonsPanel extends ConsumerWidget {
                   },
                 );
               },
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (e, st) => Center(child: Text('Error: $e')),
+              loading: () => const SkeletonList(),
+              error: (e, st) => const EmptyState(
+                icon: Icons.error_outline,
+                title: 'Couldn\'t load sermons',
+              ),
+            ),
             ),
           ),
         ],

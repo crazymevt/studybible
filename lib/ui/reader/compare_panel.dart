@@ -40,6 +40,7 @@ class ComparePanel extends ConsumerWidget {
                   ),
                   IconButton(
                     icon: const Icon(Icons.close),
+                    tooltip: 'Close',
                     onPressed: () {
                       if (MediaQuery.sizeOf(context).width > Breakpoints.compact) {
                         ref.read(activeToolProvider.notifier).close();
@@ -87,6 +88,7 @@ class ComparePanel extends ConsumerWidget {
                 ),
                 IconButton(
                   icon: const Icon(Icons.close),
+                  tooltip: 'Close',
                   onPressed: () {
                     if (MediaQuery.sizeOf(context).width > Breakpoints.compact) {
                       ref.read(activeToolProvider.notifier).close();

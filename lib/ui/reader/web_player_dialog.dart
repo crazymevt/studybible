@@ -46,6 +46,7 @@ class _WebPlayerDialogState extends State<WebPlayerDialog> {
                 right: 8,
                 child: IconButton(
                   icon: const Icon(Icons.close, color: Colors.white, size: 32),
+                  tooltip: 'Close',
                   onPressed: () => Navigator.of(context).pop(),
                 ),
               ),

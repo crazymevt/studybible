@@ -336,6 +336,7 @@ class _JournalEditorPanelState extends ConsumerState<JournalEditorPanel> {
                   ),
                   IconButton(
                   icon: const Icon(Icons.delete_outline, color: Colors.red),
+                  tooltip: 'Delete Journal',
                   onPressed: () async {
                     final targetId = _currentId;
                     if (targetId == null) return;
