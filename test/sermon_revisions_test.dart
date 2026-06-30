@@ -124,6 +124,86 @@ void main() {
       expect(restoreSnaps.single.content, _delta('rewritten'));
     });
 
+    test('automatic snapshot is deduped when content is already preserved',
+        () async {
+      await _insertSermon(store,
+          id: 's1', content: _delta('losing'), updatedAt: 100);
+
+      // First conflict snapshot of the losing content (e.g. from the sync-side
+      // failsafe).
+      await container.read(sermonRevisionActionProvider).saveRevision(
+            sermonId: 's1',
+            title: 'Sermon',
+            content: _delta('losing'),
+            kind: RevisionKind.conflict,
+          );
+      // The editor's conflict flow tries to snapshot the same content again.
+      await container.read(sermonRevisionActionProvider).saveRevision(
+            sermonId: 's1',
+            title: 'Sermon',
+            content: _delta('losing'),
+            kind: RevisionKind.restore,
+          );
+
+      // Only one live copy — no redundant duplicate.
+      final revs = await _liveRevisions(store, 's1');
+      expect(revs, hasLength(1));
+      expect(revs.single.content, _delta('losing'));
+    });
+
+    test('dedup re-captures content that survives only in a tombstoned revision',
+        () async {
+      await _insertSermon(store,
+          id: 's1', content: _delta('x'), updatedAt: 100);
+
+      await container.read(sermonRevisionActionProvider).saveRevision(
+            sermonId: 's1',
+            title: 'Sermon',
+            content: _delta('precious'),
+            kind: RevisionKind.conflict,
+          );
+      final existing =
+          (await _liveRevisions(store, 's1')).single;
+      // The only snapshot of "precious" gets tombstoned (e.g. pruned/deleted).
+      await container
+          .read(sermonRevisionActionProvider)
+          .deleteRevision(existing.id);
+
+      // Re-snapshotting the same content must NOT be skipped — the dedup only
+      // matches live revisions, so this content isn't lost.
+      await container.read(sermonRevisionActionProvider).saveRevision(
+            sermonId: 's1',
+            title: 'Sermon',
+            content: _delta('precious'),
+            kind: RevisionKind.conflict,
+          );
+
+      final revs = await _liveRevisions(store, 's1');
+      expect(revs, hasLength(1));
+      expect(revs.single.content, _delta('precious'));
+    });
+
+    test('manual snapshots are never deduped', () async {
+      await _insertSermon(store,
+          id: 's1', content: _delta('draft'), updatedAt: 100);
+
+      await container.read(sermonRevisionActionProvider).saveRevision(
+            sermonId: 's1',
+            title: 'Sermon',
+            content: _delta('draft'),
+            kind: RevisionKind.manual,
+          );
+      await container.read(sermonRevisionActionProvider).saveRevision(
+            sermonId: 's1',
+            title: 'Sermon',
+            content: _delta('draft'),
+            kind: RevisionKind.manual,
+          );
+
+      // Both explicit manual saves are kept, even with identical content.
+      expect(await _liveRevisions(store, 's1'), hasLength(2));
+    });
+
     test('automatic revisions are pruned to the cap; manual ones are kept',
         () async {
       await _insertSermon(store,

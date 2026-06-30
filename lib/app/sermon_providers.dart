@@ -129,6 +129,23 @@ class SermonRevisionActionNotifier {
   }) async {
     final now = DateTime.now().millisecondsSinceEpoch;
     final deviceId = await _ref.read(deviceIdProvider.future);
+    // For automatic snapshots (conflict / restore), skip if this exact content
+    // is already preserved in a live revision of this sermon. The sync-side
+    // failsafe and the editor's conflict flow can both snapshot the same losing
+    // content, and re-snapshotting it only ever produces a redundant entry —
+    // never the sole copy — so this can't lose data. We match against
+    // non-deleted revisions only, so content that survives solely in a
+    // tombstoned revision is still re-captured. Manual snapshots are always
+    // kept (the user asked for one explicitly).
+    if (kind != RevisionKind.manual) {
+      final existing = await (_store.select(_store.sermonRevisions)
+            ..where((t) =>
+                t.sermonId.equals(sermonId) &
+                t.deleted.equals(false) &
+                t.content.equals(content)))
+          .get();
+      if (existing.isNotEmpty) return;
+    }
     await _store.into(_store.sermonRevisions).insert(
           SermonRevisionsCompanion.insert(
             id: const Uuid().v4(),

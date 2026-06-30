@@ -258,47 +258,69 @@ class _SermonEditorScreenState extends ConsumerState<SermonEditorScreen> {
       (prev, next) => _onSermonChanged(next.value),
     );
 
-    final editorBody = Column(
-      children: [
-        if (_conflictDetected) _buildConflictBanner(context),
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: _titleController,
-                  decoration: const InputDecoration(labelText: 'Title'),
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: TextField(
-                  controller: _seriesController,
-                  decoration: const InputDecoration(labelText: 'Series'),
-                ),
-              ),
-            ],
-          ),
-        ),
-        QuillSimpleToolbar(
-          controller: _controller,
-        ),
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Container(
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey.shade300),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: QuillEditor.basic(
-                controller: _controller,
+    final editorBody = LayoutBuilder(
+      builder: (context, constraints) {
+        // Let the toolbar wrap onto two rows when there's comfortably enough
+        // vertical room for it plus the title fields and a usable editor, but
+        // collapse to a single horizontally-scrolling row when space is tight
+        // (e.g. the soft keyboard shrinks the panel) so the editor stays
+        // visible instead of being squeezed out / overflowing.
+        const titleFieldsHeight = 68.0;
+        const twoRowToolbarHeight = 96.0;
+        const minEditorHeight = 140.0;
+        final bannerHeight = _conflictDetected ? 88.0 : 0.0;
+        final multiRowToolbar = constraints.maxHeight >=
+            bannerHeight +
+                titleFieldsHeight +
+                twoRowToolbarHeight +
+                minEditorHeight;
+
+        return Column(
+          children: [
+            if (_conflictDetected) _buildConflictBanner(context),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _titleController,
+                      decoration: const InputDecoration(labelText: 'Title'),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: TextField(
+                      controller: _seriesController,
+                      decoration: const InputDecoration(labelText: 'Series'),
+                    ),
+                  ),
+                ],
               ),
             ),
-          ),
-        ),
-      ],
+            QuillSimpleToolbar(
+              controller: _controller,
+              config: QuillSimpleToolbarConfig(
+                multiRowsDisplay: multiRowToolbar,
+              ),
+            ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey.shade300),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: QuillEditor.basic(
+                    controller: _controller,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
 
     if (widget.isFullScreen) {

@@ -64,11 +64,12 @@ class DashboardActionItemsWidget extends ConsumerWidget {
                   itemExtent: itemHeight,
                   itemCount: actions.length,
                   itemBuilder: (context, index) {
+                    // The list is pre-filtered to incomplete items, so every
+                    // row here is uncompleted; we only flag overdue ones.
                     final action = actions[index];
-                    final isCompleted = action.completedAt != null;
                     final now = DateTime.now().millisecondsSinceEpoch;
-                    final isOverdue = !isCompleted && action.dueAt != null && now >= action.dueAt!;
-                    
+                    final isOverdue = action.dueAt != null && now >= action.dueAt!;
+
                     String subtitle = 'Created: ${DateTime.fromMillisecondsSinceEpoch(action.createdAt).toLocal().toString().split(' ')[0]}';
                     if (action.dueAt != null) {
                       subtitle += '   Due: ${_dueFormat.format(DateTime.fromMillisecondsSinceEpoch(action.dueAt!).toLocal())}';
@@ -90,7 +91,7 @@ class DashboardActionItemsWidget extends ConsumerWidget {
                         child: Row(
                           children: [
                             Checkbox(
-                              value: isCompleted,
+                              value: false,
                               onChanged: (val) {
                                 if (val != null) {
                                   ref.read(actionItemActionProvider).toggleCompleted(action.id, val);
@@ -106,8 +107,7 @@ class DashboardActionItemsWidget extends ConsumerWidget {
                                     action.title,
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                      decoration: isCompleted ? TextDecoration.lineThrough : null,
+                                    style: const TextStyle(
                                       fontWeight: FontWeight.w500,
                                     ),
                                   ),
