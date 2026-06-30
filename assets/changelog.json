@@ -1,5 +1,23 @@
 [
   {
+    "version": "26.6.30+7",
+    "date": "2026-06-30",
+    "features": [
+      {
+        "category": "Bugfixes",
+        "title": "keep the sermon editor visible when the keyboard is open",
+        "description": "",
+        "icon": "bug_report"
+      },
+      {
+        "category": "Bugfixes",
+        "title": "dedupe automatic revision snapshots so synced conflicts don't duplicate history",
+        "description": "",
+        "icon": "bug_report"
+      }
+    ]
+  },
+  {
     "version": "26.6.30+6",
     "date": "2026-06-30",
     "features": [
