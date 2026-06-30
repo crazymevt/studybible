@@ -57,6 +57,23 @@ class JournalRevisionAction {
     final store = ref.read(userStoreProvider);
     final deviceId = await ref.read(deviceIdProvider.future);
     final now = DateTime.now().millisecondsSinceEpoch;
+    // For automatic snapshots (conflict / restore), skip if this exact content
+    // is already preserved in a live revision of this journal. The sync-side
+    // failsafe and the editor's conflict flow can both snapshot the same losing
+    // content, and re-snapshotting it only ever produces a redundant entry —
+    // never the sole copy — so this can't lose data. We match against
+    // non-deleted revisions only, so content that survives solely in a
+    // tombstoned revision is still re-captured. Manual snapshots are always
+    // kept (the user asked for one explicitly).
+    if (kind != RevisionKind.manual) {
+      final existing = await (store.select(store.journalRevisions)
+            ..where((t) =>
+                t.journalId.equals(journalId) &
+                t.deleted.equals(false) &
+                t.content.equals(content)))
+          .get();
+      if (existing.isNotEmpty) return;
+    }
     await store.into(store.journalRevisions).insert(
           JournalRevisionsCompanion.insert(
             id: const Uuid().v4(),
