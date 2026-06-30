@@ -373,6 +373,9 @@ class _ContentManagerScreenState extends ConsumerState<ContentManagerScreen>
               await ref.read(contentStoreProvider).deleteCommentary(c.id);
               ref.read(commentariesProvider.notifier).reload();
               ref.read(installedModuleIdsProvider.notifier).reload();
+              // Drop the cached lookup so the commentary panel stops serving
+              // entries from the module we just removed (see dictionary delete).
+              ref.invalidate(commentaryEntriesProvider);
               if (mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Deleted ${c.abbreviation}')));
               }
@@ -392,6 +395,10 @@ class _ContentManagerScreenState extends ConsumerState<ContentManagerScreen>
               await ref.read(contentStoreProvider).deleteDictionary(d.id);
               ref.read(dictionariesProvider.notifier).reload();
               ref.read(installedModuleIdsProvider.notifier).reload();
+              // The lookup provider caches its last result, so without this the
+              // dictionary search keeps showing entries from the module we just
+              // removed until the query changes or the app restarts.
+              ref.invalidate(dictionaryEntriesProvider);
               if (mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Deleted ${d.abbreviation}')));
               }
