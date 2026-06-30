@@ -30,6 +30,7 @@ class DashboardScreen extends ConsumerWidget {
     final biblesCompleted = ref.watch(biblesCompletedProvider);
     final achievementsAsync = ref.watch(achievementsProvider);
     final updateCheckAsync = ref.watch(updateCheckerProvider);
+    final prefs = ref.watch(dashboardPrefsProvider);
 
     int chaptersRead = 0;
     for (final chapters in coverage.values) {
@@ -116,9 +117,10 @@ class DashboardScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 24),
                 // Top Row: Quick Stats
-                if (isDesktop)
-                  Row(
-                    children: [
+                if (prefs['showQuickStats'] ?? true) ...[
+                  if (isDesktop)
+                    Row(
+                      children: [
                       Expanded(
                         child: _buildPaceCard(
                           context,
@@ -212,7 +214,8 @@ class DashboardScreen extends ConsumerWidget {
                       ),
                     ],
                   ),
-                const SizedBox(height: 24),
+                  const SizedBox(height: 24),
+                ],
                 // Main Content Area
                 if (isDesktop)
                   Row(
@@ -224,17 +227,22 @@ class DashboardScreen extends ConsumerWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            _buildVerseOfTheDayCard(context, ref),
-                            const SizedBox(height: 16),
-                            _buildReadingProgressCard(
-                              context,
-                              percent,
-                              chaptersRead,
-                              coverage,
-                              biblesCompleted,
-                            ),
-                            const SizedBox(height: 16),
-                            _buildReadingPlansSection(context, ref),
+                            if (prefs['showVerseOfTheDay'] ?? true) ...[
+                              _buildVerseOfTheDayCard(context, ref),
+                              const SizedBox(height: 16),
+                            ],
+                            if (prefs['showReadingProgress'] ?? true) ...[
+                              _buildReadingProgressCard(
+                                context,
+                                percent,
+                                chaptersRead,
+                                coverage,
+                                biblesCompleted,
+                              ),
+                              const SizedBox(height: 16),
+                            ],
+                            if (prefs['showReadingPlans'] ?? true)
+                              _buildReadingPlansSection(context, ref),
                           ],
                         ),
                       ),
@@ -245,11 +253,16 @@ class DashboardScreen extends ConsumerWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            const DashboardActionItemsWidget(),
-                            const SizedBox(height: 16),
-                            _buildTimeAnalyticsCard(context, timeData, ref),
-                            const SizedBox(height: 16),
-                            _buildAchievementsCard(context, achievementsAsync),
+                            if (prefs['showActionItems'] ?? true) ...[
+                              const DashboardActionItemsWidget(),
+                              const SizedBox(height: 16),
+                            ],
+                            if (prefs['showTimeAnalytics'] ?? true) ...[
+                              _buildTimeAnalyticsCard(context, timeData, ref),
+                              const SizedBox(height: 16),
+                            ],
+                            if (prefs['showAchievements'] ?? true)
+                              _buildAchievementsCard(context, achievementsAsync),
                           ],
                         ),
                       ),
@@ -259,23 +272,34 @@ class DashboardScreen extends ConsumerWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      _buildVerseOfTheDayCard(context, ref),
-                      const SizedBox(height: 16),
-                      _buildReadingProgressCard(
-                        context,
-                        percent,
-                        chaptersRead,
-                        coverage,
-                        biblesCompleted,
-                      ),
-                      const SizedBox(height: 16),
-                      _buildReadingPlansSection(context, ref),
-                      const SizedBox(height: 16),
-                      const DashboardActionItemsWidget(),
-                      const SizedBox(height: 16),
-                      _buildTimeAnalyticsCard(context, timeData, ref),
-                      const SizedBox(height: 16),
-                      _buildAchievementsCard(context, achievementsAsync),
+                      if (prefs['showVerseOfTheDay'] ?? true) ...[
+                        _buildVerseOfTheDayCard(context, ref),
+                        const SizedBox(height: 16),
+                      ],
+                      if (prefs['showReadingProgress'] ?? true) ...[
+                        _buildReadingProgressCard(
+                          context,
+                          percent,
+                          chaptersRead,
+                          coverage,
+                          biblesCompleted,
+                        ),
+                        const SizedBox(height: 16),
+                      ],
+                      if (prefs['showReadingPlans'] ?? true) ...[
+                        _buildReadingPlansSection(context, ref),
+                        const SizedBox(height: 16),
+                      ],
+                      if (prefs['showActionItems'] ?? true) ...[
+                        const DashboardActionItemsWidget(),
+                        const SizedBox(height: 16),
+                      ],
+                      if (prefs['showTimeAnalytics'] ?? true) ...[
+                        _buildTimeAnalyticsCard(context, timeData, ref),
+                        const SizedBox(height: 16),
+                      ],
+                      if (prefs['showAchievements'] ?? true)
+                        _buildAchievementsCard(context, achievementsAsync),
                     ],
                   ),
               ],

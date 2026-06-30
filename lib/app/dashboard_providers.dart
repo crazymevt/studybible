@@ -6,6 +6,33 @@ import 'app_state.dart';
 import 'user_providers.dart';
 import 'sync_service.dart';
 import 'achievement_service.dart';
+import 'shared_prefs.dart';
+
+class DashboardPrefsNotifier extends Notifier<Map<String, bool>> {
+  @override
+  Map<String, bool> build() {
+    final prefs = ref.watch(sharedPreferencesProvider);
+    return {
+      'showQuickStats': prefs.getBool('showQuickStats') ?? true,
+      'showVerseOfTheDay': prefs.getBool('showVerseOfTheDay') ?? true,
+      'showReadingProgress': prefs.getBool('showReadingProgress') ?? true,
+      'showReadingPlans': prefs.getBool('showReadingPlans') ?? true,
+      'showActionItems': prefs.getBool('showActionItems') ?? true,
+      'showTimeAnalytics': prefs.getBool('showTimeAnalytics') ?? true,
+      'showAchievements': prefs.getBool('showAchievements') ?? true,
+    };
+  }
+
+  void toggle(String key, bool value) {
+    ref.read(sharedPreferencesProvider).setBool(key, value);
+    state = {...state, key: value};
+  }
+}
+
+final dashboardPrefsProvider =
+    NotifierProvider<DashboardPrefsNotifier, Map<String, bool>>(() {
+  return DashboardPrefsNotifier();
+});
 
 // --- DATA STREAMS ---
 

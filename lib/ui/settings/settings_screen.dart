@@ -7,6 +7,7 @@ import '../../app/content_providers.dart';
 import '../../app/shared_prefs.dart';
 import '../../domain/scripture/verse_share_format.dart';
 import '../../app/sync_service.dart';
+import '../../app/dashboard_providers.dart';
 import '../../data/logging.dart';
 import '../../theme/app_themes.dart';
 import 'package:file_selector/file_selector.dart';
@@ -284,6 +285,52 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 ),
               );
             },
+          ),
+          const Divider(),
+
+          // ── Dashboard ──
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            child: Text(
+              'Dashboard Widgets',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.primary),
+            ),
+          ),
+          SwitchListTile(
+            title: const Text('Quick Stats'),
+            subtitle: const Text('Top row showing active streak and stats'),
+            value: ref.watch(dashboardPrefsProvider)['showQuickStats'] ?? true,
+            onChanged: (val) => ref.read(dashboardPrefsProvider.notifier).toggle('showQuickStats', val),
+          ),
+          SwitchListTile(
+            title: const Text('Verse of the Day'),
+            value: ref.watch(dashboardPrefsProvider)['showVerseOfTheDay'] ?? true,
+            onChanged: (val) => ref.read(dashboardPrefsProvider.notifier).toggle('showVerseOfTheDay', val),
+          ),
+          SwitchListTile(
+            title: const Text('Reading Progress'),
+            value: ref.watch(dashboardPrefsProvider)['showReadingProgress'] ?? true,
+            onChanged: (val) => ref.read(dashboardPrefsProvider.notifier).toggle('showReadingProgress', val),
+          ),
+          SwitchListTile(
+            title: const Text('Reading Plans'),
+            value: ref.watch(dashboardPrefsProvider)['showReadingPlans'] ?? true,
+            onChanged: (val) => ref.read(dashboardPrefsProvider.notifier).toggle('showReadingPlans', val),
+          ),
+          SwitchListTile(
+            title: const Text('Action Items'),
+            value: ref.watch(dashboardPrefsProvider)['showActionItems'] ?? true,
+            onChanged: (val) => ref.read(dashboardPrefsProvider.notifier).toggle('showActionItems', val),
+          ),
+          SwitchListTile(
+            title: const Text('Time Analytics'),
+            value: ref.watch(dashboardPrefsProvider)['showTimeAnalytics'] ?? true,
+            onChanged: (val) => ref.read(dashboardPrefsProvider.notifier).toggle('showTimeAnalytics', val),
+          ),
+          SwitchListTile(
+            title: const Text('Achievements'),
+            value: ref.watch(dashboardPrefsProvider)['showAchievements'] ?? true,
+            onChanged: (val) => ref.read(dashboardPrefsProvider.notifier).toggle('showAchievements', val),
           ),
           const Divider(),
 
