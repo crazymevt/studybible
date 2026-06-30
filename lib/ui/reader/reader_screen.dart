@@ -699,110 +699,127 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
   /// navigation, with adjacent chapters pre-built). Parallel view, desktop, and
   /// the pre-index window fall back to rendering just the current chapter.
   Widget _buildReaderBody(BuildContext context, String bookName, int chapter) {
-    final currentChapterAsync = ref.watch(parallelVersesProvider);
+    // Decide single-version-swipe vs parallel from the version COUNT, not from
+    // the current chapter's fetched verses. Watching the verse map here meant
+    // every swipe (which changes the selected chapter) sent this subtree to a
+    // loading spinner and rebuilt the whole PageView — on remount the
+    // PageController reattached at its initial page, so a swipe flashed the
+    // first chapter before _syncPageController jumped to the target. Each
+    // _ChapterPage loads its own verses (with its own loading/empty/error
+    // states), so the PageView itself no longer depends on any one chapter.
+    final isSingleVersion = ref.watch(displayedVersionCountProvider) <= 1;
 
-    return currentChapterAsync.when(
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (err, stack) => _ReaderMessage(
-        icon: Icons.error_outline,
-        title: 'Couldn\'t load this chapter',
-        message: 'Something went wrong while loading $bookName $chapter.',
-        actionLabel: 'Try again',
-        onAction: () => ref.invalidate(parallelVersesProvider),
-      ),
-      data: (versesMap) {
-        final isSingleVersion = versesMap.length <= 1;
+    // Parallel view renders only the current chapter — no swipe paging
+    // (arrow keys / footer still navigate). Single-version pages through
+    // chapters via the PageView on every platform: the global
+    // AppScrollBehavior enables touch, trackpad, and mouse drag, so
+    // desktop touchscreens (and trackpad swipes) work too. Vertical list
+    // scrolling is unaffected — the gesture arena routes vertical drags to
+    // the verse list and only horizontal drags flip chapters.
+    if (!isSingleVersion) {
+      return _ChapterPage(
+        bookName: bookName,
+        chapter: chapter,
+        isFlowing: _isFlowing,
+        searchQuery: _searchQuery,
+        onVerseTap: _onVerseTap,
+        onFootnoteTap: (_) => _openCommentaryPanel(),
+        onStrongTap: _openStrongDictionary,
+        onChooseVersion: _showVersionPicker,
+        onRetry: () => ref.invalidate(
+          chapterVersesProvider((bookName: bookName, chapter: chapter)),
+        ),
+      );
+    }
 
-        // Parallel view renders only the current chapter — no swipe paging
-        // (arrow keys / footer still navigate). Single-version pages through
-        // chapters via the PageView on every platform: the global
-        // AppScrollBehavior enables touch, trackpad, and mouse drag, so
-        // desktop touchscreens (and trackpad swipes) work too. Vertical list
-        // scrolling is unaffected — the gesture arena routes vertical drags to
-        // the verse list and only horizontal drags flip chapters.
-        if (!isSingleVersion) {
-          return _ChapterPage(
-            bookName: bookName,
-            chapter: chapter,
-            isFlowing: _isFlowing,
-            searchQuery: _searchQuery,
-            onVerseTap: _onVerseTap,
-            onFootnoteTap: (_) => _openCommentaryPanel(),
-            onStrongTap: _openStrongDictionary,
-            onChooseVersion: _showVersionPicker,
-            onRetry: () => ref.invalidate(parallelVersesProvider),
-          );
-        }
+    final chapterIndex = ref.watch(chapterIndexProvider).value;
+    if (chapterIndex == null || chapterIndex.isEmpty) {
+      return _ChapterPage(
+        bookName: bookName,
+        chapter: chapter,
+        isFlowing: _isFlowing,
+        searchQuery: _searchQuery,
+        onVerseTap: _onVerseTap,
+        onFootnoteTap: (_) => _openCommentaryPanel(),
+        onStrongTap: _openStrongDictionary,
+        onChooseVersion: _showVersionPicker,
+        onRetry: () => ref.invalidate(
+          chapterVersesProvider((bookName: bookName, chapter: chapter)),
+        ),
+      );
+    }
 
-        final chapterIndex = ref.watch(chapterIndexProvider).value;
-        if (chapterIndex == null || chapterIndex.isEmpty) {
-          return _ChapterPage(
-            bookName: bookName,
-            chapter: chapter,
-            isFlowing: _isFlowing,
-            searchQuery: _searchQuery,
-            onVerseTap: _onVerseTap,
-            onFootnoteTap: (_) => _openCommentaryPanel(),
-            onStrongTap: _openStrongDictionary,
-            onChooseVersion: _showVersionPicker,
-            onRetry: () => ref.invalidate(parallelVersesProvider),
-          );
-        }
+    final currentIndex = chapterIndex.indexWhere(
+      (e) => e.bookName == bookName && e.chapter == chapter,
+    );
+    final safeIndex = currentIndex < 0 ? 0 : currentIndex;
+    _pageController ??= PageController(initialPage: safeIndex);
 
-        final currentIndex = chapterIndex.indexWhere(
-          (e) => e.bookName == bookName && e.chapter == chapter,
+    // Keep the immediately adjacent chapters warm so a swipe lands on
+    // ready content instead of flashing a spinner mid-drag. This replaces
+    // the PageView's `allowImplicitScrolling` (see below): the verse
+    // provider is family-cached for the session, so subscribing here
+    // pre-fetches the neighbours without the framework's reset-to-page-0
+    // side effect. Decorations default to empty while loading, so warming
+    // the verse map alone is enough to avoid the mid-swipe spinner.
+    for (final n in [safeIndex - 1, safeIndex + 1]) {
+      if (n >= 0 && n < chapterIndex.length) {
+        final e = chapterIndex[n];
+        ref.watch(
+          chapterVersesProvider((bookName: e.bookName, chapter: e.chapter)),
         );
-        final safeIndex = currentIndex < 0 ? 0 : currentIndex;
-        _pageController ??= PageController(initialPage: safeIndex);
+      }
+    }
 
-        // Realign the controller when the chapter changes from outside the
-        // PageView (book chooser, search, history, arrow keys, footer).
-        if (currentIndex >= 0) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted) _syncPageController(currentIndex);
-          });
+    // Realign the controller when the chapter changes from outside the
+    // PageView (book chooser, search, history, arrow keys, footer).
+    if (currentIndex >= 0) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _syncPageController(currentIndex);
+      });
+    }
+
+    // Commit the new chapter only once scrolling fully stops — NOT via
+    // onPageChanged, which fires the moment the drag crosses 50% and would
+    // rebuild the heavy chapter pages mid-settle, collapsing the animation
+    // into an instant snap. depth == 0 ignores the inner verse list's own
+    // scroll-end notifications.
+    return NotificationListener<ScrollEndNotification>(
+      onNotification: (notification) {
+        if (notification.depth == 0) {
+          final page = _pageController?.page;
+          if (page != null) _onPageSettled(page.round());
         }
-
-        // Commit the new chapter only once scrolling fully stops — NOT via
-        // onPageChanged, which fires the moment the drag crosses 50% and would
-        // rebuild the heavy chapter pages mid-settle, collapsing the animation
-        // into an instant snap. depth == 0 ignores the inner verse list's own
-        // scroll-end notifications.
-        return NotificationListener<ScrollEndNotification>(
-          onNotification: (notification) {
-            if (notification.depth == 0) {
-              final page = _pageController?.page;
-              if (page != null) _onPageSettled(page.round());
-            }
-            return false;
-          },
-          child: PageView.builder(
-            controller: _pageController,
-            itemCount: chapterIndex.length,
-            // Pre-build the adjacent chapters so a swipe animates smoothly
-            // instead of flashing a loading spinner mid-drag.
-            allowImplicitScrolling: true,
-            itemBuilder: (context, i) {
-              final e = chapterIndex[i];
-              return _ChapterPage(
-                bookName: e.bookName,
-                chapter: e.chapter,
-                isFlowing: _isFlowing,
-                searchQuery: _searchQuery,
-                onVerseTap: _onVerseTap,
-                onFootnoteTap: (_) => _openCommentaryPanel(),
-                onStrongTap: _openStrongDictionary,
-                onChooseVersion: _showVersionPicker,
-                onRetry: () => ref.invalidate(
-                  chapterVersesProvider(
-                    (bookName: e.bookName, chapter: e.chapter),
-                  ),
-                ),
-              );
-            },
-          ),
-        );
+        return false;
       },
+      child: PageView.builder(
+        controller: _pageController,
+        itemCount: chapterIndex.length,
+        // NOTE: `allowImplicitScrolling` is intentionally NOT set. With it
+        // on, the PageView snapped back to its initial page on the rebuild
+        // that commits a swipe (selectedChapter changing), so a swipe
+        // visibly flashed the first chapter before _syncPageController
+        // jumped it to the target. Adjacent chapters are pre-warmed above
+        // instead, which keeps swipes smooth without that snap.
+        itemBuilder: (context, i) {
+          final e = chapterIndex[i];
+          return _ChapterPage(
+            bookName: e.bookName,
+            chapter: e.chapter,
+            isFlowing: _isFlowing,
+            searchQuery: _searchQuery,
+            onVerseTap: _onVerseTap,
+            onFootnoteTap: (_) => _openCommentaryPanel(),
+            onStrongTap: _openStrongDictionary,
+            onChooseVersion: _showVersionPicker,
+            onRetry: () => ref.invalidate(
+              chapterVersesProvider(
+                (bookName: e.bookName, chapter: e.chapter),
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 }
