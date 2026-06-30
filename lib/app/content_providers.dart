@@ -272,6 +272,26 @@ final chapterVersesProvider = FutureProvider.family<Map<String, List<Verse>>,
   return map;
 });
 
+/// How many Bible versions the reader will display side-by-side for a chapter,
+/// derived from the active/installed selection WITHOUT loading any verses.
+/// The reader uses this (not the fetched verse map) to decide between the
+/// single-version swipe [PageView] and the parallel view, so changing the
+/// selected chapter no longer tears the PageView down to a spinner and snaps
+/// it back to its first page. Mirrors the version-selection rule in
+/// [chapterVersesProvider].
+final displayedVersionCountProvider = Provider<int>((ref) {
+  final activeVersions = ref.watch(activeVersionsProvider);
+  final installedVersions = ref.watch(versionsProvider.select((v) => v.value));
+  if (installedVersions == null) {
+    return activeVersions.isEmpty ? 1 : activeVersions.length;
+  }
+  if (installedVersions.isEmpty) return 0;
+  final valid = activeVersions
+      .where((av) => installedVersions.any((iv) => iv.id == av))
+      .toList();
+  return valid.isEmpty ? 1 : valid.length;
+});
+
 /// The verse map for the currently-selected chapter. Thin wrapper over
 /// [chapterVersesProvider] so swipe-adjacent chapters can be loaded by the same
 /// family without every call site needing to pass the chapter explicitly.
