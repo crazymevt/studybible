@@ -93,20 +93,43 @@ class VerseActionBar extends ConsumerWidget {
 
     final actions = _buildActions(context, ref, onBarColor, showLabels: !compact);
 
-    final Widget content = Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        ...swatches,
-        const SizedBox(width: 8),
-        Container(width: 1, height: 24, color: onBarColor.withValues(alpha: 0.24)),
-        const SizedBox(width: 8),
-        for (final a in actions) ...[a, const SizedBox(width: 4)],
-      ],
-    );
+    // On phones the swatches + actions don't fit comfortably on one line, so
+    // FittedBox would shrink them below a usable size. Stack the highlight
+    // swatches and the actions onto two centered rows instead. Tablets and
+    // desktops keep everything on a single line with a divider between.
+    final Widget content = compact
+        ? Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: swatches,
+              ),
+              const SizedBox(height: 4),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  for (final a in actions) ...[a, const SizedBox(width: 4)],
+                ],
+              ),
+            ],
+          )
+        : Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ...swatches,
+              const SizedBox(width: 8),
+              Container(width: 1, height: 24, color: onBarColor.withValues(alpha: 0.24)),
+              const SizedBox(width: 8),
+              for (final a in actions) ...[a, const SizedBox(width: 4)],
+            ],
+          );
 
-    // FittedBox(scaleDown) keeps the bar a single centered row: at its natural
-    // size when it fits the reader pane, gently scaled down (never wrapped or
-    // overflowing) when the pane is too narrow.
+    // FittedBox(scaleDown) keeps the bar centered at its natural size when it
+    // fits the reader pane, gently scaling it down (never overflowing) when the
+    // pane is narrower than the content.
     return FittedBox(
       fit: BoxFit.scaleDown,
       child: Material(
