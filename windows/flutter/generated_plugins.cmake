@@ -7,6 +7,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   file_selector_windows
   flutter_tts
   just_audio_windows
+  pasteboard
   printing
   screen_retriever_windows
   share_plus

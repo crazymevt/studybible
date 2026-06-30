@@ -10,6 +10,7 @@
 #include <file_selector_windows/file_selector_windows.h>
 #include <flutter_tts/flutter_tts_plugin.h>
 #include <just_audio_windows/just_audio_windows_plugin.h>
+#include <pasteboard/pasteboard_plugin.h>
 #include <printing/printing_plugin.h>
 #include <screen_retriever_windows/screen_retriever_windows_plugin_c_api.h>
 #include <share_plus/share_plus_windows_plugin_c_api.h>
@@ -25,6 +26,8 @@ void RegisterPlugins(flutter::PluginRegistry* registry) {
       registry->GetRegistrarForPlugin("FlutterTtsPlugin"));
   JustAudioWindowsPluginRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("JustAudioWindowsPlugin"));
+  PasteboardPluginRegisterWithRegistrar(
+      registry->GetRegistrarForPlugin("PasteboardPlugin"));
   PrintingPluginRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("PrintingPlugin"));
   ScreenRetrieverWindowsPluginCApiRegisterWithRegistrar(

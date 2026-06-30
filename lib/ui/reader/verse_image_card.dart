@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:file_selector/file_selector.dart';
+import 'package:pasteboard/pasteboard.dart';
 
 /// A preview dialog that renders the selected verse(s) as a styled card over
 /// the active theme's colors and lets the user share it as a PNG image — the
@@ -30,11 +32,11 @@ class VerseImageShareDialog extends StatefulWidget {
 
 class _VerseImageShareDialogState extends State<VerseImageShareDialog> {
   final GlobalKey _boundaryKey = GlobalKey();
-  bool _sharing = false;
+  bool _isProcessing = false;
 
-  Future<void> _share() async {
-    if (_sharing) return;
-    setState(() => _sharing = true);
+  Future<void> _processImage({bool saveOnly = false, bool copyOnly = false}) async {
+    if (_isProcessing) return;
+    setState(() => _isProcessing = true);
     try {
       final boundary = _boundaryKey.currentContext?.findRenderObject()
           as RenderRepaintBoundary?;
@@ -46,18 +48,47 @@ class _VerseImageShareDialogState extends State<VerseImageShareDialog> {
       if (byteData == null) return;
       final bytes = byteData.buffer.asUint8List();
 
-      final origin = _shareOrigin();
-      final path = await _writeTempPng(bytes);
-      await SharePlus.instance.share(
-        ShareParams(
-          files: [XFile(path, mimeType: 'image/png', name: 'verse.png')],
-          subject: widget.reference,
-          sharePositionOrigin: origin,
-        ),
-      );
+      if (saveOnly) {
+        final saveLocation = await getSaveLocation(
+          suggestedName: 'verse.png',
+        );
+        final result = saveLocation?.path;
+        if (result != null) {
+          final file = File(result);
+          await file.writeAsBytes(bytes, flush: true);
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Image saved successfully!'),
+                backgroundColor: Colors.green,
+              ),
+            );
+          }
+        }
+      } else if (copyOnly) {
+        await Pasteboard.writeImage(bytes);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Image copied to clipboard!'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } else {
+        final origin = _shareOrigin();
+        final path = await _writeTempPng(bytes);
+        await SharePlus.instance.share(
+          ShareParams(
+            files: [XFile(path, mimeType: 'image/png', name: 'verse.png')],
+            subject: widget.reference,
+            sharePositionOrigin: origin,
+          ),
+        );
+      }
       if (mounted) Navigator.of(context).pop();
     } finally {
-      if (mounted) setState(() => _sharing = false);
+      if (mounted) setState(() => _isProcessing = false);
     }
   }
 
@@ -100,21 +131,38 @@ class _VerseImageShareDialogState extends State<VerseImageShareDialog> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   TextButton(
-                    onPressed: _sharing ? null : () => Navigator.of(context).pop(),
+                    onPressed: _isProcessing ? null : () => Navigator.of(context).pop(),
                     child: const Text('Close'),
                   ),
                   const SizedBox(width: 8),
-                  FilledButton.icon(
-                    onPressed: _sharing ? null : _share,
-                    icon: _sharing
-                        ? const SizedBox(
-                            width: 16,
-                            height: 16,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : const Icon(Icons.ios_share),
-                    label: const Text('Share'),
-                  ),
+                  if (Platform.isMacOS || Platform.isWindows || Platform.isLinux)
+                    OutlinedButton.icon(
+                      onPressed: _isProcessing ? null : () => _processImage(copyOnly: true),
+                      icon: const Icon(Icons.copy),
+                      label: const Text('Copy'),
+                    ),
+                  if (Platform.isMacOS || Platform.isWindows || Platform.isLinux)
+                    const SizedBox(width: 8),
+                  if (Platform.isMacOS || Platform.isWindows || Platform.isLinux)
+                    FilledButton.tonalIcon(
+                      onPressed: _isProcessing ? null : () => _processImage(saveOnly: true),
+                      icon: const Icon(Icons.save),
+                      label: const Text('Save'),
+                    ),
+                  if (Platform.isMacOS || Platform.isWindows || Platform.isLinux)
+                    const SizedBox(width: 8),
+                  if (Platform.isAndroid || Platform.isIOS || Platform.isMacOS)
+                    FilledButton.icon(
+                      onPressed: _isProcessing ? null : () => _processImage(),
+                      icon: _isProcessing
+                          ? const SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Icon(Icons.ios_share),
+                      label: const Text('Share'),
+                    ),
                 ],
               ),
             ),

@@ -85,6 +85,7 @@ dependencies:
   googleapis_auth: ^2.3.2
   google_sign_in: ^7.2.0
   extension_google_sign_in_as_googleapis_auth: ^3.0.0
+  pasteboard: ^0.5.0
 dev_dependencies:
   flutter_test:
     sdk: flutter
