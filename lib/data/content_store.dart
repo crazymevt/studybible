@@ -145,7 +145,20 @@ class ContentStore extends _$ContentStore {
       variables: [Variable<String>(entity.entityName)],
     ).get();
     if (existing.isEmpty) {
-      await m.create(entity);
+      try {
+        await m.create(entity);
+      } catch (_) {
+        // TOCTOU: a transiently double-opened engine on first launch (two
+        // connections racing this migration) can create the entity between the
+        // check above and m.create, making the non-IF-NOT-EXISTS create throw
+        // "already exists". Re-check sqlite_master; swallow only if the entity
+        // is now present (the race is benign), otherwise rethrow the real error.
+        final present = await customSelect(
+          "SELECT 1 FROM sqlite_master WHERE name = ?",
+          variables: [Variable<String>(entity.entityName)],
+        ).get();
+        if (present.isEmpty) rethrow;
+      }
     }
   }
 

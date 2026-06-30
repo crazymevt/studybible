@@ -530,20 +530,24 @@ class UserStore extends _$UserStore {
       await customStatement('DROP TRIGGER IF EXISTS ${table}_au;');
       await customStatement('DROP TRIGGER IF EXISTS ${table}_ad;');
       await customStatement('DROP TRIGGER IF EXISTS ${table}_soft_delete_au;');
+      // CREATE ... IF NOT EXISTS so a transiently double-opened engine on first
+      // launch (two connections racing this same migration) can't throw "trigger
+      // already exists" between our DROP above and the CREATE here. Every racer
+      // installs the identical robust definition, so the end state is one trigger.
       await customStatement('''
-        CREATE TRIGGER ${table}_ai AFTER INSERT ON $table BEGIN
+        CREATE TRIGGER IF NOT EXISTS ${table}_ai AFTER INSERT ON $table BEGIN
           DELETE FROM user_search WHERE type = '$type' AND reference_id = new.id;
           INSERT INTO user_search(type, reference_id, text_content) SELECT '$type', new.id, $expr WHERE new.deleted = 0;
         END;
       ''');
       await customStatement('''
-        CREATE TRIGGER ${table}_au AFTER UPDATE ON $table BEGIN
+        CREATE TRIGGER IF NOT EXISTS ${table}_au AFTER UPDATE ON $table BEGIN
           DELETE FROM user_search WHERE type = '$type' AND reference_id = new.id;
           INSERT INTO user_search(type, reference_id, text_content) SELECT '$type', new.id, $expr WHERE new.deleted = 0;
         END;
       ''');
       await customStatement('''
-        CREATE TRIGGER ${table}_ad AFTER DELETE ON $table BEGIN
+        CREATE TRIGGER IF NOT EXISTS ${table}_ad AFTER DELETE ON $table BEGIN
           DELETE FROM user_search WHERE type = '$type' AND reference_id = old.id;
         END;
       ''');
