@@ -1,5 +1,17 @@
 [
   {
+    "version": "26.6.30+6",
+    "date": "2026-06-30",
+    "features": [
+      {
+        "category": "New Features",
+        "title": "add copy and save options for verse image sharing on desktop",
+        "description": "",
+        "icon": "star"
+      }
+    ]
+  },
+  {
     "version": "26.6.30+5",
     "date": "2026-06-30",
     "features": [
