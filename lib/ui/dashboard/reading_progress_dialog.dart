@@ -43,14 +43,18 @@ class ReadingProgressDialog extends ConsumerWidget {
                   final book = bibleChapters.keys.elementAt(index);
                   final readChapters = coverage[book] ?? [];
 
+                  final totalChapters = bibleChapters[book]!;
+
                   return ExpansionTile(
                     title: Text(book),
-                    subtitle: Text('${readChapters.length} chapters read'),
+                    subtitle: Text(
+                      '${readChapters.length} / $totalChapters chapters read',
+                    ),
                     children: [
                       Wrap(
                         spacing: 8,
                         runSpacing: 8,
-                        children: List.generate(bibleChapters[book]!, (idx) {
+                        children: List.generate(totalChapters, (idx) {
                           final chapter = idx + 1;
                           final isRead = readChapters.contains(chapter);
                           return InkWell(
