@@ -4,6 +4,7 @@ import '../../app/app_state.dart';
 import '../../app/content_providers.dart';
 import '../../app/highlight_palette.dart';
 import '../../app/reader_state.dart';
+import '../../theme/app_themes.dart';
 import '../../app/user_providers.dart';
 import '../../data/user_store.dart';
 import '../common/empty_state.dart';
@@ -20,19 +21,10 @@ enum HighlightSort {
   final String label;
 }
 
-Color? _parseHex(String hex) {
-  // Translate superseded colours so old highlights render in the new palette.
-  final cleaned = canonicalHighlightHex(hex).replaceAll('#', '').trim();
-  if (cleaned.length != 6) return null;
-  final value = int.tryParse(cleaned, radix: 16);
-  if (value == null) return null;
-  return Color(0xFF000000 | value);
-}
-
 String _nameForHex(String hex) {
-  final canonical = canonicalHighlightHex(hex).toLowerCase();
-  for (final s in highlightPalette) {
-    if (s.hex.toLowerCase() == canonical) return s.name;
+  final slotId = slotIdForHex(hex);
+  for (final s in highlightSlots) {
+    if (s.id == slotId) return s.name;
   }
   return 'Highlight';
 }
@@ -240,13 +232,15 @@ class _HighlightsPanelState extends ConsumerState<HighlightsPanel> {
                   onSelected: (_) => setState(() => _colorFilter = null),
                 ),
                 const SizedBox(width: 8),
-                for (final s in highlightPalette) ...[
+                for (final s in highlightSlots) ...[
                   ChoiceChip(
-                    avatar: CircleAvatar(backgroundColor: _parseHex(s.hex)),
+                    avatar: CircleAvatar(
+                      backgroundColor:
+                          resolveHighlightDisplayColor(context, s.storedHex),
+                    ),
                     label: Text(s.name),
-                    selected:
-                        _colorFilter?.toLowerCase() == s.hex.toLowerCase(),
-                    onSelected: (_) => setState(() => _colorFilter = s.hex),
+                    selected: _colorFilter == s.id,
+                    onSelected: (_) => setState(() => _colorFilter = s.id),
                   ),
                   const SizedBox(width: 8),
                 ],
@@ -279,9 +273,7 @@ class _HighlightsPanelState extends ConsumerState<HighlightsPanel> {
   ) {
     final query = _query.toLowerCase();
     final filtered = highlights.where((h) {
-      if (_colorFilter != null &&
-          canonicalHighlightHex(h.colorHex).toLowerCase() !=
-              _colorFilter!.toLowerCase()) {
+      if (_colorFilter != null && slotIdForHex(h.colorHex) != _colorFilter) {
         return false;
       }
       if (_bookFilter != null && h.bookName != _bookFilter) return false;
@@ -315,9 +307,9 @@ class _HighlightsPanelState extends ConsumerState<HighlightsPanel> {
       case HighlightSort.oldest:
         return a.updatedAt.compareTo(b.updatedAt);
       case HighlightSort.color:
-        // Group superseded colours with their replacement.
-        final c = canonicalHighlightHex(a.colorHex)
-            .compareTo(canonicalHighlightHex(b.colorHex));
+        // Group by slot so superseded colours sort with their replacement.
+        final c = (slotIdForHex(a.colorHex) ?? a.colorHex)
+            .compareTo(slotIdForHex(b.colorHex) ?? b.colorHex);
         return c != 0 ? c : canonical();
     }
   }
@@ -347,7 +339,7 @@ class _HighlightTile extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final color = _parseHex(highlight.colorHex);
+    final color = resolveHighlightDisplayColor(context, highlight.colorHex);
     final textAsync = ref.watch(chapterVerseTextProvider(
       (bookName: highlight.bookName, chapter: highlight.chapter),
     ));
@@ -358,7 +350,7 @@ class _HighlightTile extends ConsumerWidget {
         width: 24,
         height: 24,
         decoration: BoxDecoration(
-          color: color ?? Colors.grey,
+          color: color,
           shape: BoxShape.circle,
           border: Border.all(
             color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2),

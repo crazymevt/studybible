@@ -297,18 +297,13 @@ const singleChapterBooks = ['Obadiah', 'Philemon', '2 John', '3 John', 'Jude'];
 bool allShortBooksFinished(Set<String> readSet) =>
     singleChapterBooks.every((b) => checkBookFinished(b, readSet));
 
-/// Whether [usedColorHexes] covers every colour in [highlightPalette] — the
-/// "Full Palette" achievement. Derived from the palette rather than a hardcoded
+/// Whether [usedColorHexes] covers every [highlightSlots] colour — the "Full
+/// Palette" achievement. Derived from the slot list rather than a hardcoded
 /// count so the reward stays exactly as reachable as the colours on offer, and
-/// hexes are normalised so palette membership survives formatting differences.
+/// stored hexes are mapped to slots so legacy colours still count.
 bool usedEveryHighlightColor(Iterable<String> usedColorHexes) {
-  final used = usedColorHexes
-      .map(canonicalHighlightHex)
-      .map(normalizeHighlightHex)
-      .toSet();
-  return highlightPalette
-      .map((s) => normalizeHighlightHex(s.hex))
-      .every(used.contains);
+  final usedSlots = usedColorHexes.map(slotIdForHex).whereType<String>().toSet();
+  return highlightSlots.every((s) => usedSlots.contains(s.id));
 }
 
 /// Per-chapter read counts ("BookName_chapter" -> times read) from a set of

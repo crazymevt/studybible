@@ -9,6 +9,7 @@ import '../../app/content_providers.dart';
 import '../../app/highlight_palette.dart';
 import '../../data/importer/mybible_verse_parser.dart';
 import '../../domain/scripture/verse_share_format.dart';
+import '../../theme/app_themes.dart';
 import 'note_editor.dart';
 import 'compare_panel.dart';
 import 'topics_panel.dart';
@@ -85,10 +86,12 @@ class VerseActionBar extends ConsumerWidget {
     final swatchSize = compact ? 36.0 : 40.0;
 
     final swatches = [
-      for (final s in highlightPalette)
+      for (final s in highlightSlots)
         _ColorSwatch(
-          color: Color(int.parse(s.hex.replaceFirst('#', '0xFF'))),
-          hex: s.hex,
+          // Show the colour as the active theme renders it, so the picker
+          // matches what a highlight will look like.
+          color: resolveHighlightDisplayColor(context, s.storedHex),
+          hex: s.storedHex,
           name: s.name,
           size: swatchSize,
         ),
