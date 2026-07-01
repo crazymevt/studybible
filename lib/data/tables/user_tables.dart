@@ -57,7 +57,11 @@ class Journals extends Table {
   BoolColumn get deleted => boolean().withDefault(const Constant(false))();
 
   TextColumn get title => text()();
-  TextColumn get content => text()();
+  TextColumn get content => text()(); // Quill Delta JSON (legacy rows: plain/markdown)
+  // Plain-text projection of [content], derived on save, used only for the
+  // full-text search index so the FTS vocab isn't polluted with Delta JSON.
+  // Nullable so legacy rows migrate in cleanly (backfilled on upgrade).
+  TextColumn get contentPlain => text().nullable()();
   TextColumn get tags => text().nullable()();
 
   @override

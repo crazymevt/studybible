@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../app/journal_providers.dart';
 import '../../app/revision_common.dart';
+import '../../data/fts_text.dart';
 import '../../data/user_store.dart';
 
 /// Lists a journal's saved revisions and lets the user save the current state
@@ -185,7 +186,9 @@ class _RevisionTile extends ConsumerWidget {
     final when = DateFormat('MMM d, y · h:mm a').format(
       DateTime.fromMillisecondsSinceEpoch(revision.createdAt).toLocal(),
     );
-    final preview = revision.content.trim();
+    // Revision content is Delta JSON (legacy revisions may be plain text);
+    // show a plain-text preview either way.
+    final preview = deltaToPlainText(revision.content).trim();
     final snippet =
         preview.length > 120 ? '${preview.substring(0, 120)}…' : preview;
 

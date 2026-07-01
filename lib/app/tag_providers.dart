@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:drift/drift.dart';
 import 'package:uuid/uuid.dart';
 import '../data/user_store.dart';
+import '../data/fts_text.dart';
 import 'user_providers.dart';
 import 'content_providers.dart';
 import 'search_providers.dart';
@@ -269,7 +270,8 @@ final entitiesForTagProvider = FutureProvider.family<List<SearchResult>, String>
         results.add(SearchResult(
           type: 'journal',
           referenceId: journal.id,
-          textContent: journal.content,
+          // content is Delta JSON (rich text); show a plain-text snippet.
+          textContent: journal.contentPlain ?? deltaToPlainText(journal.content),
           title: 'Journal: ${journal.title}',
         ));
       }

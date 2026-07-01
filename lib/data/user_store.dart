@@ -35,7 +35,7 @@ class UserStore extends _$UserStore {
   UserStore([QueryExecutor? e]) : super(e ?? _openConnection());
 
   @override
-  int get schemaVersion => 20;
+  int get schemaVersion => 21;
 
   @override
   MigrationStrategy get migration {
@@ -512,6 +512,28 @@ class UserStore extends _$UserStore {
         if (from < 20) {
           await m.createTable(actionItems);
         }
+        if (from < 21) {
+          // Journals become rich text (Quill Delta JSON), like sermons. Index a
+          // plain-text projection instead of raw Delta so the search index and
+          // snippets aren't polluted with JSON. Legacy markdown/plain rows are
+          // left as-is (the editor reads them back as plain text) and their
+          // content_plain is just the original text.
+          await m.addColumn(journals, journals.contentPlain);
+          final existingJournals =
+              await customSelect('SELECT id, content FROM journals').get();
+          for (final row in existingJournals) {
+            await customStatement(
+              'UPDATE journals SET content_plain = ? WHERE id = ?',
+              [
+                deltaToPlainText(row.read<String>('content')),
+                row.read<String>('id'),
+              ],
+            );
+          }
+          // Point the journal FTS trigger at content_plain and rebuild.
+          await _installSearchTriggers();
+          await _rebuildSearchIndex();
+        }
       },
     );
   }
@@ -530,7 +552,7 @@ class UserStore extends _$UserStore {
         'sermons',
         "new.title || ' ' || COALESCE(new.series, '') || ' ' || COALESCE(new.content_plain, '')"
       ],
-      ['journal', 'journals', "new.title || ' ' || new.content"],
+      ['journal', 'journals', "new.title || ' ' || COALESCE(new.content_plain, '')"],
       ['prayer', 'prayers', "new.name || ' ' || new.description"],
     ];
     for (final c in configs) {
@@ -573,7 +595,7 @@ class UserStore extends _$UserStore {
     await customStatement(
         "INSERT INTO user_search(type, reference_id, text_content) SELECT 'note', id, content FROM notes WHERE deleted = 0;");
     await customStatement(
-        "INSERT INTO user_search(type, reference_id, text_content) SELECT 'journal', id, title || ' ' || content FROM journals WHERE deleted = 0;");
+        "INSERT INTO user_search(type, reference_id, text_content) SELECT 'journal', id, title || ' ' || COALESCE(content_plain, '') FROM journals WHERE deleted = 0;");
     await customStatement(
         "INSERT INTO user_search(type, reference_id, text_content) SELECT 'sermon', id, title || ' ' || COALESCE(series, '') || ' ' || COALESCE(content_plain, '') FROM sermons WHERE deleted = 0;");
     await customStatement(

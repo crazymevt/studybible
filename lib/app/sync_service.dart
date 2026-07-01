@@ -569,6 +569,9 @@ class SyncService {
               deleted: rec.deleted,
               title: rec.payload['title'] as String,
               content: content,
+              // content_plain is not synced (derived); recompute it locally so
+              // the search index for synced journals is plain text too.
+              contentPlain: deltaToPlainText(content),
               tags: rec.payload['tags'] as String?,
             );
             await _store
