@@ -85,11 +85,36 @@ class _MainShellState extends ConsumerState<MainShell> {
     final currentModule = ref.watch(appModuleProvider);
     final versionsAsync = ref.watch(bibleVersionsProvider);
 
+    // Android system back / gesture: rather than pop the shell (which would exit
+    // the app), unwind whatever in-app state is on top. The shell can already be
+    // popped only when we're on the reader home with nothing open.
+    //
+    // The tool panel is only a persistent, on-screen surface on wide layouts; on
+    // phones tools are bottom sheets/drawers (their own routes, so back already
+    // dismisses them) and activeTool can even be a stale value that never showed
+    // a panel. So only treat a tool as "open" — and worth intercepting back for
+    // — on wide layouts.
+    final isWideLayout =
+        MediaQuery.sizeOf(context).width > Breakpoints.compact;
+    final activeTool = ref.watch(activeToolProvider);
+    final hasVerseSelection = ref.watch(selectedVersesProvider).isNotEmpty;
+    final panelOpen = isWideLayout && activeTool != ActiveTool.none;
+    final canPopShell = currentModule == AppModule.reader &&
+        !panelOpen &&
+        !hasVerseSelection;
+    Widget wrapBack(Widget child) => PopScope(
+          canPop: canPopShell,
+          onPopInvokedWithResult: (didPop, result) {
+            if (!didPop) _handleSystemBack();
+          },
+          child: child,
+        );
+
     // Ensure we can still access these modules even if database is empty
     if (currentModule == AppModule.contentManager) {
-      return const ContentManagerScreen();
+      return wrapBack(const ContentManagerScreen());
     } else if (currentModule == AppModule.backupRestore) {
-      return const BackupRestoreScreen();
+      return wrapBack(const BackupRestoreScreen());
     }
 
     // Intercept with OnboardingScreen if no bibles are installed. On *error*
@@ -162,13 +187,50 @@ class _MainShellState extends ConsumerState<MainShell> {
     }
 
     if (showTutorial) {
-      return Stack(
+      return wrapBack(Stack(
         fit: StackFit.expand,
         children: [shell, const TutorialOverlay()],
-      );
+      ));
     }
 
-    return shell;
+    return wrapBack(shell);
+  }
+
+  /// Handle a system back press that the shell declined to pop, unwinding the
+  /// most-nested in-app state one level:
+  ///   * reader tool panel with an open sermon/devotional editor → its list
+  ///   * any open reader tool panel → close it
+  ///   * an active verse selection → clear it
+  ///   * any non-reader module (dashboard, journals, content, backup) → reader
+  /// State is read fresh here so it reflects the moment of the back press.
+  void _handleSystemBack() {
+    if (ref.read(appModuleProvider) != AppModule.reader) {
+      ref.read(appModuleProvider.notifier).setModule(AppModule.reader);
+      return;
+    }
+
+    // Tool panels are only an on-screen surface on wide layouts (see build).
+    if (MediaQuery.sizeOf(context).width > Breakpoints.compact) {
+      final tool = ref.read(activeToolProvider);
+      // Step an open detail editor back to its panel's list first.
+      if (tool == ActiveTool.sermons &&
+          ref.read(selectedSermonIdProvider) != null) {
+        ref.read(selectedSermonIdProvider.notifier).set(null);
+        return;
+      }
+      if (tool == ActiveTool.devotionals &&
+          ref.read(selectedDevotionalIdProvider) != null) {
+        ref.read(selectedDevotionalIdProvider.notifier).set(null);
+        return;
+      }
+      if (tool != ActiveTool.none) {
+        ref.read(activeToolProvider.notifier).close();
+        return;
+      }
+    }
+    if (ref.read(selectedVersesProvider).isNotEmpty) {
+      ref.read(selectedVersesProvider.notifier).clear();
+    }
   }
 }
 
@@ -322,33 +384,13 @@ class _DesktopLayout extends ConsumerWidget {
 
     final keyedRail = KeyedSubtree(key: tutorialToolsRailKey, child: navRail);
 
-    // Let the system back button/gesture step back through an open tool panel
-    // instead of popping the shell (which on Android would exit the app). Only
-    // intercepts while a panel is open; otherwise back behaves normally. No-op
-    // on platforms without a system back (desktop, iOS) — there the panel's own
-    // back/close buttons are the affordance.
-    return PopScope(
-      canPop: activeTool == ActiveTool.none,
-      onPopInvokedWithResult: (didPop, result) {
-        if (didPop) return;
-        // Unwind the panel's own navigation before closing it: an open sermon
-        // editor returns to the sermon list first (matching its back arrow),
-        // then a second back closes the panel.
-        final editingSermon =
-            ref.read(activeToolProvider) == ActiveTool.sermons &&
-                ref.read(selectedSermonIdProvider) != null;
-        if (editingSermon) {
-          ref.read(selectedSermonIdProvider.notifier).set(null);
-        } else {
-          ref.read(activeToolProvider.notifier).close();
-        }
-      },
-      child: Scaffold(
-        body: Row(
-          children: railSide == NavRailSide.left
-              ? [keyedRail, mainContent]
-              : [mainContent, keyedRail],
-        ),
+    // Back-button handling for the tool panel lives centrally in
+    // _MainShellState (system back steps back through / closes the panel).
+    return Scaffold(
+      body: Row(
+        children: railSide == NavRailSide.left
+            ? [keyedRail, mainContent]
+            : [mainContent, keyedRail],
       ),
     );
   }
