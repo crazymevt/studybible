@@ -116,7 +116,9 @@ class AchievementService {
     bool fourfoldCompleted = true;
     bool goodNewsCompleted = false;
     
-    bool bookInADay = false;
+    // "In One Sitting": any book — including single-chapter ones like Jude,
+    // Obadiah, Philemon, 2/3 John — fully read within a single day.
+    final bookInADay = anyBookReadInOneDay(readingProgress);
 
     // Evaluate Book Groups
     void evaluateGroup(List<String> bookNames, void Function(bool) setGroup) {
@@ -126,12 +128,6 @@ class AchievementService {
           allFinished = false;
         } else {
           booksCompletedCount++;
-          // Check if finished in a single day
-          if (!bookInADay && bibleChapters[book]! >= 3) {
-            if (_checkBookFinishedInOneDay(book, readingProgress)) {
-              bookInADay = true;
-            }
-          }
         }
       }
       setGroup(allFinished);
@@ -188,6 +184,7 @@ class AchievementService {
     if (paulineCompleted) earnedIds.add('pauline');
     if (otCompleted) earnedIds.add('law_prophets');
     if (ntCompleted) earnedIds.add('new_covenant');
+    if (allShortBooksFinished(readSet)) earnedIds.add('short_book_reader');
 
     // Habits
     if (longestStreak >= 7) earnedIds.add('consistent');
@@ -278,32 +275,26 @@ class AchievementService {
   int _computeBiblesCompleted(List<ReadingProgress> progress) {
     return completedBiblePasses(chapterReadCounts(progress));
   }
-
-  bool _checkBookFinishedInOneDay(String bookName, List<ReadingProgress> progress) {
-    final iterations = progress.where((r) => r.bookName == bookName).map((r) => r.iteration).toSet();
-    for (final iter in iterations) {
-      final chapters = progress.where((r) => r.bookName == bookName && r.iteration == iter).toList();
-      if (chapters.length < bibleChapters[bookName]!) continue;
-      
-      final days = chapters.map((r) {
-        final d = DateTime.fromMillisecondsSinceEpoch(r.readAt).toLocal();
-        return DateTime(d.year, d.month, d.day);
-      }).toSet();
-      
-      if (days.length == 1) return true;
-    }
-    return false;
-  }
-
-  bool checkBookFinished(String bookName, Set<String> readSet) {
-    final count = bibleChapters[bookName];
-    if (count == null) return false;
-    for (int i = 1; i <= count; i++) {
-      if (!readSet.contains('$bookName|$i')) return false;
-    }
-    return true;
-  }
 }
+
+/// Whether every chapter of [bookName] is present in [readSet] (entries of the
+/// form "Book|chapter").
+bool checkBookFinished(String bookName, Set<String> readSet) {
+  final count = bibleChapters[bookName];
+  if (count == null) return false;
+  for (int i = 1; i <= count; i++) {
+    if (!readSet.contains('$bookName|$i')) return false;
+  }
+  return true;
+}
+
+/// The five single-chapter books of the Bible.
+const singleChapterBooks = ['Obadiah', 'Philemon', '2 John', '3 John', 'Jude'];
+
+/// Whether all [singleChapterBooks] are finished — the "Short Book Reader"
+/// achievement.
+bool allShortBooksFinished(Set<String> readSet) =>
+    singleChapterBooks.every((b) => checkBookFinished(b, readSet));
 
 /// Per-chapter read counts ("BookName_chapter" -> times read) from a set of
 /// reading-progress rows. Each row is one read of one chapter at one iteration,
@@ -330,6 +321,35 @@ int completedBiblePasses(Map<String, int> readCounts) {
     }
   });
   return min == -1 ? 0 : min;
+}
+
+/// Whether any book was fully read within a single calendar day, on some
+/// reading iteration — the "In One Sitting" achievement. Books of every length
+/// qualify, including single-chapter ones (Jude, Obadiah, Philemon, 2/3 John).
+bool anyBookReadInOneDay(List<ReadingProgress> progress) {
+  for (final book in bibleChapters.keys) {
+    if (bookReadInOneDay(book, progress)) return true;
+  }
+  return false;
+}
+
+/// Whether [bookName] was fully read (every chapter) within a single calendar
+/// day, on some reading iteration.
+bool bookReadInOneDay(String bookName, List<ReadingProgress> progress) {
+  final rows = progress.where((r) => r.bookName == bookName).toList();
+  final iterations = rows.map((r) => r.iteration).toSet();
+  for (final iter in iterations) {
+    final chapters = rows.where((r) => r.iteration == iter).toList();
+    if (chapters.length < bibleChapters[bookName]!) continue;
+
+    final days = chapters.map((r) {
+      final d = DateTime.fromMillisecondsSinceEpoch(r.readAt).toLocal();
+      return DateTime(d.year, d.month, d.day);
+    }).toSet();
+
+    if (days.length == 1) return true;
+  }
+  return false;
 }
 
 const _pentateuch = ['Genesis', 'Exodus', 'Leviticus', 'Numbers', 'Deuteronomy'];

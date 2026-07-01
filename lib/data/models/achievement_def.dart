@@ -166,6 +166,14 @@ const List<AchievementDef> allAchievements = [
     icon: Icons.favorite,
     color: Colors.red,
   ),
+  AchievementDef(
+    category: 'Scripture',
+    id: 'short_book_reader',
+    name: 'Short Book Reader',
+    description: 'Finish every single-chapter book: Obadiah, Philemon, 2 John, 3 John & Jude.',
+    icon: Icons.bookmark,
+    color: Colors.lime,
+  ),
 
   // Habits
   AchievementDef(
