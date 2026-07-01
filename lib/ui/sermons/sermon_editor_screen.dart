@@ -45,6 +45,12 @@ class _SermonEditorScreenState extends ConsumerState<SermonEditorScreen> {
   bool _conflictDetected = false;
   Sermon? _incomingRemote;
 
+  /// True while this (panel) editor has pushed a full-screen editor of the same
+  /// sermon on top of itself. Those two editors share one document on one
+  /// device, so the full-screen editor's saves are not a remote conflict — we
+  /// suppress the watcher and silently reload the latest content on return.
+  bool _fullScreenChildOpen = false;
+
   @override
   void initState() {
     super.initState();
@@ -131,7 +137,12 @@ class _SermonEditorScreenState extends ConsumerState<SermonEditorScreen> {
   /// own saves advance [_loadedUpdatedAt], so a newer row whose content/title
   /// differs from what's on screen can only be a remote (synced) edit.
   void _onSermonChanged(Sermon? sermon) {
-    if (sermon == null || _internalWrite || _conflictDetected) return;
+    if (sermon == null ||
+        _internalWrite ||
+        _conflictDetected ||
+        _fullScreenChildOpen) {
+      return;
+    }
     if (sermon.deleted || sermon.updatedAt <= _loadedUpdatedAt) return;
     final changed = sermon.content != _currentContentJson() ||
         sermon.title != _titleController.text ||
@@ -201,6 +212,41 @@ class _SermonEditorScreenState extends ConsumerState<SermonEditorScreen> {
         _incomingRemote = null;
       });
     }
+  }
+
+  /// Opens the full-screen editor for this sermon and, on return, reloads the
+  /// (possibly newer) content that editor saved. Both editors are the same
+  /// document on the same device, so the child's autosaves must not trip this
+  /// panel's remote-conflict watcher — we mute it for the round trip.
+  Future<void> _openFullScreen() async {
+    _fullScreenChildOpen = true;
+    await Navigator.of(context).push(MaterialPageRoute(
+      builder: (_) =>
+          SermonEditorScreen(sermonId: widget.sermonId, isFullScreen: true),
+    ));
+    if (!mounted) {
+      _fullScreenChildOpen = false;
+      return;
+    }
+    final store = ref.read(userStoreProvider);
+    final sermon = await (store.select(store.sermons)
+          ..where((t) => t.id.equals(widget.sermonId)))
+        .getSingleOrNull();
+    if (!mounted) {
+      _fullScreenChildOpen = false;
+      return;
+    }
+    // Only rebuild the editor when the full-screen session actually advanced
+    // the row; otherwise reloading would needlessly reset the cursor.
+    final changed = sermon != null && sermon.updatedAt > _loadedUpdatedAt;
+    _internalWrite = true;
+    setState(() {
+      if (changed) _applySermonToEditor(sermon);
+      _conflictDetected = false;
+      _incomingRemote = null;
+    });
+    _internalWrite = false;
+    _fullScreenChildOpen = false;
   }
 
   Future<void> _openRevisions() async {
@@ -490,11 +536,7 @@ class _SermonEditorScreenState extends ConsumerState<SermonEditorScreen> {
                     IconButton(
                       icon: const Icon(Icons.open_in_new),
                       tooltip: 'Full Screen',
-                      onPressed: () {
-                        Navigator.of(context).push(MaterialPageRoute(
-                          builder: (_) => SermonEditorScreen(sermonId: widget.sermonId, isFullScreen: true),
-                        ));
-                      },
+                      onPressed: _openFullScreen,
                     ),
                   ],
                 ),
