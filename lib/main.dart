@@ -12,6 +12,7 @@ import 'ui/main_shell.dart';
 import 'app/shared_prefs.dart';
 import 'app/app_state.dart';
 import 'app/action_providers.dart';
+import 'data/app_paths.dart';
 import 'data/user_store.dart';
 import 'data/logging.dart';
 import 'theme/app_themes.dart';
@@ -74,6 +75,16 @@ void main() {
     if (!kIsWeb &&
         (Platform.isMacOS || Platform.isWindows || Platform.isLinux)) {
       await windowManager.ensureInitialized();
+    }
+
+    // Debug desktop builds share an application id — and thus a
+    // shared_preferences store — with the installed app. Namespace the key
+    // space so dev sessions get their own settings (theme, fonts, window
+    // geometry, sync config) instead of reading and mutating the real
+    // install's, matching appDataDir()'s `-dev` isolation. Must run before the
+    // first getInstance(). The dev space starts empty; no migration is done.
+    if (useDevDataIsolation) {
+      SharedPreferences.setPrefix('flutter_dev.');
     }
 
     final prefs = await SharedPreferences.getInstance();

@@ -10,6 +10,20 @@ const _migratableFiles = ['content.db', 'user.db', 'device_id.txt'];
 
 Future<void>? _migration;
 
+/// Whether this run should isolate itself from the installed app's data.
+///
+/// True for debug builds (`flutter run`) on desktop, where the binary shares an
+/// application id — and therefore an app-data directory and a
+/// `shared_preferences` store — with the released install. Mobile debug builds
+/// keep the OS-provided app-private sandbox as-is.
+///
+/// Drives two isolations that must move together: [appDataDir] redirects to a
+/// `<app-data>-dev` tree, and `main()` prefixes the `shared_preferences` key
+/// space so settings (theme, fonts, window geometry, sync config) don't leak
+/// between the dev session and the real install.
+bool get useDevDataIsolation =>
+    kDebugMode && !Platform.isAndroid && !Platform.isIOS;
+
 /// Directory for app-internal data: the content and user databases, the device
 /// id, and the default sync folder.
 ///
@@ -41,7 +55,7 @@ Future<Directory> appDataDir() async {
     return getApplicationDocumentsDirectory();
   }
   final dir = await getApplicationSupportDirectory();
-  if (kDebugMode) {
+  if (useDevDataIsolation) {
     final devDir = Directory('${dir.path}-dev');
     if (!await devDir.exists()) {
       await devDir.create(recursive: true);
