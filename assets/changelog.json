@@ -1,5 +1,59 @@
 [
   {
+    "version": "26.7.1+1",
+    "date": "2026-07-01",
+    "features": [
+      {
+        "category": "New Features",
+        "title": "auto-link Bible references in journals and sermons",
+        "description": "",
+        "icon": "star"
+      },
+      {
+        "category": "Bugfixes",
+        "title": "journal panel blanking when the last entry is deleted",
+        "description": "",
+        "icon": "bug_report"
+      },
+      {
+        "category": "New Features",
+        "title": "reload button for installed content",
+        "description": "",
+        "icon": "star"
+      },
+      {
+        "category": "Bugfixes",
+        "title": "broaden search autocomplete to non-ASCII words",
+        "description": "",
+        "icon": "bug_report"
+      },
+      {
+        "category": "New Features",
+        "title": "show total chapter count per book in reading progress",
+        "description": "",
+        "icon": "star"
+      },
+      {
+        "category": "Bugfixes",
+        "title": "re-enable \"Mark Chapter Read\" for each Bible pass",
+        "description": "",
+        "icon": "bug_report"
+      },
+      {
+        "category": "New Features",
+        "title": "count single-chapter books for achievements; add Short Book Reader",
+        "description": "",
+        "icon": "star"
+      },
+      {
+        "category": "New Features",
+        "title": "remember hide-answered/hide-completed toggles across restarts",
+        "description": "",
+        "icon": "star"
+      }
+    ]
+  },
+  {
     "version": "26.6.30+10",
     "date": "2026-06-30",
     "features": [
