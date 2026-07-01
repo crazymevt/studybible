@@ -37,6 +37,29 @@ final osisTranslationsProvider =
           .fetchOsisTranslations(langCode);
     });
 
+/// Uppercased ids of installed modules that can be reloaded (redownloaded and
+/// reimported) from a known catalog. An installed module is reloadable when its
+/// id matches a ph4.org abbr or a CrossWire module name — the two catalogs the
+/// Installed tab's reload button can resolve a source from. OSIS is excluded:
+/// its catalog is nested per-language, so matching would mean fetching every
+/// language's translation list. Locally-imported SWORD zips have no catalog and
+/// so are never reloadable. Catalog fetch failures (e.g. offline) degrade to an
+/// empty set, hiding the reload button rather than erroring.
+final reloadableModuleIdsProvider = FutureProvider<Set<String>>((ref) async {
+  final ids = <String>{};
+  try {
+    for (final m in await ref.watch(ph4CatalogProvider.future)) {
+      ids.add(m.abbr.toUpperCase());
+    }
+  } catch (_) {}
+  try {
+    for (final m in await ref.watch(crosswireCatalogProvider.future)) {
+      ids.add(m.config.name.toUpperCase());
+    }
+  } catch (_) {}
+  return ids;
+});
+
 class DownloadProgress {
   final double percent;
   final String status;
@@ -97,8 +120,9 @@ class ContentManagerController extends Notifier<Map<String, DownloadProgress>> {
   Future<void> downloadAndImportPh4(
     Ph4Module module, {
     void Function(double downloadFraction)? onProgress,
+    String? stateKeyOverride,
   }) async {
-    final stateKey = module.abbr;
+    final stateKey = stateKeyOverride ?? module.abbr;
     state = {...state, stateKey: DownloadProgress(0, 'Downloading...')};
 
     try {
@@ -353,8 +377,11 @@ class ContentManagerController extends Notifier<Map<String, DownloadProgress>> {
     }
   }
 
-  Future<void> downloadAndImportCrosswire(CrosswireModule module) async {
-    final stateKey = 'cw_${module.config.name}';
+  Future<void> downloadAndImportCrosswire(
+    CrosswireModule module, {
+    String? stateKeyOverride,
+  }) async {
+    final stateKey = stateKeyOverride ?? 'cw_${module.config.name}';
     state = {...state, stateKey: DownloadProgress(0, 'Downloading...')};
 
     try {
@@ -418,6 +445,45 @@ class ContentManagerController extends Notifier<Map<String, DownloadProgress>> {
     } catch (e, stack) {
       logError(e, stack, context: 'ContentManager.downloadAndImportCrosswire');
       state = {...state, stateKey: DownloadProgress(0, 'Error: $e')};
+    }
+  }
+
+  /// Reload (redownload and reimport) an already-installed module, resolving its
+  /// source by matching [installedId] against the ph4.org and CrossWire catalogs
+  /// (ph4 first). Progress is published under the uppercased id so the Installed
+  /// tab can render the same progress bar the catalog tabs use, and the reimport
+  /// runs in the same atomic transaction as a fresh install — a failure rolls
+  /// back and leaves the existing copy intact. Modules with no catalog match
+  /// (e.g. a locally-imported SWORD zip) report an error; the UI only offers
+  /// reload for ids in [reloadableModuleIdsProvider], so that path is defensive.
+  Future<void> reloadInstalledModule(String installedId) async {
+    final key = installedId.toUpperCase();
+    state = {...state, key: DownloadProgress(0, 'Resolving…')};
+
+    try {
+      final ph4Match = (await ref.read(ph4CatalogProvider.future))
+          .where((m) => m.abbr.toUpperCase() == key)
+          .firstOrNull;
+      if (ph4Match != null) {
+        await downloadAndImportPh4(ph4Match, stateKeyOverride: key);
+        return;
+      }
+
+      final cwMatch = (await ref.read(crosswireCatalogProvider.future))
+          .where((m) => m.config.name.toUpperCase() == key)
+          .firstOrNull;
+      if (cwMatch != null) {
+        await downloadAndImportCrosswire(cwMatch, stateKeyOverride: key);
+        return;
+      }
+
+      state = {
+        ...state,
+        key: DownloadProgress(0, 'Error: no catalog source found'),
+      };
+    } catch (e, stack) {
+      logError(e, stack, context: 'ContentManager.reloadInstalledModule');
+      state = {...state, key: DownloadProgress(0, 'Error: $e')};
     }
   }
 

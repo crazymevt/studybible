@@ -216,6 +216,11 @@ class _ContentManagerScreenState extends ConsumerState<ContentManagerScreen>
     final devotionalsAsync = ref.watch(devotionalsProvider);
     final bibleVersionsAsync = ref.watch(bibleVersionsProvider);
     final subheadingSourcesAsync = ref.watch(subheadingSourcesProvider);
+    // Reload wiring: in-flight redownload/reimport progress (keyed by uppercased
+    // module id) and the set of ids that can be resolved back to a catalog.
+    final downloadStates = ref.watch(contentManagerControllerProvider);
+    final reloadableIds =
+        ref.watch(reloadableModuleIdsProvider).value ?? const <String>{};
 
     if (versionsAsync.isLoading || commentariesAsync.isLoading || dictionariesAsync.isLoading || devotionalsAsync.isLoading || bibleVersionsAsync.isLoading || subheadingSourcesAsync.isLoading) {
       return const SkeletonList();
@@ -305,7 +310,57 @@ class _ContentManagerScreenState extends ConsumerState<ContentManagerScreen>
       );
     }
 
+    // Reload control for an installed module: while a redownload/reimport is in
+    // flight it shows the same progress bar the catalog tabs use; otherwise a
+    // refresh button, but only when the module resolves to a known catalog.
+    // Returns null when there's nothing to show (no active job, no catalog).
+    Widget? buildReloadWidget(String id) {
+      final key = id.toUpperCase();
+      final dlState = downloadStates[key];
+      if (dlState != null && dlState.status != 'Done') {
+        if (dlState.status.startsWith('Error')) {
+          return IconButton(
+            icon: const Icon(Icons.error, color: Colors.red),
+            tooltip: dlState.status,
+            onPressed: () {},
+          );
+        }
+        return SizedBox(
+          width: 100,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              LinearProgressIndicator(value: dlState.percent),
+              const SizedBox(height: 4),
+              Text(dlState.status, style: const TextStyle(fontSize: 10)),
+            ],
+          ),
+        );
+      }
+      if (!reloadableIds.contains(key)) return null;
+      return IconButton(
+        icon: const Icon(Icons.refresh),
+        tooltip: 'Reload',
+        onPressed: () {
+          ref
+              .read(contentManagerControllerProvider.notifier)
+              .reloadInstalledModule(id);
+        },
+      );
+    }
+
     Widget buildInstalledTrailing(String id, String name, String? about, VoidCallback onDelete) {
+      final reload = buildReloadWidget(id);
+      // While a reload is actually running (progress bar showing), show only the
+      // progress bar — the Info and Delete icons disappear so the user can't act
+      // on a module that's mid-reimport.
+      final dlState = downloadStates[id.toUpperCase()];
+      final isReloading = dlState != null &&
+          dlState.status != 'Done' &&
+          !dlState.status.startsWith('Error');
+      if (isReloading) {
+        return reload ?? const SizedBox.shrink();
+      }
       return Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -331,6 +386,7 @@ class _ContentManagerScreenState extends ConsumerState<ContentManagerScreen>
                 );
               },
             ),
+          ?reload,
           IconButton(
             icon: const Icon(Icons.delete_outline, color: Colors.red),
             tooltip: 'Delete $name',
