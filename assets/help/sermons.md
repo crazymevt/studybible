@@ -32,3 +32,5 @@ Every sermon keeps a history of past versions. Tap **Revision History** to look 
 - **Print** sends the sermon straight to a connected printer.
 
 > 💡 **Tip:** To quote Scripture in a sermon, copy a verse from the Reader (select it and tap **Copy**) and paste it into your notes. See **Notes, Highlights & Sharing**.
+
+> 🔗 **Auto-linking:** Type a Bible reference with its verse—like `John 3:16` or `Rom 8:28-30`—and it turns into a link automatically. Tap the link to jump straight to that passage in the Reader—including from **Presentation Mode**. Capitalize the book name (`John`, not `john`) so it's recognized.

@@ -1,19 +1,21 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/user_store.dart';
 import '../../data/logging.dart';
+import '../common/reference_autolink.dart';
 
-class SermonPresentationScreen extends StatefulWidget {
+class SermonPresentationScreen extends ConsumerStatefulWidget {
   final Sermon sermon;
 
   const SermonPresentationScreen({super.key, required this.sermon});
 
   @override
-  State<SermonPresentationScreen> createState() => _SermonPresentationScreenState();
+  ConsumerState<SermonPresentationScreen> createState() => _SermonPresentationScreenState();
 }
 
-class _SermonPresentationScreenState extends State<SermonPresentationScreen> {
+class _SermonPresentationScreenState extends ConsumerState<SermonPresentationScreen> {
   late QuillController _controller;
 
   @override
@@ -60,6 +62,13 @@ class _SermonPresentationScreenState extends State<SermonPresentationScreen> {
               ),
               child: QuillEditor.basic(
                 controller: _controller,
+                config: QuillEditorConfig(
+                  customLinkPrefixes: referenceLinkPrefixes,
+                  customRecognizerBuilder:
+                      referenceRecognizerBuilder(ref, context),
+                  onLaunchUrl: (url) =>
+                      handleReferenceLaunch(ref, context, url),
+                ),
               ),
             ),
           ),

@@ -9,6 +9,7 @@ import '../../app/user_providers.dart';
 import '../../data/export/document_pdf.dart';
 import '../../data/user_store.dart';
 import '../common/quill_content.dart';
+import '../common/reference_autolink.dart';
 import 'journal_revisions_dialog.dart';
 import 'journals_list_panel.dart';
 import '../tags/tag_editor_dialog.dart';
@@ -130,6 +131,13 @@ class _JournalEditorPanelState extends ConsumerState<JournalEditorPanel> {
     if (_debounce?.isActive ?? false) _debounce!.cancel();
     _debounce = Timer(const Duration(milliseconds: 500), () async {
       if (_conflictDetected || _internalWrite) return;
+      // Turn any newly-typed Bible references into reader links before saving.
+      // This is idempotent, so the document-change echo it triggers settles
+      // after one no-op pass rather than looping.
+      final controller = _controller;
+      if (controller != null) {
+        applyReferenceAutolinks(controller, autolinkBooks(ref));
+      }
       final title = _titleController.text;
       final content = _currentContentJson();
 
@@ -443,7 +451,16 @@ class _JournalEditorPanelState extends ConsumerState<JournalEditorPanel> {
                         Expanded(
                           child: Padding(
                             padding: const EdgeInsets.all(16.0),
-                            child: QuillEditor.basic(controller: controller),
+                            child: QuillEditor.basic(
+                              controller: controller,
+                              config: QuillEditorConfig(
+                                customLinkPrefixes: referenceLinkPrefixes,
+                                customRecognizerBuilder:
+                                    referenceRecognizerBuilder(ref, context),
+                                onLaunchUrl: (url) =>
+                                    handleReferenceLaunch(ref, context, url),
+                              ),
+                            ),
                           ),
                         ),
                       ],

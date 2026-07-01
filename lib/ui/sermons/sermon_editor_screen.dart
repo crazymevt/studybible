@@ -1,9 +1,11 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter_quill/quill_delta.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app/sermon_providers.dart';
+import '../common/reference_autolink.dart';
 import '../../app/revision_common.dart';
 import '../../app/user_providers.dart';
 import '../../data/export/sermon_exporter.dart';
@@ -51,6 +53,10 @@ class _SermonEditorScreenState extends ConsumerState<SermonEditorScreen> {
   /// suppress the watcher and silently reload the latest content on return.
   bool _fullScreenChildOpen = false;
 
+  /// Debounces reference auto-linking so it runs after the user pauses rather
+  /// than mid-word on every keystroke (unlike the immediate content save).
+  Timer? _autolinkDebounce;
+
   @override
   void initState() {
     super.initState();
@@ -79,6 +85,7 @@ class _SermonEditorScreenState extends ConsumerState<SermonEditorScreen> {
       );
 
       _controller.addListener(_saveSermonContent);
+      _controller.addListener(_scheduleAutolink);
       _titleController.addListener(_saveSermonMetadata);
       _seriesController.addListener(_saveSermonMetadata);
 
@@ -90,6 +97,17 @@ class _SermonEditorScreenState extends ConsumerState<SermonEditorScreen> {
 
   String _currentContentJson() =>
       jsonEncode(_controller.document.toDelta().toJson());
+
+  /// Restarts the auto-link debounce. Applying links mutates the document,
+  /// which re-fires this listener; the pass is idempotent, so the follow-up
+  /// timer finds nothing to link and stops.
+  void _scheduleAutolink() {
+    _autolinkDebounce?.cancel();
+    _autolinkDebounce = Timer(const Duration(milliseconds: 600), () {
+      if (!mounted || _conflictDetected || _internalWrite) return;
+      applyReferenceAutolinks(_controller, autolinkBooks(ref));
+    });
+  }
 
   Future<void> _saveSermonContent() async {
     if (_conflictDetected || _internalWrite) return;
@@ -114,6 +132,7 @@ class _SermonEditorScreenState extends ConsumerState<SermonEditorScreen> {
   /// widget reads the rebuilt `_controller`).
   void _applySermonToEditor(Sermon sermon) {
     _controller.removeListener(_saveSermonContent);
+    _controller.removeListener(_scheduleAutolink);
     _controller.dispose();
 
     List<dynamic> jsonData;
@@ -128,6 +147,7 @@ class _SermonEditorScreenState extends ConsumerState<SermonEditorScreen> {
       selection: const TextSelection.collapsed(offset: 0),
     );
     _controller.addListener(_saveSermonContent);
+    _controller.addListener(_scheduleAutolink);
     _titleController.text = sermon.title;
     _seriesController.text = sermon.series ?? '';
     _loadedUpdatedAt = sermon.updatedAt;
@@ -279,8 +299,10 @@ class _SermonEditorScreenState extends ConsumerState<SermonEditorScreen> {
 
   @override
   void dispose() {
+    _autolinkDebounce?.cancel();
     if (_isInitialized) {
       _controller.removeListener(_saveSermonContent);
+      _controller.removeListener(_scheduleAutolink);
       _controller.dispose();
       _titleController.dispose();
       _seriesController.dispose();
@@ -360,6 +382,13 @@ class _SermonEditorScreenState extends ConsumerState<SermonEditorScreen> {
                   ),
                   child: QuillEditor.basic(
                     controller: _controller,
+                    config: QuillEditorConfig(
+                      customLinkPrefixes: referenceLinkPrefixes,
+                      customRecognizerBuilder:
+                          referenceRecognizerBuilder(ref, context),
+                      onLaunchUrl: (url) =>
+                          handleReferenceLaunch(ref, context, url),
+                    ),
                   ),
                 ),
               ),

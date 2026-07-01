@@ -10,6 +10,8 @@ The Journals tab lets you track your daily walk with God, write your personal th
 
 > 💡 **Tip:** To quote Scripture in a journal, copy a verse from the Reader (select it and tap **Copy**) and paste it into your entry. See **Notes, Highlights & Sharing**.
 
+> 🔗 **Auto-linking:** Type a Bible reference with its verse—like `John 3:16` or `Rom 8:28-30`—and it turns into a link automatically. Tap the link to jump straight to that passage in the Reader. Capitalize the book name (`John`, not `john`) so it's recognized.
+
 ## Prayer Tracker
 - Add prayer requests to keep track of what you are praying for.
 - Keep notes on how a prayer request evolves over time.
