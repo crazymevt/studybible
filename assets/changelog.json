@@ -1,5 +1,17 @@
 [
   {
+    "version": "26.6.30+10",
+    "date": "2026-06-30",
+    "features": [
+      {
+        "category": "Bugfixes",
+        "title": "lighten the v21 journal migration to avoid a blank-until-restart dashboard",
+        "description": "",
+        "icon": "bug_report"
+      }
+    ]
+  },
+  {
     "version": "26.6.30+9",
     "date": "2026-06-30",
     "features": [

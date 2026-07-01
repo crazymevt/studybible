@@ -5,13 +5,13 @@
         <description>Most recent updates to StudyBible</description>
         <language>en</language>
         <item>
-            <title>Version 26.6.30+9</title>
+            <title>Version 26.6.30+10</title>
             <!-- No releaseNotesLink: WinSparkle would otherwise load this URL
                  (the GitHub releases page) during the update prompt. Release
                  notes live in the in-app "What's New" dialog instead. -->
-            <pubDate>Wed, 01 Jul 2026 02:57:10 GMT</pubDate>
-            <enclosure url="https://github.com/crazymevt/StudyBible/releases/download/26.6.30+9/StudyBible-Setup.exe"
-                       sparkle:version="26.6.30+9"
+            <pubDate>Wed, 01 Jul 2026 03:34:05 GMT</pubDate>
+            <enclosure url="https://github.com/crazymevt/StudyBible/releases/download/26.6.30+10/StudyBible-Setup.exe"
+                       sparkle:version="26.6.30+10"
                        sparkle:os="windows"
                        length="0"
                        type="application/octet-stream" />
