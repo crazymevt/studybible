@@ -302,7 +302,10 @@ bool allShortBooksFinished(Set<String> readSet) =>
 /// count so the reward stays exactly as reachable as the colours on offer, and
 /// hexes are normalised so palette membership survives formatting differences.
 bool usedEveryHighlightColor(Iterable<String> usedColorHexes) {
-  final used = usedColorHexes.map(normalizeHighlightHex).toSet();
+  final used = usedColorHexes
+      .map(canonicalHighlightHex)
+      .map(normalizeHighlightHex)
+      .toSet();
   return highlightPalette
       .map((s) => normalizeHighlightHex(s.hex))
       .every(used.contains);

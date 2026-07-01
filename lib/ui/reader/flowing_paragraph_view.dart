@@ -2,6 +2,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app/app_state.dart';
+import '../../app/highlight_palette.dart';
 import '../../app/content_providers.dart';
 import '../../data/content_store.dart';
 import 'chapter_navigation_footer.dart';
@@ -200,7 +201,8 @@ class _FlowingParagraphViewState extends ConsumerState<FlowingParagraphView> {
       final isSelected = widget.selectedVerses.contains(verse.verse);
       final highlightHex = widget.savedHighlights[verse.verse];
       final highlightColor = highlightHex != null
-          ? Color(int.parse(highlightHex.replaceFirst('#', '0xFF')))
+          ? Color(int.parse(
+              canonicalHighlightHex(highlightHex).replaceFirst('#', '0xFF')))
           : null;
 
       final bgColor = isSelected

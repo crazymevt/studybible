@@ -21,7 +21,8 @@ enum HighlightSort {
 }
 
 Color? _parseHex(String hex) {
-  final cleaned = hex.replaceAll('#', '').trim();
+  // Translate superseded colours so old highlights render in the new palette.
+  final cleaned = canonicalHighlightHex(hex).replaceAll('#', '').trim();
   if (cleaned.length != 6) return null;
   final value = int.tryParse(cleaned, radix: 16);
   if (value == null) return null;
@@ -29,8 +30,9 @@ Color? _parseHex(String hex) {
 }
 
 String _nameForHex(String hex) {
+  final canonical = canonicalHighlightHex(hex).toLowerCase();
   for (final s in highlightPalette) {
-    if (s.hex.toLowerCase() == hex.toLowerCase()) return s.name;
+    if (s.hex.toLowerCase() == canonical) return s.name;
   }
   return 'Highlight';
 }
@@ -278,7 +280,8 @@ class _HighlightsPanelState extends ConsumerState<HighlightsPanel> {
     final query = _query.toLowerCase();
     final filtered = highlights.where((h) {
       if (_colorFilter != null &&
-          h.colorHex.toLowerCase() != _colorFilter!.toLowerCase()) {
+          canonicalHighlightHex(h.colorHex).toLowerCase() !=
+              _colorFilter!.toLowerCase()) {
         return false;
       }
       if (_bookFilter != null && h.bookName != _bookFilter) return false;
@@ -312,7 +315,9 @@ class _HighlightsPanelState extends ConsumerState<HighlightsPanel> {
       case HighlightSort.oldest:
         return a.updatedAt.compareTo(b.updatedAt);
       case HighlightSort.color:
-        final c = a.colorHex.compareTo(b.colorHex);
+        // Group superseded colours with their replacement.
+        final c = canonicalHighlightHex(a.colorHex)
+            .compareTo(canonicalHighlightHex(b.colorHex));
         return c != 0 ? c : canonical();
     }
   }

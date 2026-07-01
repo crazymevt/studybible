@@ -213,6 +213,30 @@ void main() {
       ];
       expect(usedEveryHighlightColor(missingLast), isFalse);
     });
+
+    test('legacy (pre-revision) hexes still count toward the achievement', () {
+      // Highlights made before the green/blue swatches were revised keep their
+      // original stored hex; they must still map onto the new palette colours.
+      const legacyEveryColour = ['#FBE083', '#98E2C6', '#B5E2FA', '#F4A8C4'];
+      expect(usedEveryHighlightColor(legacyEveryColour), isTrue);
+    });
+  });
+
+  group('canonicalHighlightHex', () {
+    test('maps superseded green and blue to their replacements', () {
+      expect(canonicalHighlightHex('#98E2C6'), '#A3E29A');
+      expect(canonicalHighlightHex('#B5E2FA'), '#A9C7F5');
+    });
+
+    test('maps regardless of case or leading "#"', () {
+      expect(canonicalHighlightHex('98e2c6'), '#A3E29A');
+    });
+
+    test('leaves current and unknown hexes unchanged', () {
+      expect(canonicalHighlightHex('#A3E29A'), '#A3E29A');
+      expect(canonicalHighlightHex('#FBE083'), '#FBE083');
+      expect(canonicalHighlightHex('#123456'), '#123456');
+    });
   });
 
   group('chapterReadForCurrentPass', () {

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import '../../data/content_store.dart';
+import '../../app/highlight_palette.dart';
 import '../../app/reader_state.dart';
 import '../../app/app_state.dart';
 import 'flowing_paragraph_view.dart';
@@ -262,7 +263,8 @@ class _ParallelViewState extends ConsumerState<ParallelView> {
               final isSelected = widget.selectedVerses.contains(verseNum);
               final highlightHex = widget.savedHighlights[verseNum];
               final highlightColor = highlightHex != null
-                  ? Color(int.parse(highlightHex.replaceFirst('#', '0xFF')))
+                  ? Color(int.parse(canonicalHighlightHex(highlightHex)
+                      .replaceFirst('#', '0xFF')))
                   : null;
 
               final bgColor = isSelected
