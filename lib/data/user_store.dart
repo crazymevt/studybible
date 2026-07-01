@@ -49,7 +49,13 @@ class UserStore extends _$UserStore {
       },
       onUpgrade: (Migrator m, int from, int to) async {
         if (from < 2) {
-          // Destructive upgrade: drop all tables and recreate them
+          // Destructive upgrade: the schema-1 layout predates almost every
+          // table, so wipe and rebuild straight to the current schema, then
+          // stop. createAll() already produces the full current schema, so
+          // falling through into the later `from < N` blocks would re-run
+          // addColumn/createTable for columns and tables that now exist (e.g.
+          // notes.selected_verses in the v7 block) and throw "duplicate column
+          // name", wedging the upgrade. Mirror onCreate and return.
           for (final table in allTables) {
             await m.drop(table);
           }
@@ -58,29 +64,8 @@ class UserStore extends _$UserStore {
           await customStatement('''
             CREATE VIRTUAL TABLE IF NOT EXISTS user_search USING fts5(type UNINDEXED, reference_id UNINDEXED, text_content);
           ''');
-          await customStatement('''
-            CREATE TRIGGER IF NOT EXISTS notes_ai AFTER INSERT ON notes BEGIN
-              INSERT INTO user_search(type, reference_id, text_content) VALUES ('note', new.id, new.content);
-            END;
-          ''');
-          await customStatement('''
-            CREATE TRIGGER IF NOT EXISTS notes_au AFTER UPDATE ON notes BEGIN
-              UPDATE user_search SET text_content = new.content WHERE type = 'note' AND reference_id = new.id;
-            END;
-          ''');
-          await customStatement('''
-            CREATE TRIGGER IF NOT EXISTS notes_ad AFTER DELETE ON notes BEGIN
-              DELETE FROM user_search WHERE type = 'note' AND reference_id = old.id;
-            END;
-          ''');
-          await customStatement('''
-            CREATE TRIGGER IF NOT EXISTS notes_soft_delete_au AFTER UPDATE ON notes 
-            WHEN new.deleted = 1 AND old.deleted = 0
-            BEGIN
-              DELETE FROM user_search WHERE type = 'note' AND reference_id = old.id;
-            END;
-          ''');
-          // Note: tags triggers are added in <10 and <11 blocks, so we don't need to add them here since the migration path will just run those blocks next.
+          await _installSearchTriggers();
+          return;
         }
         if (from < 3) {
           await m.createTable(journals);
@@ -500,6 +485,13 @@ class UserStore extends _$UserStore {
           // REPLACE's implicit row delete does not fire the AFTER DELETE
           // trigger while recursive_triggers is off. Reinstall the robust
           // triggers and rebuild the index from scratch to heal every install.
+          //
+          // _installSearchTriggers/_rebuildSearchIndex reflect the *current*
+          // schema, which indexes journals.content_plain -- a column not added
+          // until the v21 block below. Ensure it exists first so this heal step
+          // doesn't fail with "no such column: content_plain" when upgrading
+          // from a schema < 17.
+          await _ensureJournalContentPlainColumn(m);
           await _installSearchTriggers();
           await _rebuildSearchIndex();
         }
@@ -526,16 +518,10 @@ class UserStore extends _$UserStore {
           // blank until a restart. Only the journal rows changed, so only they
           // are re-indexed (mirroring the v13 sermon migration).
 
-          // Idempotent: ALTER TABLE ADD COLUMN auto-commits in SQLite, so if a
-          // prior attempt at this migration was rolled back after adding the
-          // column, re-running must not fail with "duplicate column name".
-          final hasColumn = await customSelect(
-            "SELECT 1 FROM pragma_table_info('journals') "
-            "WHERE name = 'content_plain'",
-          ).get();
-          if (hasColumn.isEmpty) {
-            await m.addColumn(journals, journals.contentPlain);
-          }
+          // Idempotent: the column may already exist if the v17 heal step
+          // above added it, or if a prior attempt at this migration was rolled
+          // back after adding the column.
+          await _ensureJournalContentPlainColumn(m);
 
           final existingJournals =
               await customSelect('SELECT id, content FROM journals').get();
@@ -571,6 +557,21 @@ class UserStore extends _$UserStore {
         }
       },
     );
+  }
+
+  /// Idempotently adds the journals.content_plain column. Guarded because the
+  /// column is referenced by the shared FTS helpers from the v17 heal step (via
+  /// COALESCE) yet only added in the v21 block, and because SQLite's ALTER
+  /// TABLE ADD COLUMN would otherwise throw "duplicate column name" on a
+  /// re-run after a rolled-back migration attempt.
+  Future<void> _ensureJournalContentPlainColumn(Migrator m) async {
+    final hasColumn = await customSelect(
+      "SELECT 1 FROM pragma_table_info('journals') "
+      "WHERE name = 'content_plain'",
+    ).get();
+    if (hasColumn.isEmpty) {
+      await m.addColumn(journals, journals.contentPlain);
+    }
   }
 
   /// (Re)installs the FTS maintenance triggers for the user-content tables in
