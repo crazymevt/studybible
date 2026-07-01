@@ -49,6 +49,24 @@ Running list of known issues and follow-ups.
     Needed for most non-English and Catholic modules. (Full per-phase research
     notes are in git history — see TODO.md prior to this condensation.)
 
+- [ ] **Bookmarks / Bible ribbons.** Let users drop persistent bookmarks
+  ("ribbons") at a verse/chapter and jump back to them, like the ribbon markers
+  in a physical Bible. Consider multiple named/colored ribbons and how they sync.
+
+- [ ] **Sermon ↔ verse chain linking.** Link a sermon to its cited verses so
+  users can navigate from the sermon to each passage (and ideally back). A
+  "chain" of linked verses with in-app navigation between them.
+
+- [ ] **Colored tags.** Add a color to tags so notes/sermons/etc. can be
+  visually grouped and filtered by color. Shared tag model across content types.
+
+- [ ] **Sermon list: sort & tag search.** Update the sermon list to sort
+  alphabetically and by created date, and make it searchable by tags.
+
+- [ ] **Scratch space.** A lightweight, non-syncing scratch/notes area that can
+  optionally be promoted/converted into a full sermon. Explicitly excluded from
+  sync.
+
 ## Issues
 
 - [x] **com.example refs.** The Windows EXE version-info block
