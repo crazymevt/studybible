@@ -79,12 +79,14 @@ final autocompleteWordsProvider = FutureProvider<List<String>>((ref) async {
   try {
     // Escape single quotes for SQL
     final safeWord = lastWord.replaceAll("'", "''");
-    // Restrict to alphabetic, sane-length terms: the FTS index includes raw
-    // commentary HTML, so the vocab contains markup and junk tokens.
+    // Drop pure-number tokens (verse/Strong's numbers) and absurdly long junk,
+    // but keep non-ASCII words so Greek/Hebrew terms can autocomplete. HTML
+    // content is markup-stripped before indexing, so no tag/attribute filtering
+    // is needed here (older indexes are cleaned by the gen-1 rebuild prompt).
     final rows = await contentStore
         .customSelect(
           "SELECT term FROM content_vocab WHERE term LIKE ? "
-          "AND term NOT GLOB '*[^a-z]*' AND length(term) BETWEEN 2 AND 18 "
+          "AND term GLOB '*[^0-9]*' AND length(term) BETWEEN 2 AND 18 "
           "ORDER BY cnt DESC LIMIT 15",
           variables: [Variable.withString('$safeWord%')],
         )
