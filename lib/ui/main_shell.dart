@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../app/app_state.dart';
+import '../app/sermon_providers.dart';
 import 'reader/reader_screen.dart';
 import 'reader/cross_reference_panel.dart';
 import 'reader/commentary_panel.dart';
@@ -321,11 +322,33 @@ class _DesktopLayout extends ConsumerWidget {
 
     final keyedRail = KeyedSubtree(key: tutorialToolsRailKey, child: navRail);
 
-    return Scaffold(
-      body: Row(
-        children: railSide == NavRailSide.left
-            ? [keyedRail, mainContent]
-            : [mainContent, keyedRail],
+    // Let the system back button/gesture step back through an open tool panel
+    // instead of popping the shell (which on Android would exit the app). Only
+    // intercepts while a panel is open; otherwise back behaves normally. No-op
+    // on platforms without a system back (desktop, iOS) — there the panel's own
+    // back/close buttons are the affordance.
+    return PopScope(
+      canPop: activeTool == ActiveTool.none,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        // Unwind the panel's own navigation before closing it: an open sermon
+        // editor returns to the sermon list first (matching its back arrow),
+        // then a second back closes the panel.
+        final editingSermon =
+            ref.read(activeToolProvider) == ActiveTool.sermons &&
+                ref.read(selectedSermonIdProvider) != null;
+        if (editingSermon) {
+          ref.read(selectedSermonIdProvider.notifier).set(null);
+        } else {
+          ref.read(activeToolProvider.notifier).close();
+        }
+      },
+      child: Scaffold(
+        body: Row(
+          children: railSide == NavRailSide.left
+              ? [keyedRail, mainContent]
+              : [mainContent, keyedRail],
+        ),
       ),
     );
   }
