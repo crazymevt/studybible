@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
@@ -29,11 +30,26 @@ Future<void>? _migration;
 /// **Mobile** (Android, iOS) keeps [getApplicationDocumentsDirectory] — it is
 /// already app-private and sandboxed there, and is where existing installs
 /// store their data, so no migration is needed and nothing moves.
+///
+/// **Debug builds** (i.e. `flutter run`) on desktop are redirected to a sibling
+/// `<app-data>-dev` directory so development sessions never read or write the
+/// real installed app's databases, notes, or sync state. The dev directory
+/// starts empty and legacy migration is skipped for it; to seed it with real
+/// content, copy the release directory's contents across manually.
 Future<Directory> appDataDir() async {
   if (Platform.isAndroid || Platform.isIOS) {
     return getApplicationDocumentsDirectory();
   }
   final dir = await getApplicationSupportDirectory();
+  if (kDebugMode) {
+    final devDir = Directory('${dir.path}-dev');
+    if (!await devDir.exists()) {
+      await devDir.create(recursive: true);
+    }
+    // Deliberately no _migrateLegacyData: the dev tree stays isolated from the
+    // installed app's data.
+    return devDir;
+  }
   if (!await dir.exists()) {
     await dir.create(recursive: true);
   }
