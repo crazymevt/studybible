@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../domain/scripture/verse_share_format.dart';
+import 'highlight_palette.dart';
 import 'shared_prefs.dart';
 
 enum ActiveTool {
@@ -677,6 +678,62 @@ class CustomDarkAppBarColorNotifier extends Notifier<int?> {
 
 final customDarkAppBarColorProvider = NotifierProvider<CustomDarkAppBarColorNotifier, int?>(
   () => CustomDarkAppBarColorNotifier(),
+);
+
+/// User overrides for the highlight-colour slots, keyed `'<slotId>_light'` /
+/// `'<slotId>_dark'` -> ARGB int. Absent keys fall back to the built-in default
+/// for that slot and mode (see [resolveHighlightColors]). Each override is
+/// persisted under its own `highlightColor_<slot>_<mode>` pref so a slot's light
+/// and dark colours are independent.
+class HighlightColorOverridesNotifier extends Notifier<Map<String, int>> {
+  static String _key(String slotId, String mode) =>
+      'highlightColor_${slotId}_$mode';
+
+  @override
+  Map<String, int> build() {
+    final prefs = ref.watch(sharedPreferencesProvider);
+    final map = <String, int>{};
+    for (final slot in highlightSlots) {
+      for (final mode in const ['light', 'dark']) {
+        final value = prefs.getInt(_key(slot.id, mode));
+        if (value != null) map['${slot.id}_$mode'] = value;
+      }
+    }
+    return map;
+  }
+
+  /// Sets (or clears, when [argb] is null) the override for [slotId] in [mode]
+  /// (`'light'` or `'dark'`).
+  void setOverride(String slotId, String mode, int? argb) {
+    final prefs = ref.read(sharedPreferencesProvider);
+    final prefKey = _key(slotId, mode);
+    final mapKey = '${slotId}_$mode';
+    final next = {...state};
+    if (argb == null) {
+      prefs.remove(prefKey);
+      next.remove(mapKey);
+    } else {
+      prefs.setInt(prefKey, argb);
+      next[mapKey] = argb;
+    }
+    state = next;
+  }
+
+  /// Clears every override, restoring all slots to their built-in defaults.
+  void resetAll() {
+    final prefs = ref.read(sharedPreferencesProvider);
+    for (final slot in highlightSlots) {
+      for (final mode in const ['light', 'dark']) {
+        prefs.remove(_key(slot.id, mode));
+      }
+    }
+    state = {};
+  }
+}
+
+final highlightColorOverridesProvider =
+    NotifierProvider<HighlightColorOverridesNotifier, Map<String, int>>(
+  () => HighlightColorOverridesNotifier(),
 );
 
 /// How selected verses are rendered when copied or shared. Backed by three

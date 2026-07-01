@@ -2,6 +2,8 @@ import 'package:flutter/cupertino.dart' show CupertinoPageTransitionsBuilder;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+import '../app/highlight_palette.dart';
+
 class AppThemes {
   static ThemeData buildTheme({
     required Brightness brightness,
@@ -13,6 +15,7 @@ class AppThemes {
     Color? customSeedColor,
     Color? customSurfaceColor,
     Color? customAppBarColor,
+    Map<String, Color>? highlightColors,
   }) {
     Color seedColor;
     ColorScheme? customColorScheme;
@@ -178,9 +181,63 @@ class AppThemes {
         CustomAppColors(
           jesusWordsColor: customJesusWordsColor,
         ),
+        HighlightColors(
+          highlightColors ?? _defaultHighlightColors(brightness),
+        ),
       ],
     );
   }
+
+  static Map<String, Color> _defaultHighlightColors(Brightness brightness) {
+    final argb = resolveHighlightColors(
+      dark: brightness == Brightness.dark,
+      overrides: const {},
+    );
+    return {for (final e in argb.entries) e.key: Color(e.value)};
+  }
+}
+
+/// The resolved highlight-slot colours for the active theme: `slotId -> Color`,
+/// already merged from per-mode defaults and any user overrides.
+class HighlightColors extends ThemeExtension<HighlightColors> {
+  final Map<String, Color> bySlot;
+
+  const HighlightColors(this.bySlot);
+
+  /// The colour for [slotId], or null when the slot is unknown.
+  Color? forSlotId(String? slotId) => slotId == null ? null : bySlot[slotId];
+
+  @override
+  ThemeExtension<HighlightColors> copyWith({Map<String, Color>? bySlot}) =>
+      HighlightColors(bySlot ?? this.bySlot);
+
+  @override
+  ThemeExtension<HighlightColors> lerp(
+    ThemeExtension<HighlightColors>? other,
+    double t,
+  ) {
+    if (other is! HighlightColors) return this;
+    final keys = {...bySlot.keys, ...other.bySlot.keys};
+    return HighlightColors({
+      for (final k in keys)
+        k: Color.lerp(bySlot[k], other.bySlot[k], t) ??
+            bySlot[k] ??
+            other.bySlot[k]!,
+    });
+  }
+}
+
+/// The colour a stored highlight `colorHex` should render as in the current
+/// theme: the user-tuned slot colour when known, falling back to parsing the
+/// (canonicalised) hex directly for anything the theme doesn't map.
+Color resolveHighlightDisplayColor(BuildContext context, String storedHex) {
+  final themed = Theme.of(context)
+      .extension<HighlightColors>()
+      ?.forSlotId(slotIdForHex(storedHex));
+  if (themed != null) return themed;
+  return Color(
+    int.parse(canonicalHighlightHex(storedHex).replaceFirst('#', '0xFF')),
+  );
 }
 
 class CustomAppColors extends ThemeExtension<CustomAppColors> {

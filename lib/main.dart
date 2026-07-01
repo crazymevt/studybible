@@ -12,6 +12,7 @@ import 'ui/main_shell.dart';
 import 'app/shared_prefs.dart';
 import 'app/app_state.dart';
 import 'app/action_providers.dart';
+import 'app/highlight_palette.dart';
 import 'data/app_paths.dart';
 import 'data/user_store.dart';
 import 'data/logging.dart';
@@ -203,6 +204,15 @@ class _StudyBibleAppState extends ConsumerState<StudyBibleApp>
     final lightAppBarColor = ref.watch(customLightAppBarColorProvider);
     final darkAppBarColor = ref.watch(customDarkAppBarColorProvider);
 
+    final highlightOverrides = ref.watch(highlightColorOverridesProvider);
+    Map<String, Color> highlightColorsFor(bool dark) => {
+          for (final e in resolveHighlightColors(
+            dark: dark,
+            overrides: highlightOverrides,
+          ).entries)
+            e.key: Color(e.value),
+        };
+
     return MaterialApp(
       title: 'Study Bible',
       debugShowCheckedModeBanner: false,
@@ -217,6 +227,7 @@ class _StudyBibleAppState extends ConsumerState<StudyBibleApp>
         customSeedColor: lightSeedColor != null ? Color(lightSeedColor) : null,
         customSurfaceColor: lightSurfaceColor != null ? Color(lightSurfaceColor) : null,
         customAppBarColor: lightAppBarColor != null ? Color(lightAppBarColor) : null,
+        highlightColors: highlightColorsFor(false),
       ),
       darkTheme: AppThemes.buildTheme(
         brightness: Brightness.dark,
@@ -228,6 +239,7 @@ class _StudyBibleAppState extends ConsumerState<StudyBibleApp>
         customSeedColor: darkSeedColor != null ? Color(darkSeedColor) : null,
         customSurfaceColor: darkSurfaceColor != null ? Color(darkSurfaceColor) : null,
         customAppBarColor: darkAppBarColor != null ? Color(darkAppBarColor) : null,
+        highlightColors: highlightColorsFor(true),
       ),
       themeMode: themeMode,
       scrollBehavior: AppScrollBehavior(),

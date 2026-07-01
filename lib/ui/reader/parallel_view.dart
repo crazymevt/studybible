@@ -3,13 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import '../../data/content_store.dart';
-import '../../app/highlight_palette.dart';
 import '../../app/reader_state.dart';
 import '../../app/app_state.dart';
 import 'flowing_paragraph_view.dart';
 import 'chapter_navigation_footer.dart';
 import 'verse_text_builder.dart';
 import 'dictionary_panel.dart';
+import '../../theme/app_themes.dart';
 import '../../app/content_providers.dart';
 import '../common/breakpoints.dart';
 
@@ -263,8 +263,7 @@ class _ParallelViewState extends ConsumerState<ParallelView> {
               final isSelected = widget.selectedVerses.contains(verseNum);
               final highlightHex = widget.savedHighlights[verseNum];
               final highlightColor = highlightHex != null
-                  ? Color(int.parse(canonicalHighlightHex(highlightHex)
-                      .replaceFirst('#', '0xFF')))
+                  ? resolveHighlightDisplayColor(context, highlightHex)
                   : null;
 
               final bgColor = isSelected

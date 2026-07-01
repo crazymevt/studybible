@@ -182,7 +182,7 @@ void main() {
   });
 
   group('usedEveryHighlightColor (Full Palette)', () {
-    final allHexes = [for (final s in highlightPalette) s.hex];
+    final allHexes = [for (final s in highlightSlots) s.storedHex];
 
     test('no highlights -> not earned', () {
       expect(usedEveryHighlightColor(const []), isFalse);
@@ -236,6 +236,66 @@ void main() {
       expect(canonicalHighlightHex('#A3E29A'), '#A3E29A');
       expect(canonicalHighlightHex('#FBE083'), '#FBE083');
       expect(canonicalHighlightHex('#123456'), '#123456');
+    });
+  });
+
+  group('slotIdForHex', () {
+    test('maps each slot storedHex to its own id', () {
+      for (final s in highlightSlots) {
+        expect(slotIdForHex(s.storedHex), s.id);
+      }
+    });
+
+    test('maps legacy hexes to the right slot', () {
+      expect(slotIdForHex('#98E2C6'), 'green');
+      expect(slotIdForHex('#B5E2FA'), 'blue');
+    });
+
+    test('unknown hex -> null', () {
+      expect(slotIdForHex('#123456'), isNull);
+    });
+
+    test('storedHexForSlot round-trips through slotIdForHex', () {
+      for (final s in highlightSlots) {
+        expect(slotIdForHex(storedHexForSlot(s.id)), s.id);
+      }
+    });
+  });
+
+  group('resolveHighlightColors', () {
+    test('with no overrides, every slot uses its per-mode default', () {
+      final dark = resolveHighlightColors(dark: true, overrides: const {});
+      final light = resolveHighlightColors(dark: false, overrides: const {});
+      for (final s in highlightSlots) {
+        expect(dark[s.id], defaultHighlightColorArgb(s.id, dark: true));
+        expect(light[s.id], defaultHighlightColorArgb(s.id, dark: false));
+      }
+    });
+
+    test('light and dark defaults differ for the retuned slots', () {
+      // Green and blue were given distinct light shades; they should not equal
+      // their dark defaults.
+      expect(defaultHighlightColorArgb('green', dark: true),
+          isNot(defaultHighlightColorArgb('green', dark: false)));
+      expect(defaultHighlightColorArgb('blue', dark: true),
+          isNot(defaultHighlightColorArgb('blue', dark: false)));
+    });
+
+    test('an override replaces only its own slot and mode', () {
+      const custom = 0xFF112233;
+      final resolved = resolveHighlightColors(
+        dark: true,
+        overrides: const {'green_dark': custom},
+      );
+      expect(resolved['green'], custom);
+      // Other slots untouched...
+      expect(resolved['blue'], defaultHighlightColorArgb('blue', dark: true));
+      // ...and the light mode of the same slot is untouched.
+      final light = resolveHighlightColors(
+        dark: false,
+        overrides: const {'green_dark': custom},
+      );
+      expect(light['green'], defaultHighlightColorArgb('green', dark: false));
     });
   });
 

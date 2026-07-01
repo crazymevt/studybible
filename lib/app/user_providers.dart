@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import 'package:drift/drift.dart';
 import '../data/user_store.dart';
+import 'highlight_palette.dart';
 import 'reader_state.dart';
 import 'sync_service.dart';
 import 'achievement_service.dart';
@@ -78,7 +79,9 @@ class HighlightAction {
             .getSingleOrNull();
 
     if (existing != null) {
-      if (existing.colorHex == colorHex) {
+      // Compare by slot so a legacy-hex highlight still toggles off against the
+      // current stored hex for the same colour.
+      if (slotIdForHex(existing.colorHex) == slotIdForHex(colorHex)) {
         // Toggle off if same color
         await store
             .into(store.highlights)

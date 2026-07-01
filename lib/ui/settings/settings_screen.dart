@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/app_state.dart';
 import '../../app/content_providers.dart';
+import '../../app/highlight_palette.dart';
 import '../../app/shared_prefs.dart';
 import '../../domain/scripture/verse_share_format.dart';
 import '../../app/sync_service.dart';
@@ -653,6 +654,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               ref.read(appShowStrongNumbersProvider.notifier).set(value);
             },
           ),
+          _buildHighlightColorsSection(context, ref),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
             child: Text(
@@ -1319,6 +1321,164 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildHighlightColorsSection(BuildContext context, WidgetRef ref) {
+    final overrides = ref.watch(highlightColorOverridesProvider);
+    final customized = overrides.isNotEmpty;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
+          child: Text(
+            'Highlight colours',
+            style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  fontWeight: FontWeight.w600,
+                ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
+          child: Text(
+            'Customise the four verse-highlight colours. Light and dark mode '
+            'are set independently; tap a swatch to change it.',
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+          ),
+        ),
+        for (final slot in highlightSlots)
+          ListTile(
+            title: Text(slot.name),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _highlightSwatch(context, ref, overrides, slot.id, 'light'),
+                const SizedBox(width: 16),
+                _highlightSwatch(context, ref, overrides, slot.id, 'dark'),
+              ],
+            ),
+          ),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
+            child: TextButton.icon(
+              icon: const Icon(Icons.restart_alt),
+              label: const Text('Reset highlight colours'),
+              onPressed: customized
+                  ? () => ref
+                      .read(highlightColorOverridesProvider.notifier)
+                      .resetAll()
+                  : null,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _highlightSwatch(
+    BuildContext context,
+    WidgetRef ref,
+    Map<String, int> overrides,
+    String slotId,
+    String mode,
+  ) {
+    final override = overrides['${slotId}_$mode'];
+    final effective =
+        override ?? defaultHighlightColorArgb(slotId, dark: mode == 'dark');
+    final label = mode == 'dark' ? 'Dark' : 'Light';
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        InkWell(
+          customBorder: const CircleBorder(),
+          onTap: () => _pickHighlightColor(
+            context,
+            ref,
+            slotId: slotId,
+            mode: mode,
+            initial: Color(effective),
+          ),
+          child: Container(
+            width: 30,
+            height: 30,
+            decoration: BoxDecoration(
+              color: Color(effective),
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: override != null
+                    ? Theme.of(context).colorScheme.primary
+                    : Theme.of(context).colorScheme.outlineVariant,
+                width: override != null ? 2 : 1,
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 2),
+        Text(label, style: Theme.of(context).textTheme.labelSmall),
+      ],
+    );
+  }
+
+  void _pickHighlightColor(
+    BuildContext context,
+    WidgetRef ref, {
+    required String slotId,
+    required String mode,
+    required Color initial,
+  }) {
+    final slotName = highlightSlots.firstWhere((s) => s.id == slotId).name;
+    final modeLabel = mode == 'dark' ? 'dark mode' : 'light mode';
+    Color picked = initial;
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('$slotName — $modeLabel'),
+          content: SingleChildScrollView(
+            child: ColorPicker(
+              pickerColor: initial,
+              enableAlpha: false,
+              onColorChanged: (color) => picked = color,
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Default'),
+              onPressed: () {
+                ref
+                    .read(highlightColorOverridesProvider.notifier)
+                    .setOverride(slotId, mode, null);
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            ElevatedButton(
+              child: const Text('Save'),
+              onPressed: () {
+                int argb;
+                try {
+                  argb = picked.toARGB32();
+                } catch (_) {
+                  argb = picked.value;
+                }
+                ref
+                    .read(highlightColorOverridesProvider.notifier)
+                    .setOverride(slotId, mode, argb);
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 

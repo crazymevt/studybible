@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import '../../data/content_store.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../app/highlight_palette.dart';
 import '../../app/reader_state.dart';
+import '../../theme/app_themes.dart';
 import '../../app/app_state.dart';
 import '../../app/content_providers.dart';
 import '../../app/tts_providers.dart';
@@ -206,8 +206,7 @@ class _VerseListViewState extends ConsumerState<VerseListView> {
         final isSelected = widget.selectedVerses.contains(verse.verse);
         final highlightHex = widget.savedHighlights[verse.verse];
         final highlightColor = highlightHex != null
-            ? Color(int.parse(
-                canonicalHighlightHex(highlightHex).replaceFirst('#', '0xFF')))
+            ? resolveHighlightDisplayColor(context, highlightHex)
             : null;
 
         final isSpoken = spokenVerse == verse.verse;
