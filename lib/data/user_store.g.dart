@@ -1661,6 +1661,17 @@ class $JournalsTable extends Journals with TableInfo<$JournalsTable, Journal> {
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _contentPlainMeta = const VerificationMeta(
+    'contentPlain',
+  );
+  @override
+  late final GeneratedColumn<String> contentPlain = GeneratedColumn<String>(
+    'content_plain',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _tagsMeta = const VerificationMeta('tags');
   @override
   late final GeneratedColumn<String> tags = GeneratedColumn<String>(
@@ -1678,6 +1689,7 @@ class $JournalsTable extends Journals with TableInfo<$JournalsTable, Journal> {
     deleted,
     title,
     content,
+    contentPlain,
     tags,
   ];
   @override
@@ -1735,6 +1747,15 @@ class $JournalsTable extends Journals with TableInfo<$JournalsTable, Journal> {
     } else if (isInserting) {
       context.missing(_contentMeta);
     }
+    if (data.containsKey('content_plain')) {
+      context.handle(
+        _contentPlainMeta,
+        contentPlain.isAcceptableOrUnknown(
+          data['content_plain']!,
+          _contentPlainMeta,
+        ),
+      );
+    }
     if (data.containsKey('tags')) {
       context.handle(
         _tagsMeta,
@@ -1774,6 +1795,10 @@ class $JournalsTable extends Journals with TableInfo<$JournalsTable, Journal> {
         DriftSqlType.string,
         data['${effectivePrefix}content'],
       )!,
+      contentPlain: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}content_plain'],
+      ),
       tags: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}tags'],
@@ -1794,6 +1819,7 @@ class Journal extends DataClass implements Insertable<Journal> {
   final bool deleted;
   final String title;
   final String content;
+  final String? contentPlain;
   final String? tags;
   const Journal({
     required this.id,
@@ -1802,6 +1828,7 @@ class Journal extends DataClass implements Insertable<Journal> {
     required this.deleted,
     required this.title,
     required this.content,
+    this.contentPlain,
     this.tags,
   });
   @override
@@ -1813,6 +1840,9 @@ class Journal extends DataClass implements Insertable<Journal> {
     map['deleted'] = Variable<bool>(deleted);
     map['title'] = Variable<String>(title);
     map['content'] = Variable<String>(content);
+    if (!nullToAbsent || contentPlain != null) {
+      map['content_plain'] = Variable<String>(contentPlain);
+    }
     if (!nullToAbsent || tags != null) {
       map['tags'] = Variable<String>(tags);
     }
@@ -1827,6 +1857,9 @@ class Journal extends DataClass implements Insertable<Journal> {
       deleted: Value(deleted),
       title: Value(title),
       content: Value(content),
+      contentPlain: contentPlain == null && nullToAbsent
+          ? const Value.absent()
+          : Value(contentPlain),
       tags: tags == null && nullToAbsent ? const Value.absent() : Value(tags),
     );
   }
@@ -1843,6 +1876,7 @@ class Journal extends DataClass implements Insertable<Journal> {
       deleted: serializer.fromJson<bool>(json['deleted']),
       title: serializer.fromJson<String>(json['title']),
       content: serializer.fromJson<String>(json['content']),
+      contentPlain: serializer.fromJson<String?>(json['contentPlain']),
       tags: serializer.fromJson<String?>(json['tags']),
     );
   }
@@ -1856,6 +1890,7 @@ class Journal extends DataClass implements Insertable<Journal> {
       'deleted': serializer.toJson<bool>(deleted),
       'title': serializer.toJson<String>(title),
       'content': serializer.toJson<String>(content),
+      'contentPlain': serializer.toJson<String?>(contentPlain),
       'tags': serializer.toJson<String?>(tags),
     };
   }
@@ -1867,6 +1902,7 @@ class Journal extends DataClass implements Insertable<Journal> {
     bool? deleted,
     String? title,
     String? content,
+    Value<String?> contentPlain = const Value.absent(),
     Value<String?> tags = const Value.absent(),
   }) => Journal(
     id: id ?? this.id,
@@ -1875,6 +1911,7 @@ class Journal extends DataClass implements Insertable<Journal> {
     deleted: deleted ?? this.deleted,
     title: title ?? this.title,
     content: content ?? this.content,
+    contentPlain: contentPlain.present ? contentPlain.value : this.contentPlain,
     tags: tags.present ? tags.value : this.tags,
   );
   Journal copyWithCompanion(JournalsCompanion data) {
@@ -1885,6 +1922,9 @@ class Journal extends DataClass implements Insertable<Journal> {
       deleted: data.deleted.present ? data.deleted.value : this.deleted,
       title: data.title.present ? data.title.value : this.title,
       content: data.content.present ? data.content.value : this.content,
+      contentPlain: data.contentPlain.present
+          ? data.contentPlain.value
+          : this.contentPlain,
       tags: data.tags.present ? data.tags.value : this.tags,
     );
   }
@@ -1898,14 +1938,23 @@ class Journal extends DataClass implements Insertable<Journal> {
           ..write('deleted: $deleted, ')
           ..write('title: $title, ')
           ..write('content: $content, ')
+          ..write('contentPlain: $contentPlain, ')
           ..write('tags: $tags')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, updatedAt, deviceId, deleted, title, content, tags);
+  int get hashCode => Object.hash(
+    id,
+    updatedAt,
+    deviceId,
+    deleted,
+    title,
+    content,
+    contentPlain,
+    tags,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1916,6 +1965,7 @@ class Journal extends DataClass implements Insertable<Journal> {
           other.deleted == this.deleted &&
           other.title == this.title &&
           other.content == this.content &&
+          other.contentPlain == this.contentPlain &&
           other.tags == this.tags);
 }
 
@@ -1926,6 +1976,7 @@ class JournalsCompanion extends UpdateCompanion<Journal> {
   final Value<bool> deleted;
   final Value<String> title;
   final Value<String> content;
+  final Value<String?> contentPlain;
   final Value<String?> tags;
   final Value<int> rowid;
   const JournalsCompanion({
@@ -1935,6 +1986,7 @@ class JournalsCompanion extends UpdateCompanion<Journal> {
     this.deleted = const Value.absent(),
     this.title = const Value.absent(),
     this.content = const Value.absent(),
+    this.contentPlain = const Value.absent(),
     this.tags = const Value.absent(),
     this.rowid = const Value.absent(),
   });
@@ -1945,6 +1997,7 @@ class JournalsCompanion extends UpdateCompanion<Journal> {
     this.deleted = const Value.absent(),
     required String title,
     required String content,
+    this.contentPlain = const Value.absent(),
     this.tags = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
@@ -1959,6 +2012,7 @@ class JournalsCompanion extends UpdateCompanion<Journal> {
     Expression<bool>? deleted,
     Expression<String>? title,
     Expression<String>? content,
+    Expression<String>? contentPlain,
     Expression<String>? tags,
     Expression<int>? rowid,
   }) {
@@ -1969,6 +2023,7 @@ class JournalsCompanion extends UpdateCompanion<Journal> {
       if (deleted != null) 'deleted': deleted,
       if (title != null) 'title': title,
       if (content != null) 'content': content,
+      if (contentPlain != null) 'content_plain': contentPlain,
       if (tags != null) 'tags': tags,
       if (rowid != null) 'rowid': rowid,
     });
@@ -1981,6 +2036,7 @@ class JournalsCompanion extends UpdateCompanion<Journal> {
     Value<bool>? deleted,
     Value<String>? title,
     Value<String>? content,
+    Value<String?>? contentPlain,
     Value<String?>? tags,
     Value<int>? rowid,
   }) {
@@ -1991,6 +2047,7 @@ class JournalsCompanion extends UpdateCompanion<Journal> {
       deleted: deleted ?? this.deleted,
       title: title ?? this.title,
       content: content ?? this.content,
+      contentPlain: contentPlain ?? this.contentPlain,
       tags: tags ?? this.tags,
       rowid: rowid ?? this.rowid,
     );
@@ -2017,6 +2074,9 @@ class JournalsCompanion extends UpdateCompanion<Journal> {
     if (content.present) {
       map['content'] = Variable<String>(content.value);
     }
+    if (contentPlain.present) {
+      map['content_plain'] = Variable<String>(contentPlain.value);
+    }
     if (tags.present) {
       map['tags'] = Variable<String>(tags.value);
     }
@@ -2035,6 +2095,7 @@ class JournalsCompanion extends UpdateCompanion<Journal> {
           ..write('deleted: $deleted, ')
           ..write('title: $title, ')
           ..write('content: $content, ')
+          ..write('contentPlain: $contentPlain, ')
           ..write('tags: $tags, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -10310,6 +10371,7 @@ typedef $$JournalsTableCreateCompanionBuilder =
       Value<bool> deleted,
       required String title,
       required String content,
+      Value<String?> contentPlain,
       Value<String?> tags,
       Value<int> rowid,
     });
@@ -10321,6 +10383,7 @@ typedef $$JournalsTableUpdateCompanionBuilder =
       Value<bool> deleted,
       Value<String> title,
       Value<String> content,
+      Value<String?> contentPlain,
       Value<String?> tags,
       Value<int> rowid,
     });
@@ -10361,6 +10424,11 @@ class $$JournalsTableFilterComposer
 
   ColumnFilters<String> get content => $composableBuilder(
     column: $table.content,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get contentPlain => $composableBuilder(
+    column: $table.contentPlain,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -10409,6 +10477,11 @@ class $$JournalsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get contentPlain => $composableBuilder(
+    column: $table.contentPlain,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get tags => $composableBuilder(
     column: $table.tags,
     builder: (column) => ColumnOrderings(column),
@@ -10441,6 +10514,11 @@ class $$JournalsTableAnnotationComposer
 
   GeneratedColumn<String> get content =>
       $composableBuilder(column: $table.content, builder: (column) => column);
+
+  GeneratedColumn<String> get contentPlain => $composableBuilder(
+    column: $table.contentPlain,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<String> get tags =>
       $composableBuilder(column: $table.tags, builder: (column) => column);
@@ -10480,6 +10558,7 @@ class $$JournalsTableTableManager
                 Value<bool> deleted = const Value.absent(),
                 Value<String> title = const Value.absent(),
                 Value<String> content = const Value.absent(),
+                Value<String?> contentPlain = const Value.absent(),
                 Value<String?> tags = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => JournalsCompanion(
@@ -10489,6 +10568,7 @@ class $$JournalsTableTableManager
                 deleted: deleted,
                 title: title,
                 content: content,
+                contentPlain: contentPlain,
                 tags: tags,
                 rowid: rowid,
               ),
@@ -10500,6 +10580,7 @@ class $$JournalsTableTableManager
                 Value<bool> deleted = const Value.absent(),
                 required String title,
                 required String content,
+                Value<String?> contentPlain = const Value.absent(),
                 Value<String?> tags = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => JournalsCompanion.insert(
@@ -10509,6 +10590,7 @@ class $$JournalsTableTableManager
                 deleted: deleted,
                 title: title,
                 content: content,
+                contentPlain: contentPlain,
                 tags: tags,
                 rowid: rowid,
               ),

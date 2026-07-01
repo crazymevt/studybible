@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import 'package:drift/drift.dart';
 import '../data/user_store.dart';
+import '../data/fts_text.dart';
 import 'user_providers.dart';
 import 'sync_service.dart';
 import 'achievement_service.dart';
@@ -117,6 +118,7 @@ class JournalRevisionAction {
           journal.copyWith(
             title: revision.title,
             content: revision.content,
+            contentPlain: Value(deltaToPlainText(revision.content)),
             tags: Value(revision.tags),
             // Keep the entry's date; only its content is being rolled back.
           ),
@@ -194,6 +196,7 @@ class JournalAction {
             existing.copyWith(
               title: title,
               content: content,
+              contentPlain: Value(deltaToPlainText(content)),
               tags: Value(tags),
               // We don't overwrite updatedAt with a backdate if it's already an existing entry, unless we specifically want to.
               // Since the user is editing it *now*, we might want to keep its original date if it's backdated,
@@ -210,6 +213,7 @@ class JournalAction {
         deleted: false,
         title: title,
         content: content,
+        contentPlain: deltaToPlainText(content),
         tags: tags,
       );
       await store.into(store.journals).insert(newJournal);

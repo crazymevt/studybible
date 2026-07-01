@@ -1,11 +1,14 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app/journal_providers.dart';
 import '../../app/revision_common.dart';
 import '../../app/user_providers.dart';
 import '../../data/export/document_pdf.dart';
 import '../../data/user_store.dart';
+import '../common/quill_content.dart';
 import 'journal_revisions_dialog.dart';
 import 'journals_list_panel.dart';
 import '../tags/tag_editor_dialog.dart';
@@ -20,14 +23,22 @@ class JournalEditorPanel extends ConsumerStatefulWidget {
 
 class _JournalEditorPanelState extends ConsumerState<JournalEditorPanel> {
   final _titleController = TextEditingController();
-  final _contentController = TextEditingController();
+
+  /// Rich-text controller for the entry body. Recreated whenever a different
+  /// entry/date loads (Quill can't swap documents in place), so it's nullable
+  /// between disposal and the next load.
+  QuillController? _controller;
+  StreamSubscription<DocChange>? _docChangesSub;
+
   Timer? _debounce;
   String? _currentId;
 
   /// What the editor last persisted/loaded for [_currentId]. A watched row that
   /// differs from this came from elsewhere (a sync). Journals can't use a
   /// timestamp signal like sermons do — their updatedAt is the entry's date and
-  /// doesn't advance on edits — so conflict detection is content-based.
+  /// doesn't advance on edits — so conflict detection is content-based. Stored
+  /// in DB space: for a legacy (plain/markdown) entry not yet re-saved, this
+  /// holds the original text, not the Delta JSON now on screen.
   String _lastSavedTitle = '';
   String _lastSavedContent = '';
 
@@ -47,24 +58,50 @@ class _JournalEditorPanelState extends ConsumerState<JournalEditorPanel> {
     _loadCurrentJournal();
   }
 
+  /// The body's current content as a Delta JSON string — the value we persist.
+  String _currentContentJson() =>
+      jsonEncode(_controller?.document.toDelta().toJson() ?? const []);
+
+  bool _isContentEmpty() =>
+      (_controller?.document.toPlainText() ?? '').trim().isEmpty;
+
+  /// Swaps [doc] into a fresh controller, wiring the change listener. Disposes
+  /// any previous controller/subscription first.
+  void _setDocument(Document doc) {
+    _docChangesSub?.cancel();
+    _controller?.dispose();
+    final controller = QuillController(
+      document: doc,
+      selection: const TextSelection.collapsed(offset: 0),
+    );
+    // Listen to document changes (real edits) rather than the controller
+    // (which also fires on cursor moves), so merely viewing an entry doesn't
+    // schedule a save.
+    _docChangesSub = doc.changes.listen((event) {
+      if (event.source == ChangeSource.local) _onDataChanged();
+    });
+    _controller = controller;
+  }
+
   void _loadCurrentJournal() {
     if (_currentId == null) {
       _titleController.clear();
-      _contentController.clear();
+      _setDocument(Document());
       _lastSavedTitle = '';
-      _lastSavedContent = '';
+      _lastSavedContent = _currentContentJson();
     } else {
       final journals = ref.read(journalsProvider).value ?? [];
       final journal = journals.where((j) => j.id == _currentId).firstOrNull;
       if (journal != null) {
-        if (_titleController.text != journal.title) {
-          _titleController.text = journal.title;
-        }
-        if (_contentController.text != journal.content) {
-          _contentController.text = journal.content;
-        }
+        _titleController.text = journal.title;
+        _setDocument(documentFromStoredContent(journal.content));
         _lastSavedTitle = journal.title;
         _lastSavedContent = journal.content;
+      } else {
+        _titleController.clear();
+        _setDocument(Document());
+        _lastSavedTitle = '';
+        _lastSavedContent = _currentContentJson();
       }
     }
     _conflictDetected = false;
@@ -74,7 +111,7 @@ class _JournalEditorPanelState extends ConsumerState<JournalEditorPanel> {
   /// Loads [j]'s content/title into the editor and resets the change baseline.
   void _applyJournal(Journal j) {
     _titleController.text = j.title;
-    _contentController.text = j.content;
+    _setDocument(documentFromStoredContent(j.content));
     _lastSavedTitle = j.title;
     _lastSavedContent = j.content;
   }
@@ -82,7 +119,8 @@ class _JournalEditorPanelState extends ConsumerState<JournalEditorPanel> {
   @override
   void dispose() {
     _titleController.dispose();
-    _contentController.dispose();
+    _docChangesSub?.cancel();
+    _controller?.dispose();
     _debounce?.cancel();
     super.dispose();
   }
@@ -93,9 +131,9 @@ class _JournalEditorPanelState extends ConsumerState<JournalEditorPanel> {
     _debounce = Timer(const Duration(milliseconds: 500), () async {
       if (_conflictDetected || _internalWrite) return;
       final title = _titleController.text;
-      final content = _contentController.text;
+      final content = _currentContentJson();
 
-      if (title.isEmpty && content.isEmpty) return;
+      if (title.isEmpty && _isContentEmpty()) return;
 
       final selectedDate = ref.read(selectedJournalDateProvider);
 
@@ -125,7 +163,7 @@ class _JournalEditorPanelState extends ConsumerState<JournalEditorPanel> {
         j.content != _lastSavedContent || j.title != _lastSavedTitle;
     if (!externallyChanged) return;
     final differsFromScreen =
-        j.content != _contentController.text || j.title != _titleController.text;
+        j.content != _currentContentJson() || j.title != _titleController.text;
     if (differsFromScreen) {
       setState(() {
         _conflictDetected = true;
@@ -156,7 +194,7 @@ class _JournalEditorPanelState extends ConsumerState<JournalEditorPanel> {
           kind: RevisionKind.conflict,
         );
     final title = _titleController.text;
-    final content = _contentController.text;
+    final content = _currentContentJson();
     await ref.read(journalActionProvider).saveJournal(
           id,
           title,
@@ -185,7 +223,7 @@ class _JournalEditorPanelState extends ConsumerState<JournalEditorPanel> {
     await ref.read(journalRevisionActionProvider).saveRevision(
           journalId: id,
           title: _titleController.text,
-          content: _contentController.text,
+          content: _currentContentJson(),
           label: 'Your version before reload',
           kind: RevisionKind.restore,
         );
@@ -206,7 +244,7 @@ class _JournalEditorPanelState extends ConsumerState<JournalEditorPanel> {
       context,
       journalId: id,
       currentTitle: _titleController.text,
-      currentContent: _contentController.text,
+      currentContent: _currentContentJson(),
     );
     if (restored == null || !mounted) return;
 
@@ -276,6 +314,8 @@ class _JournalEditorPanelState extends ConsumerState<JournalEditorPanel> {
       );
     }
 
+    final controller = _controller;
+
     return Column(
       children: [
         if (_conflictDetected) _buildConflictBanner(context),
@@ -315,7 +355,7 @@ class _JournalEditorPanelState extends ConsumerState<JournalEditorPanel> {
                             heading: title,
                             subheading:
                                 '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}',
-                            body: _contentController.text,
+                            body: controller?.document.toPlainText() ?? '',
                           ),
                         ],
                       );
@@ -340,7 +380,7 @@ class _JournalEditorPanelState extends ConsumerState<JournalEditorPanel> {
                   onPressed: () async {
                     final targetId = _currentId;
                     if (targetId == null) return;
-                    
+
                     final confirm = await showDialog<bool>(
                       context: context,
                       builder: (c) => AlertDialog(
@@ -378,22 +418,20 @@ class _JournalEditorPanelState extends ConsumerState<JournalEditorPanel> {
           ),
         ),
         const Divider(height: 1),
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: TextField(
-              controller: _contentController,
-              onChanged: (_) => _onDataChanged(),
-              maxLines: null,
-              expands: true,
-              keyboardType: TextInputType.multiline,
-              decoration: const InputDecoration(
-                hintText: 'Write your thoughts here... (Supports Markdown)',
-                border: InputBorder.none,
-              ),
+        if (controller != null) ...[
+          QuillSimpleToolbar(
+            controller: controller,
+            config: const QuillSimpleToolbarConfig(),
+          ),
+          const Divider(height: 1),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: QuillEditor.basic(controller: controller),
             ),
           ),
-        ),
+        ] else
+          const Expanded(child: SizedBox.shrink()),
       ],
     );
   }
