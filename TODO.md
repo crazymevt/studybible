@@ -32,6 +32,36 @@ Running list of known issues and follow-ups.
 
 ## Archive
 
+- [x] **Auto sync.** Settings → Sync → "Auto sync" switch (off by default)
+  plus a frequency dropdown (5/15/30/60 min, default 15, prefs
+  `autoSyncEnabled` / `autoSyncIntervalMinutes`). When on,
+  `autoSyncControllerProvider` (`lib/app/auto_sync.dart`, watched by the main
+  shell) syncs once ~5s after startup and then per interval; runs are
+  serialized (no overlap), silent on failure (`logError` only — the next tick
+  retries). Safe to run unattended because LWW merge snapshots losing
+  sermon/journal content as conflict revisions. Pairs with the
+  Continue-reading handoff card, which now stays fresh without manual syncs.
+
+- [x] **Harmony of the Gospels.** New "Gospel Harmony" tool in the Explore
+  group: ~155 events in 14 chronological sections, each opening its parallel
+  accounts side by side (primary version) with jump-to-passage; a "Parallels"
+  verse-action (Gospels only) reverse-looks-up the events containing the
+  selected verse; the event list pins an "In <current chapter>" group on top.
+  Data is a hand-curated bundled asset (`assets/data/gospel_harmony.json`,
+  arrangement adapted from Robertson 1922 / Stevens & Burton 1893, public
+  domain — credited in the asset, README, help, and the panel footer), loaded
+  in memory via pure-Dart `domain/harmony/gospel_harmony.dart`; no DB tables.
+
+- [x] **Continue reading (cross-device handoff).** New synced
+  `reading_positions` table (user schema v24): one row per device, keyed by
+  that device's id, so LWW merge never contends. The reader keeps this
+  device's row current (book/chapter on navigation, via
+  `readingPositionTrackerProvider`); the dashboard shows a "Continue reading"
+  card when another device's position is newer than ours and points elsewhere
+  — Resume jumps the reader there, and the card self-dismisses once this
+  device catches up. Verified end-to-end on macOS dev with a crafted
+  state-file sync.
+
 - [x] **Sermon ↔ verse chain linking.** "Navigate Scriptures" mode
   (`5b0c13b`): the references written in a sermon become an ordered route the
   reader steps through via a bar under the breadcrumb, each stop's verse range

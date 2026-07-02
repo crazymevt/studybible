@@ -898,6 +898,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           const Divider(),
           _buildSyncFolderSelector(context, ref),
           const Divider(),
+          _buildAutoSync(context, ref),
+          const Divider(),
 
           // ── Maintenance ──
           Padding(
@@ -1023,6 +1025,47 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             ),
           ),
         ),
+      ],
+    );
+  }
+
+  Widget _buildAutoSync(BuildContext context, WidgetRef ref) {
+    final enabled = ref.watch(autoSyncEnabledProvider);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        SwitchListTile(
+          title: const Text('Auto sync'),
+          subtitle: const Text(
+            'Sync automatically shortly after the app starts, then on a '
+            'schedule while it stays open — keeps "Continue reading" and '
+            'your notes fresh across devices.',
+          ),
+          value: enabled,
+          onChanged: (value) =>
+              ref.read(autoSyncEnabledProvider.notifier).setEnabled(value),
+        ),
+        if (enabled)
+          ListTile(
+            title: const Text('Sync every'),
+            trailing: DropdownButton<int>(
+              value: ref.watch(autoSyncIntervalProvider),
+              onChanged: (int? value) {
+                if (value != null) {
+                  ref.read(autoSyncIntervalProvider.notifier).set(value);
+                }
+              },
+              items: [
+                for (final minutes in kAutoSyncIntervalChoices)
+                  DropdownMenuItem(
+                    value: minutes,
+                    child: Text(
+                      minutes < 60 ? '$minutes minutes' : 'Hour',
+                    ),
+                  ),
+              ],
+            ),
+          ),
       ],
     );
   }

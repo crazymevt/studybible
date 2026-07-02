@@ -422,6 +422,58 @@ final syncFolderBookmarkProvider = NotifierProvider<SyncFolderBookmarkNotifier, 
   () => SyncFolderBookmarkNotifier(),
 );
 
+/// Whether the app syncs automatically: once shortly after startup, then on a
+/// fixed interval while running (see autoSyncControllerProvider). Off by
+/// default — sync stays a manual, deliberate act until the user opts in.
+class AutoSyncEnabledNotifier extends Notifier<bool> {
+  @override
+  bool build() {
+    final prefs = ref.watch(sharedPreferencesProvider);
+    return prefs.getBool('autoSyncEnabled') ?? false;
+  }
+
+  void setEnabled(bool enabled) {
+    state = enabled;
+    ref.read(sharedPreferencesProvider).setBool('autoSyncEnabled', enabled);
+  }
+}
+
+final autoSyncEnabledProvider =
+    NotifierProvider<AutoSyncEnabledNotifier, bool>(
+  () => AutoSyncEnabledNotifier(),
+);
+
+/// The auto-sync intervals offered in Settings, in minutes.
+const kAutoSyncIntervalChoices = [5, 15, 30, 60];
+
+/// Default auto-sync interval: frequent enough that another device's reading
+/// position is usually fresh, without hammering Drive/the sync folder.
+const kDefaultAutoSyncIntervalMinutes = 15;
+
+/// How often auto sync runs, in minutes (one of [kAutoSyncIntervalChoices]).
+class AutoSyncIntervalNotifier extends Notifier<int> {
+  @override
+  int build() {
+    final prefs = ref.watch(sharedPreferencesProvider);
+    final stored = prefs.getInt('autoSyncIntervalMinutes');
+    if (stored != null && kAutoSyncIntervalChoices.contains(stored)) {
+      return stored;
+    }
+    return kDefaultAutoSyncIntervalMinutes;
+  }
+
+  void set(int minutes) {
+    state = minutes;
+    ref
+        .read(sharedPreferencesProvider)
+        .setInt('autoSyncIntervalMinutes', minutes);
+  }
+}
+
+final autoSyncIntervalProvider = NotifierProvider<AutoSyncIntervalNotifier, int>(
+  () => AutoSyncIntervalNotifier(),
+);
+
 /// Whether sync should use the user's Google Drive (hidden app-data folder)
 /// instead of a local/SAF folder. When true, [SyncService] builds a Drive-backed
 /// storage from the connected account.

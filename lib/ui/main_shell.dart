@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../app/app_state.dart';
+import '../app/auto_sync.dart';
 import '../app/sermon_providers.dart';
 import 'reader/reader_screen.dart';
 import 'reader/cross_reference_panel.dart';
@@ -87,6 +88,10 @@ class _MainShellState extends ConsumerState<MainShell> {
   Widget build(BuildContext context) {
     final currentModule = ref.watch(appModuleProvider);
     final versionsAsync = ref.watch(bibleVersionsProvider);
+
+    // Auto sync (when enabled) lives exactly as long as the shell: it fires
+    // once shortly after startup and then on the user's chosen interval.
+    ref.watch(autoSyncControllerProvider);
 
     // Android system back / gesture: rather than pop the shell (which would exit
     // the app), unwind whatever in-app state is on top. The shell can already be
