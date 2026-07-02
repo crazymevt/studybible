@@ -1,5 +1,71 @@
 [
   {
+    "version": "26.7.2+1",
+    "date": "2026-07-02",
+    "features": [
+      {
+        "category": "New Features",
+        "title": "auto sync",
+        "description": "",
+        "icon": "star"
+      },
+      {
+        "category": "New Features",
+        "title": "continue reading across devices",
+        "description": "",
+        "icon": "star"
+      },
+      {
+        "category": "New Features",
+        "title": "harmony of the Gospels",
+        "description": "",
+        "icon": "star"
+      },
+      {
+        "category": "Bugfixes",
+        "title": "warm the user database before runApp to end the startup blank screen",
+        "description": "",
+        "icon": "bug_report"
+      },
+      {
+        "category": "New Features",
+        "title": "pin sermons to the top of the list",
+        "description": "",
+        "icon": "star"
+      },
+      {
+        "category": "New Features",
+        "title": "sermon scripture navigation with temporary verse highlighting",
+        "description": "",
+        "icon": "star"
+      },
+      {
+        "category": "New Features",
+        "title": "phone app bar overflow menu with full-size tap targets",
+        "description": "",
+        "icon": "star"
+      },
+      {
+        "category": "New Features",
+        "title": "group the reader tools rail and drawer into sections",
+        "description": "",
+        "icon": "star"
+      },
+      {
+        "category": "New Features",
+        "title": "scratch space — device-local rich-text pad, promotable to a sermon",
+        "description": "",
+        "icon": "star"
+      },
+      {
+        "category": "New Features",
+        "title": "bible ribbons — quick single-verse return markers",
+        "description": "",
+        "icon": "star"
+      }
+    ]
+  },
+  {
     "version": "26.7.1+5",
     "date": "2026-07-01",
     "features": [
