@@ -136,6 +136,12 @@ class _PlacesPanelState extends ConsumerState<PlacesPanel> {
     final scheme = Theme.of(context).colorScheme;
     final points = places.map((p) => LatLng(p.lat, p.lng)).toList();
 
+    // Only fit to the coordinates when they span a non-zero area. Multiple
+    // places sharing the same coordinate collapse to a single point, and
+    // CameraFit.coordinates can't derive a finite zoom from zero-area bounds
+    // (it asserts on `zoom.isFinite`). In that case fall back to initialZoom.
+    final distinctPoints = points.map((p) => (p.latitude, p.longitude)).toSet();
+
     return Stack(
       children: [
         FlutterMap(
@@ -143,7 +149,7 @@ class _PlacesPanelState extends ConsumerState<PlacesPanel> {
           key: ValueKey('$book|$chapter'),
           mapController: _map,
           options: MapOptions(
-            initialCameraFit: points.length > 1
+            initialCameraFit: distinctPoints.length > 1
                 ? CameraFit.coordinates(
                     coordinates: points,
                     padding: const EdgeInsets.all(40),
