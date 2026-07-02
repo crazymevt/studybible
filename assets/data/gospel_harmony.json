@@ -1,0 +1,265 @@
+{
+  "name": "Harmony of the Gospels",
+  "attribution": "Event arrangement adapted from public-domain Gospel harmonies, principally A. T. Robertson, \"A Harmony of the Gospels for Students of the Life of Christ\" (1922), and W. A. Stevens & E. D. Burton, \"A Harmony of the Gospels for Historical Study\" (1893).",
+  "sections": [
+    {
+      "title": "The Beginnings",
+      "events": [
+        {"title": "Luke's preface", "lk": [1, 1, 1, 4]},
+        {"title": "The Word became flesh", "jn": [1, 1, 1, 18]},
+        {"title": "The genealogies of Jesus", "mt": [1, 1, 1, 17], "lk": [3, 23, 3, 38]},
+        {"title": "The birth of John the Baptist foretold", "lk": [1, 5, 1, 25]},
+        {"title": "The annunciation to Mary", "lk": [1, 26, 1, 38]},
+        {"title": "Mary visits Elizabeth; the Magnificat", "lk": [1, 39, 1, 56]},
+        {"title": "The birth of John the Baptist", "lk": [1, 57, 1, 80]},
+        {"title": "An angel appears to Joseph", "mt": [1, 18, 1, 25]},
+        {"title": "The birth of Jesus", "lk": [2, 1, 2, 7]},
+        {"title": "The shepherds and the angels", "lk": [2, 8, 2, 20]},
+        {"title": "Presentation in the temple; Simeon and Anna", "lk": [2, 21, 2, 38]},
+        {"title": "The visit of the magi", "mt": [2, 1, 2, 12]},
+        {"title": "The flight to Egypt and return to Nazareth", "mt": [2, 13, 2, 23], "lk": [2, 39, 2, 39]},
+        {"title": "The boy Jesus in the temple", "lk": [2, 40, 2, 52]}
+      ]
+    },
+    {
+      "title": "John the Baptist and the Beginning of Ministry",
+      "events": [
+        {"title": "The ministry of John the Baptist", "mt": [3, 1, 3, 12], "mk": [1, 1, 1, 8], "lk": [3, 1, 3, 18], "jn": [1, 19, 1, 28]},
+        {"title": "The baptism of Jesus", "mt": [3, 13, 3, 17], "mk": [1, 9, 1, 11], "lk": [3, 21, 3, 22]},
+        {"title": "The temptation in the wilderness", "mt": [4, 1, 4, 11], "mk": [1, 12, 1, 13], "lk": [4, 1, 4, 13]},
+        {"title": "John's testimony: Behold, the Lamb of God", "jn": [1, 29, 1, 34]},
+        {"title": "The first disciples", "jn": [1, 35, 1, 51]},
+        {"title": "Water into wine at Cana", "jn": [2, 1, 2, 12]},
+        {"title": "The first cleansing of the temple", "jn": [2, 13, 2, 25]},
+        {"title": "Nicodemus: you must be born again", "jn": [3, 1, 3, 21]},
+        {"title": "John's final testimony about Jesus", "jn": [3, 22, 3, 36]},
+        {"title": "The Samaritan woman at the well", "jn": [4, 1, 4, 42]},
+        {"title": "John the Baptist imprisoned", "mt": [14, 3, 14, 5], "mk": [6, 17, 6, 20], "lk": [3, 19, 3, 20]}
+      ]
+    },
+    {
+      "title": "The Galilean Ministry Begins",
+      "events": [
+        {"title": "Jesus begins preaching in Galilee", "mt": [4, 12, 4, 17], "mk": [1, 14, 1, 15], "lk": [4, 14, 4, 15], "jn": [4, 43, 4, 45]},
+        {"title": "Healing the official's son", "jn": [4, 46, 4, 54]},
+        {"title": "Rejected at Nazareth", "lk": [4, 16, 4, 30]},
+        {"title": "Follow me: calling fishermen", "mt": [4, 18, 4, 22], "mk": [1, 16, 1, 20], "lk": [5, 1, 5, 11]},
+        {"title": "Teaching with authority; a man with an unclean spirit", "mk": [1, 21, 1, 28], "lk": [4, 31, 4, 37]},
+        {"title": "Healing Peter's mother-in-law and many others", "mt": [8, 14, 8, 17], "mk": [1, 29, 1, 34], "lk": [4, 38, 4, 41]},
+        {"title": "Preaching throughout Galilee", "mt": [4, 23, 4, 25], "mk": [1, 35, 1, 39], "lk": [4, 42, 4, 44]},
+        {"title": "Cleansing a leper", "mt": [8, 1, 8, 4], "mk": [1, 40, 1, 45], "lk": [5, 12, 5, 16]},
+        {"title": "Healing the paralytic lowered through the roof", "mt": [9, 1, 9, 8], "mk": [2, 1, 2, 12], "lk": [5, 17, 5, 26]},
+        {"title": "The calling of Matthew", "mt": [9, 9, 9, 13], "mk": [2, 13, 2, 17], "lk": [5, 27, 5, 32]},
+        {"title": "The question about fasting; new wineskins", "mt": [9, 14, 9, 17], "mk": [2, 18, 2, 22], "lk": [5, 33, 5, 39]},
+        {"title": "Healing at the pool of Bethesda", "jn": [5, 1, 5, 47]},
+        {"title": "Lord of the Sabbath: plucking grain", "mt": [12, 1, 12, 8], "mk": [2, 23, 2, 28], "lk": [6, 1, 6, 5]},
+        {"title": "Healing the man with a withered hand", "mt": [12, 9, 12, 14], "mk": [3, 1, 3, 6], "lk": [6, 6, 6, 11]},
+        {"title": "Crowds by the sea; healing many", "mt": [12, 15, 12, 21], "mk": [3, 7, 3, 12]},
+        {"title": "Choosing the twelve apostles", "mk": [3, 13, 3, 19], "lk": [6, 12, 6, 16]}
+      ]
+    },
+    {
+      "title": "The Sermon on the Mount",
+      "events": [
+        {"title": "The Beatitudes", "mt": [5, 1, 5, 12], "lk": [6, 17, 6, 26]},
+        {"title": "Salt and light", "mt": [5, 13, 5, 16]},
+        {"title": "Jesus and the Law", "mt": [5, 17, 5, 48], "lk": [6, 27, 6, 36]},
+        {"title": "Giving, prayer, and fasting; the Lord's Prayer", "mt": [6, 1, 6, 18]},
+        {"title": "Treasures in heaven; do not be anxious", "mt": [6, 19, 6, 34]},
+        {"title": "Judge not; the golden rule", "mt": [7, 1, 7, 12], "lk": [6, 37, 6, 42]},
+        {"title": "The narrow gate; a tree and its fruit; two builders", "mt": [7, 13, 7, 29], "lk": [6, 43, 6, 49]}
+      ]
+    },
+    {
+      "title": "Growing Fame in Galilee",
+      "events": [
+        {"title": "Healing the centurion's servant", "mt": [8, 5, 8, 13], "lk": [7, 1, 7, 10]},
+        {"title": "Raising the widow's son at Nain", "lk": [7, 11, 7, 17]},
+        {"title": "John the Baptist's question; Jesus praises John", "mt": [11, 2, 11, 19], "lk": [7, 18, 7, 35]},
+        {"title": "Woes on unrepentant cities; rest for the weary", "mt": [11, 20, 11, 30]},
+        {"title": "A sinful woman anoints Jesus", "lk": [7, 36, 7, 50]},
+        {"title": "The women who supported Jesus", "lk": [8, 1, 8, 3]},
+        {"title": "A house divided: the Beelzebul accusation", "mt": [12, 22, 12, 37], "mk": [3, 20, 3, 30]},
+        {"title": "The sign of Jonah", "mt": [12, 38, 12, 45]},
+        {"title": "Jesus' mother and brothers", "mt": [12, 46, 12, 50], "mk": [3, 31, 3, 35], "lk": [8, 19, 8, 21]}
+      ]
+    },
+    {
+      "title": "Parables of the Kingdom",
+      "events": [
+        {"title": "The parable of the sower", "mt": [13, 1, 13, 23], "mk": [4, 1, 4, 20], "lk": [8, 4, 8, 15]},
+        {"title": "A lamp on a stand", "mk": [4, 21, 4, 25], "lk": [8, 16, 8, 18]},
+        {"title": "The parable of the growing seed", "mk": [4, 26, 4, 29]},
+        {"title": "The weeds among the wheat", "mt": [13, 24, 13, 30]},
+        {"title": "The mustard seed and the leaven", "mt": [13, 31, 13, 35], "mk": [4, 30, 4, 34], "lk": [13, 18, 13, 21]},
+        {"title": "The weeds explained; hidden treasure, pearl, and net", "mt": [13, 36, 13, 52]}
+      ]
+    },
+    {
+      "title": "Power Over Storm, Demons, Disease, and Death",
+      "events": [
+        {"title": "Calming the storm", "mt": [8, 23, 8, 27], "mk": [4, 35, 4, 41], "lk": [8, 22, 8, 25]},
+        {"title": "The Gerasene demoniac", "mt": [8, 28, 8, 34], "mk": [5, 1, 5, 20], "lk": [8, 26, 8, 39]},
+        {"title": "Jairus's daughter and the woman who touched his garment", "mt": [9, 18, 9, 26], "mk": [5, 21, 5, 43], "lk": [8, 40, 8, 56]},
+        {"title": "Healing two blind men and a mute man", "mt": [9, 27, 9, 34]},
+        {"title": "Rejected again at Nazareth", "mt": [13, 53, 13, 58], "mk": [6, 1, 6, 6]},
+        {"title": "Sending out the twelve", "mt": [9, 35, 10, 42], "mk": [6, 7, 6, 13], "lk": [9, 1, 9, 6]},
+        {"title": "The death of John the Baptist", "mt": [14, 1, 14, 12], "mk": [6, 14, 6, 29], "lk": [9, 7, 9, 9]},
+        {"title": "Feeding the five thousand", "mt": [14, 13, 14, 21], "mk": [6, 30, 6, 44], "lk": [9, 10, 9, 17], "jn": [6, 1, 6, 15]},
+        {"title": "Walking on the water", "mt": [14, 22, 14, 33], "mk": [6, 45, 6, 52], "jn": [6, 16, 6, 21]},
+        {"title": "Healings at Gennesaret", "mt": [14, 34, 14, 36], "mk": [6, 53, 6, 56]},
+        {"title": "The bread of life discourse", "jn": [6, 22, 6, 71]},
+        {"title": "Clean and unclean: the tradition of the elders", "mt": [15, 1, 15, 20], "mk": [7, 1, 7, 23]},
+        {"title": "The Syrophoenician woman's faith", "mt": [15, 21, 15, 28], "mk": [7, 24, 7, 30]},
+        {"title": "Healing a deaf and mute man, and many others", "mt": [15, 29, 15, 31], "mk": [7, 31, 7, 37]},
+        {"title": "Feeding the four thousand", "mt": [15, 32, 15, 39], "mk": [8, 1, 8, 10]},
+        {"title": "The demand for a sign; the leaven of the Pharisees", "mt": [16, 1, 16, 12], "mk": [8, 11, 8, 21]},
+        {"title": "Healing a blind man at Bethsaida", "mk": [8, 22, 8, 26]}
+      ]
+    },
+    {
+      "title": "Peter's Confession to the Transfiguration",
+      "events": [
+        {"title": "Peter's confession: You are the Christ", "mt": [16, 13, 16, 20], "mk": [8, 27, 8, 30], "lk": [9, 18, 9, 21]},
+        {"title": "Jesus foretells his death; take up your cross", "mt": [16, 21, 16, 28], "mk": [8, 31, 9, 1], "lk": [9, 22, 9, 27]},
+        {"title": "The transfiguration", "mt": [17, 1, 17, 13], "mk": [9, 2, 9, 13], "lk": [9, 28, 9, 36]},
+        {"title": "Healing the demon-possessed boy", "mt": [17, 14, 17, 21], "mk": [9, 14, 9, 29], "lk": [9, 37, 9, 43]},
+        {"title": "The second passion prediction", "mt": [17, 22, 17, 23], "mk": [9, 30, 9, 32], "lk": [9, 43, 9, 45]},
+        {"title": "The temple tax", "mt": [17, 24, 17, 27]},
+        {"title": "Who is the greatest?", "mt": [18, 1, 18, 5], "mk": [9, 33, 9, 37], "lk": [9, 46, 9, 48]},
+        {"title": "Whoever is not against us is for us", "mk": [9, 38, 9, 41], "lk": [9, 49, 9, 50]},
+        {"title": "Temptations to sin; the millstone", "mt": [18, 6, 18, 9], "mk": [9, 42, 9, 50]},
+        {"title": "The parable of the lost sheep", "mt": [18, 10, 18, 14]},
+        {"title": "If your brother sins; the unforgiving servant", "mt": [18, 15, 18, 35]}
+      ]
+    },
+    {
+      "title": "Later Judean Ministry",
+      "events": [
+        {"title": "The cost of following Jesus", "mt": [8, 18, 8, 22], "lk": [9, 57, 9, 62]},
+        {"title": "Rejected by a Samaritan village", "lk": [9, 51, 9, 56]},
+        {"title": "Teaching at the Feast of Booths", "jn": [7, 1, 7, 52]},
+        {"title": "The woman caught in adultery", "jn": [7, 53, 8, 11]},
+        {"title": "The light of the world; before Abraham was, I am", "jn": [8, 12, 8, 59]},
+        {"title": "Healing the man born blind", "jn": [9, 1, 9, 41]},
+        {"title": "The good shepherd", "jn": [10, 1, 10, 21]},
+        {"title": "Sending out the seventy-two", "lk": [10, 1, 10, 24]},
+        {"title": "The good Samaritan", "lk": [10, 25, 10, 37]},
+        {"title": "Mary and Martha", "lk": [10, 38, 10, 42]},
+        {"title": "Teaching on prayer: ask, seek, knock", "lk": [11, 1, 11, 13]},
+        {"title": "Woes against the Pharisees and lawyers", "lk": [11, 37, 11, 54]},
+        {"title": "Fear God, not man; the Spirit's help", "lk": [12, 1, 12, 12]},
+        {"title": "The parable of the rich fool", "lk": [12, 13, 12, 21]},
+        {"title": "Do not be anxious; be ready for the master's return", "lk": [12, 22, 12, 48]},
+        {"title": "Not peace but division; interpreting the time", "lk": [12, 49, 12, 59]},
+        {"title": "Repent or perish; the barren fig tree", "lk": [13, 1, 13, 9]},
+        {"title": "Healing a crippled woman on the Sabbath", "lk": [13, 10, 13, 17]},
+        {"title": "At the Feast of Dedication: I and the Father are one", "jn": [10, 22, 10, 42]}
+      ]
+    },
+    {
+      "title": "The Journey to Jerusalem",
+      "events": [
+        {"title": "The narrow door", "lk": [13, 22, 13, 30]},
+        {"title": "Lament over Jerusalem", "lk": [13, 31, 13, 35]},
+        {"title": "Healing a man with dropsy; humility at the feast", "lk": [14, 1, 14, 14]},
+        {"title": "The parable of the great banquet", "lk": [14, 15, 14, 24]},
+        {"title": "The cost of discipleship", "lk": [14, 25, 14, 35]},
+        {"title": "The lost sheep, the lost coin, and the prodigal son", "lk": [15, 1, 15, 32]},
+        {"title": "The parable of the shrewd manager", "lk": [16, 1, 16, 13]},
+        {"title": "The rich man and Lazarus", "lk": [16, 14, 16, 31]},
+        {"title": "Sin, faith, and duty", "lk": [17, 1, 17, 10]},
+        {"title": "The raising of Lazarus", "jn": [11, 1, 11, 44]},
+        {"title": "The plot to kill Jesus", "jn": [11, 45, 11, 57]},
+        {"title": "Ten lepers cleansed", "lk": [17, 11, 17, 19]},
+        {"title": "The coming of the kingdom", "lk": [17, 20, 17, 37]},
+        {"title": "The parable of the persistent widow", "lk": [18, 1, 18, 8]},
+        {"title": "The Pharisee and the tax collector", "lk": [18, 9, 18, 14]},
+        {"title": "Teaching on divorce", "mt": [19, 1, 19, 12], "mk": [10, 1, 10, 12]},
+        {"title": "Jesus blesses the children", "mt": [19, 13, 19, 15], "mk": [10, 13, 10, 16], "lk": [18, 15, 18, 17]},
+        {"title": "The rich young ruler", "mt": [19, 16, 19, 30], "mk": [10, 17, 10, 31], "lk": [18, 18, 18, 30]},
+        {"title": "The workers in the vineyard", "mt": [20, 1, 20, 16]},
+        {"title": "The third passion prediction", "mt": [20, 17, 20, 19], "mk": [10, 32, 10, 34], "lk": [18, 31, 18, 34]},
+        {"title": "The request of James and John", "mt": [20, 20, 20, 28], "mk": [10, 35, 10, 45]},
+        {"title": "Healing blind Bartimaeus near Jericho", "mt": [20, 29, 20, 34], "mk": [10, 46, 10, 52], "lk": [18, 35, 18, 43]},
+        {"title": "Zacchaeus the tax collector", "lk": [19, 1, 19, 10]},
+        {"title": "The parable of the ten minas", "lk": [19, 11, 19, 27]},
+        {"title": "The anointing at Bethany", "mt": [26, 6, 26, 13], "mk": [14, 3, 14, 9], "jn": [12, 1, 12, 11]}
+      ]
+    },
+    {
+      "title": "The Final Week in Jerusalem",
+      "events": [
+        {"title": "The triumphal entry", "mt": [21, 1, 21, 11], "mk": [11, 1, 11, 11], "lk": [19, 28, 19, 44], "jn": [12, 12, 12, 19]},
+        {"title": "Cursing the fig tree", "mt": [21, 18, 21, 19], "mk": [11, 12, 11, 14]},
+        {"title": "The second cleansing of the temple", "mt": [21, 12, 21, 17], "mk": [11, 15, 11, 19], "lk": [19, 45, 19, 48]},
+        {"title": "The withered fig tree; a lesson on faith", "mt": [21, 20, 21, 22], "mk": [11, 20, 11, 26]},
+        {"title": "Jesus' authority questioned", "mt": [21, 23, 21, 27], "mk": [11, 27, 11, 33], "lk": [20, 1, 20, 8]},
+        {"title": "The two sons and the wicked tenants", "mt": [21, 28, 21, 46], "mk": [12, 1, 12, 12], "lk": [20, 9, 20, 19]},
+        {"title": "The parable of the wedding banquet", "mt": [22, 1, 22, 14]},
+        {"title": "Paying taxes to Caesar", "mt": [22, 15, 22, 22], "mk": [12, 13, 12, 17], "lk": [20, 20, 20, 26]},
+        {"title": "Marriage at the resurrection", "mt": [22, 23, 22, 33], "mk": [12, 18, 12, 27], "lk": [20, 27, 20, 40]},
+        {"title": "The greatest commandment", "mt": [22, 34, 22, 40], "mk": [12, 28, 12, 34]},
+        {"title": "Whose son is the Christ?", "mt": [22, 41, 22, 46], "mk": [12, 35, 12, 37], "lk": [20, 41, 20, 44]},
+        {"title": "Woes to the scribes and Pharisees", "mt": [23, 1, 23, 39], "mk": [12, 38, 12, 40], "lk": [20, 45, 20, 47]},
+        {"title": "The widow's offering", "mk": [12, 41, 12, 44], "lk": [21, 1, 21, 4]},
+        {"title": "Greeks seek Jesus; the hour has come", "jn": [12, 20, 12, 36]},
+        {"title": "The unbelief of the people", "jn": [12, 37, 12, 50]},
+        {"title": "The Olivet discourse: signs of the end", "mt": [24, 1, 24, 51], "mk": [13, 1, 13, 37], "lk": [21, 5, 21, 38]},
+        {"title": "The ten virgins and the talents", "mt": [25, 1, 25, 30]},
+        {"title": "The sheep and the goats", "mt": [25, 31, 25, 46]}
+      ]
+    },
+    {
+      "title": "The Last Supper",
+      "events": [
+        {"title": "Judas agrees to betray Jesus", "mt": [26, 14, 26, 16], "mk": [14, 10, 14, 11], "lk": [22, 1, 22, 6]},
+        {"title": "Preparing the Passover", "mt": [26, 17, 26, 19], "mk": [14, 12, 14, 16], "lk": [22, 7, 22, 13]},
+        {"title": "Washing the disciples' feet", "jn": [13, 1, 13, 20]},
+        {"title": "The betrayer identified", "mt": [26, 20, 26, 25], "mk": [14, 17, 14, 21], "lk": [22, 21, 22, 23], "jn": [13, 21, 13, 30]},
+        {"title": "The institution of the Lord's Supper", "mt": [26, 26, 26, 29], "mk": [14, 22, 14, 25], "lk": [22, 14, 22, 20]},
+        {"title": "Peter's denial foretold", "mt": [26, 31, 26, 35], "mk": [14, 27, 14, 31], "lk": [22, 31, 22, 38], "jn": [13, 31, 13, 38]},
+        {"title": "The way, the truth, and the life", "jn": [14, 1, 14, 31]},
+        {"title": "The vine and the branches", "jn": [15, 1, 15, 27]},
+        {"title": "The work of the Spirit; sorrow will turn to joy", "jn": [16, 1, 16, 33]},
+        {"title": "The high priestly prayer", "jn": [17, 1, 17, 26]}
+      ]
+    },
+    {
+      "title": "Gethsemane, Trial, and Crucifixion",
+      "events": [
+        {"title": "Gethsemane: watch and pray", "mt": [26, 36, 26, 46], "mk": [14, 32, 14, 42], "lk": [22, 39, 22, 46], "jn": [18, 1, 18, 1]},
+        {"title": "The betrayal and arrest", "mt": [26, 47, 26, 56], "mk": [14, 43, 14, 52], "lk": [22, 47, 22, 53], "jn": [18, 2, 18, 12]},
+        {"title": "Before Annas and Caiaphas", "mt": [26, 57, 26, 68], "mk": [14, 53, 14, 65], "lk": [22, 63, 22, 65], "jn": [18, 13, 18, 24]},
+        {"title": "Peter denies Jesus", "mt": [26, 69, 26, 75], "mk": [14, 66, 14, 72], "lk": [22, 54, 22, 62], "jn": [18, 25, 18, 27]},
+        {"title": "Condemned by the council at daybreak", "mt": [27, 1, 27, 2], "mk": [15, 1, 15, 1], "lk": [22, 66, 22, 71]},
+        {"title": "The death of Judas", "mt": [27, 3, 27, 10]},
+        {"title": "Before Pilate", "mt": [27, 11, 27, 14], "mk": [15, 2, 15, 5], "lk": [23, 1, 23, 5], "jn": [18, 28, 18, 38]},
+        {"title": "Before Herod", "lk": [23, 6, 23, 12]},
+        {"title": "Barabbas released; Jesus sentenced", "mt": [27, 15, 27, 26], "mk": [15, 6, 15, 15], "lk": [23, 13, 23, 25], "jn": [18, 39, 19, 16]},
+        {"title": "The soldiers mock Jesus", "mt": [27, 27, 27, 31], "mk": [15, 16, 15, 20]},
+        {"title": "The road to Golgotha", "mt": [27, 32, 27, 32], "mk": [15, 21, 15, 21], "lk": [23, 26, 23, 32], "jn": [19, 17, 19, 17]},
+        {"title": "The crucifixion", "mt": [27, 33, 27, 44], "mk": [15, 22, 15, 32], "lk": [23, 33, 23, 43], "jn": [19, 18, 19, 27]},
+        {"title": "The death of Jesus", "mt": [27, 45, 27, 56], "mk": [15, 33, 15, 41], "lk": [23, 44, 23, 49], "jn": [19, 28, 19, 30]},
+        {"title": "The piercing of Jesus' side", "jn": [19, 31, 19, 37]},
+        {"title": "The burial", "mt": [27, 57, 27, 61], "mk": [15, 42, 15, 47], "lk": [23, 50, 23, 56], "jn": [19, 38, 19, 42]},
+        {"title": "The guard at the tomb", "mt": [27, 62, 27, 66]}
+      ]
+    },
+    {
+      "title": "Resurrection and Ascension",
+      "events": [
+        {"title": "The empty tomb", "mt": [28, 1, 28, 8], "mk": [16, 1, 16, 8], "lk": [24, 1, 24, 12], "jn": [20, 1, 20, 10]},
+        {"title": "Jesus appears to Mary Magdalene", "mk": [16, 9, 16, 11], "jn": [20, 11, 20, 18]},
+        {"title": "Jesus appears to the women", "mt": [28, 9, 28, 10]},
+        {"title": "The report of the guard", "mt": [28, 11, 28, 15]},
+        {"title": "On the road to Emmaus", "mk": [16, 12, 16, 13], "lk": [24, 13, 24, 35]},
+        {"title": "Jesus appears to the disciples", "mk": [16, 14, 16, 14], "lk": [24, 36, 24, 43], "jn": [20, 19, 20, 25]},
+        {"title": "Thomas believes", "jn": [20, 26, 20, 31]},
+        {"title": "Breakfast by the sea; Peter restored", "jn": [21, 1, 21, 25]},
+        {"title": "The great commission", "mt": [28, 16, 28, 20], "mk": [16, 15, 16, 18]},
+        {"title": "The ascension", "mk": [16, 19, 16, 20], "lk": [24, 44, 24, 53]}
+      ]
+    }
+  ]
+}

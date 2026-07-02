@@ -23,6 +23,9 @@ Read daily devotionals (like Spurgeon's *Morning and Evening*). Use the day arro
 ## Topics & Places
 Explore Biblical topics and geographical locations referenced in the text. Places are shown on an interactive map alongside the passage.
 
+## Gospel Harmony
+Browse the life of Jesus as a chronological list of events, each showing which of the four Gospels record it. Open an event to read all its parallel accounts side by side, and tap the book icon on any account to jump to that passage in the Reader. While reading one of the Gospels, select a verse and tap **Parallels** in the action bar to see the other Gospels' accounts of the same event. The event arrangement is adapted from classic public-domain harmonies (A. T. Robertson, 1922).
+
 ## Read Aloud
 Have the current chapter read to you using your device's built-in text-to-speech voices, with adjustable reading speed. Because it relies on the voices already on your device, **Read Aloud works completely offline**—ideal for listening on a plane or away from signal.
 

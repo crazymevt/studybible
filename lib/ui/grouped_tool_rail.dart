@@ -7,7 +7,7 @@ import 'common/tool_groups.dart';
 /// The desktop tools rail: the reader's side tools in sections separated by
 /// dividers (see [toolGroups]). Hand-rolled to Material 3 rail metrics
 /// because [NavigationRail] has no notion of sections, which is what keeps
-/// 13 destinations scannable.
+/// 14 destinations scannable.
 class GroupedToolRail extends ConsumerWidget {
   const GroupedToolRail({super.key});
 
@@ -15,7 +15,7 @@ class GroupedToolRail extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final activeTool = ref.watch(activeToolProvider);
 
-    // Deliberately denser than NavigationRail's 72px-per-destination: 13
+    // Deliberately denser than NavigationRail's 72px-per-destination: 14
     // tools plus the group breaks must still fit a typical laptop window
     // without scrolling.
     return SizedBox(
@@ -65,7 +65,7 @@ class _RailItem extends ConsumerWidget {
         // the NavigationRail behaved.
         onTap: () => ref.read(activeToolProvider.notifier).setTool(item.tool),
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 2),
+          padding: const EdgeInsets.symmetric(vertical: 1),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [

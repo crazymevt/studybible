@@ -12,6 +12,7 @@ import 'reader/media_panel.dart';
 import 'reader/compare_panel.dart';
 import 'reader/devotionals_panel.dart';
 import 'reader/topics_panel.dart';
+import 'reader/harmony_panel.dart';
 import 'reader/places_panel.dart';
 import 'reader/highlights_panel.dart';
 import 'reader/scratch_panel.dart';
@@ -296,6 +297,9 @@ class _DesktopLayout extends ConsumerWidget {
                   }
                   if (activeTool == ActiveTool.topics) {
                     return const TopicsPanel();
+                  }
+                  if (activeTool == ActiveTool.harmony) {
+                    return const HarmonyPanel();
                   }
                   if (activeTool == ActiveTool.places) {
                     return const PlacesPanel();

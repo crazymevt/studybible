@@ -50,7 +50,7 @@ _Click any image to view it full size._
 
 - **Multi-version Bible reader** — parallel panels, verse selection, version swap, verse-by-verse and flowing paragraph view, highlight bands.
 - **Integrated commentaries & dictionaries** — verse-ref lookup, parallel view, multi-dictionary search, tap-a-word lookup.
-- **Study tools** — journals, prayer tracker, sermon builder, plan generator, custom notes, and bookmarks.
+- **Study tools** — journals, prayer tracker, sermon builder, plan generator, custom notes, bookmarks, and a harmony of the Gospels with side-by-side parallel accounts.
 - **Progress dashboard** — reading coverage + per-book drill-down, reading pace, achievements/badges, time tracker & analytics.
 - **Content manager** — install bibles/commentaries/dictionaries from ph4.org and SWORD repositories; OSIS, MyBible, and SWORD module import.
 - **Rich media** — local audio/video, YouTube overlay, image lightbox.
@@ -90,6 +90,7 @@ This project is made possible thanks to several upstream resources and formats:
 - **[Jesus Film Project](https://www.jesusfilm.org/)**: Sharing the story of Jesus through film.
 - **[OpenBible.info](https://www.openbible.info/)**: Crowdsourced cross-reference dataset and place geocoding (licensed under CC-BY).
 - **[Nave's Topical Bible](https://github.com/BradyStephenson/bible-data)**: Public-domain topical index, via the BradyStephenson/bible-data dataset (licensed under CC-BY 4.0).
+- **A. T. Robertson** and **Stevens & Burton**: The Gospel Harmony tool's event arrangement is adapted from their public-domain harmonies (*A Harmony of the Gospels for Students of the Life of Christ*, 1922, and *A Harmony of the Gospels for Historical Study*, 1893).
 - **[Berean Study Bible](https://berean.bible/)**: Public domain Bible text and audio resources.
 - **Clojure/JavaFX Study Bible**: The original desktop application that inspired and provided the feature foundation for this Flutter reimplementation.
 

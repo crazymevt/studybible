@@ -26,7 +26,7 @@ class ToolGroup {
   const ToolGroup(this.label, this.items);
 }
 
-/// The reader's side tools, grouped so 13 destinations scan as four short
+/// The reader's side tools, grouped so 14 destinations scan as four short
 /// sections instead of one long list: reference works you consult, content
 /// you author, scheduled reading, and browsable extras.
 const List<ToolGroup> toolGroups = [
@@ -53,6 +53,8 @@ const List<ToolGroup> toolGroups = [
   ]),
   ToolGroup('Explore', [
     ToolItem(ActiveTool.topics, Icons.topic, 'Topics'),
+    ToolItem(ActiveTool.harmony, Icons.auto_stories, 'Gospel Harmony',
+        railLabel: 'Harmony'),
     ToolItem(ActiveTool.places, Icons.map, 'Places'),
     ToolItem(ActiveTool.media, Icons.video_library, 'Media'),
   ]),
