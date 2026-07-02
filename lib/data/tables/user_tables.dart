@@ -49,6 +49,21 @@ class Bookmarks extends Table {
   Set<Column> get primaryKey => {id};
 }
 
+/// A single, device-local scratch pad — rough notes that deliberately never
+/// sync (kept out of [SyncService]). Stored as one row keyed by a fixed id;
+/// content is Quill Delta JSON, matching journals/sermons so the pad can be
+/// promoted into a sermon verbatim. No deviceId/deleted columns: it is local
+/// state, not a sync entity.
+@DataClassName('Scratch')
+class Scratches extends Table {
+  TextColumn get id => text()();
+  TextColumn get content => text()(); // Quill Delta JSON
+  IntColumn get updatedAt => integer()(); // epoch ms
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
 @DataClassName('Journal')
 class Journals extends Table {
   TextColumn get id => text()();

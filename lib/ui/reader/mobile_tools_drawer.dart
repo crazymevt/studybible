@@ -14,6 +14,7 @@ import 'devotionals_panel.dart';
 import 'topics_panel.dart';
 import 'places_panel.dart';
 import 'highlights_panel.dart';
+import 'scratch_panel.dart';
 import '../../app/reader_state.dart';
 
 class MobileToolsDrawer extends ConsumerWidget {
@@ -150,6 +151,14 @@ class MobileToolsDrawer extends ConsumerWidget {
               ),
               title: const Text('My Highlights'),
               onTap: () => _openTool(context, const HighlightsPanel()),
+            ),
+            ListTile(
+              leading: const Tooltip(
+                message: 'Scratch',
+                child: Icon(Icons.edit_note),
+              ),
+              title: const Text('Scratch'),
+              onTap: () => _openTool(context, const ScratchPanel()),
             ),
           ],
         ),

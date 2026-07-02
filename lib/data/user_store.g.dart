@@ -1590,6 +1590,266 @@ class BookmarksCompanion extends UpdateCompanion<Bookmark> {
   }
 }
 
+class $ScratchesTable extends Scratches
+    with TableInfo<$ScratchesTable, Scratch> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ScratchesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _contentMeta = const VerificationMeta(
+    'content',
+  );
+  @override
+  late final GeneratedColumn<String> content = GeneratedColumn<String>(
+    'content',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<int> updatedAt = GeneratedColumn<int>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, content, updatedAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'scratches';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<Scratch> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('content')) {
+      context.handle(
+        _contentMeta,
+        content.isAcceptableOrUnknown(data['content']!, _contentMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_contentMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  Scratch map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return Scratch(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      content: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}content'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $ScratchesTable createAlias(String alias) {
+    return $ScratchesTable(attachedDatabase, alias);
+  }
+}
+
+class Scratch extends DataClass implements Insertable<Scratch> {
+  final String id;
+  final String content;
+  final int updatedAt;
+  const Scratch({
+    required this.id,
+    required this.content,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['content'] = Variable<String>(content);
+    map['updated_at'] = Variable<int>(updatedAt);
+    return map;
+  }
+
+  ScratchesCompanion toCompanion(bool nullToAbsent) {
+    return ScratchesCompanion(
+      id: Value(id),
+      content: Value(content),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory Scratch.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return Scratch(
+      id: serializer.fromJson<String>(json['id']),
+      content: serializer.fromJson<String>(json['content']),
+      updatedAt: serializer.fromJson<int>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'content': serializer.toJson<String>(content),
+      'updatedAt': serializer.toJson<int>(updatedAt),
+    };
+  }
+
+  Scratch copyWith({String? id, String? content, int? updatedAt}) => Scratch(
+    id: id ?? this.id,
+    content: content ?? this.content,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  Scratch copyWithCompanion(ScratchesCompanion data) {
+    return Scratch(
+      id: data.id.present ? data.id.value : this.id,
+      content: data.content.present ? data.content.value : this.content,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('Scratch(')
+          ..write('id: $id, ')
+          ..write('content: $content, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, content, updatedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is Scratch &&
+          other.id == this.id &&
+          other.content == this.content &&
+          other.updatedAt == this.updatedAt);
+}
+
+class ScratchesCompanion extends UpdateCompanion<Scratch> {
+  final Value<String> id;
+  final Value<String> content;
+  final Value<int> updatedAt;
+  final Value<int> rowid;
+  const ScratchesCompanion({
+    this.id = const Value.absent(),
+    this.content = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ScratchesCompanion.insert({
+    required String id,
+    required String content,
+    required int updatedAt,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       content = Value(content),
+       updatedAt = Value(updatedAt);
+  static Insertable<Scratch> custom({
+    Expression<String>? id,
+    Expression<String>? content,
+    Expression<int>? updatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (content != null) 'content': content,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ScratchesCompanion copyWith({
+    Value<String>? id,
+    Value<String>? content,
+    Value<int>? updatedAt,
+    Value<int>? rowid,
+  }) {
+    return ScratchesCompanion(
+      id: id ?? this.id,
+      content: content ?? this.content,
+      updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (content.present) {
+      map['content'] = Variable<String>(content.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<int>(updatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ScratchesCompanion(')
+          ..write('id: $id, ')
+          ..write('content: $content, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $JournalsTable extends Journals with TableInfo<$JournalsTable, Journal> {
   @override
   final GeneratedDatabase attachedDatabase;
@@ -9540,6 +9800,7 @@ abstract class _$UserStore extends GeneratedDatabase {
   late final $HighlightsTable highlights = $HighlightsTable(this);
   late final $NotesTable notes = $NotesTable(this);
   late final $BookmarksTable bookmarks = $BookmarksTable(this);
+  late final $ScratchesTable scratches = $ScratchesTable(this);
   late final $JournalsTable journals = $JournalsTable(this);
   late final $PrayersTable prayers = $PrayersTable(this);
   late final $ReadingProgressesTable readingProgresses =
@@ -9573,6 +9834,7 @@ abstract class _$UserStore extends GeneratedDatabase {
     highlights,
     notes,
     bookmarks,
+    scratches,
     journals,
     prayers,
     readingProgresses,
@@ -10361,6 +10623,162 @@ typedef $$BookmarksTableProcessedTableManager =
       $$BookmarksTableUpdateCompanionBuilder,
       (Bookmark, BaseReferences<_$UserStore, $BookmarksTable, Bookmark>),
       Bookmark,
+      PrefetchHooks Function()
+    >;
+typedef $$ScratchesTableCreateCompanionBuilder =
+    ScratchesCompanion Function({
+      required String id,
+      required String content,
+      required int updatedAt,
+      Value<int> rowid,
+    });
+typedef $$ScratchesTableUpdateCompanionBuilder =
+    ScratchesCompanion Function({
+      Value<String> id,
+      Value<String> content,
+      Value<int> updatedAt,
+      Value<int> rowid,
+    });
+
+class $$ScratchesTableFilterComposer
+    extends Composer<_$UserStore, $ScratchesTable> {
+  $$ScratchesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get content => $composableBuilder(
+    column: $table.content,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$ScratchesTableOrderingComposer
+    extends Composer<_$UserStore, $ScratchesTable> {
+  $$ScratchesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get content => $composableBuilder(
+    column: $table.content,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$ScratchesTableAnnotationComposer
+    extends Composer<_$UserStore, $ScratchesTable> {
+  $$ScratchesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get content =>
+      $composableBuilder(column: $table.content, builder: (column) => column);
+
+  GeneratedColumn<int> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+}
+
+class $$ScratchesTableTableManager
+    extends
+        RootTableManager<
+          _$UserStore,
+          $ScratchesTable,
+          Scratch,
+          $$ScratchesTableFilterComposer,
+          $$ScratchesTableOrderingComposer,
+          $$ScratchesTableAnnotationComposer,
+          $$ScratchesTableCreateCompanionBuilder,
+          $$ScratchesTableUpdateCompanionBuilder,
+          (Scratch, BaseReferences<_$UserStore, $ScratchesTable, Scratch>),
+          Scratch,
+          PrefetchHooks Function()
+        > {
+  $$ScratchesTableTableManager(_$UserStore db, $ScratchesTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ScratchesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ScratchesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ScratchesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> content = const Value.absent(),
+                Value<int> updatedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ScratchesCompanion(
+                id: id,
+                content: content,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String content,
+                required int updatedAt,
+                Value<int> rowid = const Value.absent(),
+              }) => ScratchesCompanion.insert(
+                id: id,
+                content: content,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$ScratchesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$UserStore,
+      $ScratchesTable,
+      Scratch,
+      $$ScratchesTableFilterComposer,
+      $$ScratchesTableOrderingComposer,
+      $$ScratchesTableAnnotationComposer,
+      $$ScratchesTableCreateCompanionBuilder,
+      $$ScratchesTableUpdateCompanionBuilder,
+      (Scratch, BaseReferences<_$UserStore, $ScratchesTable, Scratch>),
+      Scratch,
       PrefetchHooks Function()
     >;
 typedef $$JournalsTableCreateCompanionBuilder =
@@ -14358,6 +14776,8 @@ class $UserStoreManager {
       $$NotesTableTableManager(_db, _db.notes);
   $$BookmarksTableTableManager get bookmarks =>
       $$BookmarksTableTableManager(_db, _db.bookmarks);
+  $$ScratchesTableTableManager get scratches =>
+      $$ScratchesTableTableManager(_db, _db.scratches);
   $$JournalsTableTableManager get journals =>
       $$JournalsTableTableManager(_db, _db.journals);
   $$PrayersTableTableManager get prayers =>

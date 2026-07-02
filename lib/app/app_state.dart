@@ -20,6 +20,7 @@ enum ActiveTool {
   topics,
   places,
   highlights,
+  scratch,
 }
 
 class ActiveToolNotifier extends Notifier<ActiveTool> {

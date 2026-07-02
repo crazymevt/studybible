@@ -14,6 +14,7 @@ part 'user_store.g.dart';
     Highlights,
     Notes,
     Bookmarks,
+    Scratches,
     Journals,
     Prayers,
     ReadingProgresses,
@@ -35,7 +36,7 @@ class UserStore extends _$UserStore {
   UserStore([QueryExecutor? e]) : super(e ?? _openConnection());
 
   @override
-  int get schemaVersion => 21;
+  int get schemaVersion => 22;
 
   @override
   MigrationStrategy get migration {
@@ -554,6 +555,11 @@ class UserStore extends _$UserStore {
             JOIN tags t ON et.tag_id = t.id
             WHERE et.deleted = 0 AND et.entity_type = 'journal';
           ''');
+        }
+        if (from < 22) {
+          // Local-only scratch pad. Not synced and not FTS-indexed, so just
+          // create the table.
+          await m.createTable(scratches);
         }
       },
     );

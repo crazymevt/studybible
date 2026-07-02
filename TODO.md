@@ -49,9 +49,15 @@ Running list of known issues and follow-ups.
     Needed for most non-English and Catholic modules. (Full per-phase research
     notes are in git history — see TODO.md prior to this condensation.)
 
-- [ ] **Bookmarks / Bible ribbons.** Let users drop persistent bookmarks
-  ("ribbons") at a verse/chapter and jump back to them, like the ribbon markers
-  in a physical Bible. Consider multiple named/colored ribbons and how they sync.
+- [x] **Bookmarks / Bible ribbons.** Let users drop persistent bookmarks
+  ("ribbons") at a verse and jump back to them, like the ribbon markers in a
+  physical Bible. Done: one-tap Ribbon action in the verse action bar
+  (auto-labeled by reference, add-unless-all-present so a mixed selection never
+  un-ribbons an existing verse), an inline bookmark marker beside ribboned verse
+  numbers, and a Ribbons jump list (app-bar icon by History) listing all ribbons
+  in canonical order — tap to jump (scrolls the verse into view across
+  chapters), swipe/✕ to remove. Rides the existing synced `bookmarks` table.
+  Deferred: multiple named/colored ribbons per verse and chapter-level ribbons.
 
 - [ ] **Sermon ↔ verse chain linking.** Link a sermon to its cited verses so
   users can navigate from the sermon to each passage (and ideally back). A
