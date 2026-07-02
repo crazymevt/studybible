@@ -17,6 +17,38 @@ final allSermonsProvider = StreamProvider<List<Sermon>>((ref) {
       .watch();
 });
 
+/// Tags for every sermon at once, as `sermonId -> tags` (each list sorted by
+/// name). The sermons panel uses this to show tag chips per row and to filter
+/// the list by tag without opening an N-per-row subscription via
+/// [tagsForEntityProvider].
+final sermonTagsProvider = StreamProvider<Map<String, List<TagData>>>((ref) {
+  final store = ref.watch(userStoreProvider);
+  final query = store.select(store.entityTags).join([
+    drift.innerJoin(
+      store.tags,
+      store.tags.id.equalsExp(store.entityTags.tagId),
+    ),
+  ])
+    ..where(store.entityTags.entityType.equals('sermon'))
+    ..where(store.entityTags.deleted.equals(false))
+    ..where(store.tags.deleted.equals(false));
+
+  return query.watch().map((rows) {
+    final map = <String, List<TagData>>{};
+    for (final row in rows) {
+      final et = row.readTable(store.entityTags);
+      final t = row.readTable(store.tags);
+      (map[et.entityId] ??= []).add(
+        TagData(id: t.id, name: t.name, colorHex: t.colorHex),
+      );
+    }
+    for (final list in map.values) {
+      list.sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+    }
+    return map;
+  });
+});
+
 /// Watches a single sermon row (including soft-deletes). The editor uses this
 /// to notice when a remote sync overwrites the sermon while it's open.
 final sermonByIdProvider =
