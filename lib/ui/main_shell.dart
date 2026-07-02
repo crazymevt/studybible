@@ -14,6 +14,7 @@ import 'reader/devotionals_panel.dart';
 import 'reader/topics_panel.dart';
 import 'reader/places_panel.dart';
 import 'reader/highlights_panel.dart';
+import 'reader/scratch_panel.dart';
 import '../ui/sermons/sermons_panel.dart';
 import '../app/reader_state.dart';
 import 'journals/journals_prayers_screen.dart';
@@ -301,6 +302,9 @@ class _DesktopLayout extends ConsumerWidget {
                   if (activeTool == ActiveTool.highlights) {
                     return const HighlightsPanel();
                   }
+                  if (activeTool == ActiveTool.scratch) {
+                    return const ScratchPanel();
+                  }
                   return const SizedBox.shrink();
                 },
               ),
@@ -373,6 +377,10 @@ class _DesktopLayout extends ConsumerWidget {
           icon: Icon(Icons.format_color_fill),
           label: Text('Highlights'),
         ),
+        NavigationRailDestination(
+          icon: Icon(Icons.edit_note),
+          label: Text('Scratch'),
+        ),
       ],
       selectedIndex: _getSelectedIndex(activeTool),
       onDestinationSelected: (index) {
@@ -421,6 +429,8 @@ class _DesktopLayout extends ConsumerWidget {
         return 10;
       case ActiveTool.highlights:
         return 11;
+      case ActiveTool.scratch:
+        return 12;
       case ActiveTool.history:
       case ActiveTool.none:
       case ActiveTool.compare:
@@ -454,6 +464,8 @@ class _DesktopLayout extends ConsumerWidget {
         return ActiveTool.places;
       case 11:
         return ActiveTool.highlights;
+      case 12:
+        return ActiveTool.scratch;
       default:
         return ActiveTool.none;
     }
