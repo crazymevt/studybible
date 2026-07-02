@@ -23,6 +23,21 @@ import 'package:share_plus/share_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'acknowledgments_screen.dart';
 
+/// Human-readable name for a "Text Weight" slider value (a [FontWeight] numeric
+/// value, 400–700).
+String _textWeightLabel(int value) {
+  switch (value) {
+    case 500:
+      return 'Medium';
+    case 600:
+      return 'Semibold';
+    case 700:
+      return 'Bold';
+    default:
+      return 'Regular';
+  }
+}
+
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
 
@@ -796,6 +811,35 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ),
                 ),
                 const Icon(Icons.text_fields, size: 28),
+              ],
+            ),
+          ),
+          ListTile(
+            title: const Text('Text Weight'),
+            subtitle: const Text(
+              'Make all text throughout the app heavier for easier reading',
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Row(
+              children: [
+                const Icon(Icons.format_bold, size: 16),
+                Expanded(
+                  child: Slider(
+                    value: ref.watch(appTextWeightProvider).toDouble(),
+                    min: 400,
+                    max: 700,
+                    divisions: 3,
+                    label: _textWeightLabel(ref.watch(appTextWeightProvider)),
+                    onChanged: (double value) {
+                      ref
+                          .read(appTextWeightProvider.notifier)
+                          .set(value.round());
+                    },
+                  ),
+                ),
+                const Icon(Icons.format_bold, size: 28),
               ],
             ),
           ),

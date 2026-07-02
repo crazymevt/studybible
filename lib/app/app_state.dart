@@ -168,6 +168,29 @@ final appFontSizeDeltaProvider =
       () => AppFontSizeDeltaNotifier(),
     );
 
+/// The minimum weight applied to all app text, as a [FontWeight] value
+/// (400 = regular … 700 = bold). A legibility aid for readers who find the
+/// regular weight too faint: unlike a color change, weight visibly increases
+/// the perceived darkness of near-black light-mode text. Applied as a floor,
+/// so text that is already heavier than this is left untouched. Defaults to
+/// 400 (no change).
+class AppTextWeightNotifier extends Notifier<int> {
+  @override
+  int build() {
+    final prefs = ref.watch(sharedPreferencesProvider);
+    return prefs.getInt('appTextWeight') ?? 400;
+  }
+
+  void set(int value) {
+    state = value;
+    ref.read(sharedPreferencesProvider).setInt('appTextWeight', value);
+  }
+}
+
+final appTextWeightProvider = NotifierProvider<AppTextWeightNotifier, int>(
+  () => AppTextWeightNotifier(),
+);
+
 class AppVerseSpacingNotifier extends Notifier<double> {
   @override
   double build() {

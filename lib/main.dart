@@ -33,6 +33,21 @@ class AppScrollBehavior extends MaterialScrollBehavior {
 final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
     GlobalKey<ScaffoldMessengerState>();
 
+/// Maps the stored "Text Weight" value (a [FontWeight] numeric value, 400–700)
+/// to its [FontWeight]. Unknown values fall back to regular.
+FontWeight _fontWeightFromValue(int value) {
+  switch (value) {
+    case 500:
+      return FontWeight.w500;
+    case 600:
+      return FontWeight.w600;
+    case 700:
+      return FontWeight.w700;
+    default:
+      return FontWeight.w400;
+  }
+}
+
 void main() {
   // Run the whole app inside a guarded zone so uncaught async errors (and the
   // async startup work below, which runs before any Flutter error handler is
@@ -190,6 +205,7 @@ class _StudyBibleAppState extends ConsumerState<StudyBibleApp>
     final fontSizeDelta = ref.watch(appFontSizeDeltaProvider);
     final themeMode = ref.watch(themeModeProvider);
     final appColorTheme = ref.watch(appColorThemeProvider);
+    final textWeight = _fontWeightFromValue(ref.watch(appTextWeightProvider));
 
     final lightTextColor = ref.watch(customLightTextColorProvider);
     final darkTextColor = ref.watch(customDarkTextColorProvider);
@@ -222,6 +238,7 @@ class _StudyBibleAppState extends ConsumerState<StudyBibleApp>
         themeScheme: appColorTheme,
         fontFamily: fontFamily,
         fontSizeDelta: fontSizeDelta,
+        textWeight: textWeight,
         customTextColor: lightTextColor != null ? Color(lightTextColor) : null,
         customJesusWordsColor: lightJesusWordsColor != null ? Color(lightJesusWordsColor) : null,
         customSeedColor: lightSeedColor != null ? Color(lightSeedColor) : null,
@@ -234,6 +251,7 @@ class _StudyBibleAppState extends ConsumerState<StudyBibleApp>
         themeScheme: appColorTheme,
         fontFamily: fontFamily,
         fontSizeDelta: fontSizeDelta,
+        textWeight: textWeight,
         customTextColor: darkTextColor != null ? Color(darkTextColor) : null,
         customJesusWordsColor: darkJesusWordsColor != null ? Color(darkJesusWordsColor) : null,
         customSeedColor: darkSeedColor != null ? Color(darkSeedColor) : null,

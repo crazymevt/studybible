@@ -10,6 +10,7 @@ class AppThemes {
     required String themeScheme,
     required String? fontFamily,
     required double fontSizeDelta,
+    FontWeight textWeight = FontWeight.w400,
     Color? customTextColor,
     Color? customJesusWordsColor,
     Color? customSeedColor,
@@ -160,6 +161,13 @@ class AppThemes {
       textTheme = textTheme.apply(fontFamily: actualFontFamily);
     }
 
+    // Raise every text style to at least [textWeight] (the "Text Weight"
+    // accessibility setting). Applied as a floor so already-bold styles keep
+    // their emphasis; at the default w400 this is a no-op.
+    if (textWeight.value > FontWeight.w400.value) {
+      textTheme = _applyMinWeight(textTheme, textWeight);
+    }
+
     return ThemeData(
       colorScheme: colorScheme,
       useMaterial3: true,
@@ -195,6 +203,35 @@ class AppThemes {
     );
     return {for (final e in argb.entries) e.key: Color(e.value)};
   }
+
+  /// Returns [style] with its weight raised to at least [floor], leaving styles
+  /// that are already heavier (e.g. bold headings) untouched.
+  static TextStyle? _atLeast(TextStyle? style, FontWeight floor) {
+    if (style == null) return null;
+    final current = style.fontWeight ?? FontWeight.w400;
+    return current.value >= floor.value
+        ? style
+        : style.copyWith(fontWeight: floor);
+  }
+
+  /// Applies [floor] as a minimum weight across every style in [t].
+  static TextTheme _applyMinWeight(TextTheme t, FontWeight floor) => t.copyWith(
+        displayLarge: _atLeast(t.displayLarge, floor),
+        displayMedium: _atLeast(t.displayMedium, floor),
+        displaySmall: _atLeast(t.displaySmall, floor),
+        headlineLarge: _atLeast(t.headlineLarge, floor),
+        headlineMedium: _atLeast(t.headlineMedium, floor),
+        headlineSmall: _atLeast(t.headlineSmall, floor),
+        titleLarge: _atLeast(t.titleLarge, floor),
+        titleMedium: _atLeast(t.titleMedium, floor),
+        titleSmall: _atLeast(t.titleSmall, floor),
+        bodyLarge: _atLeast(t.bodyLarge, floor),
+        bodyMedium: _atLeast(t.bodyMedium, floor),
+        bodySmall: _atLeast(t.bodySmall, floor),
+        labelLarge: _atLeast(t.labelLarge, floor),
+        labelMedium: _atLeast(t.labelMedium, floor),
+        labelSmall: _atLeast(t.labelSmall, floor),
+      );
 }
 
 /// The resolved highlight-slot colours for the active theme: `slotId -> Color`,
