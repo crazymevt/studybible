@@ -8,6 +8,22 @@ Running list of known issues and follow-ups.
 
 ## Research
 
+- [ ] **Interactive Atlas / Geographic Tracker** (Advanced Map Tool)
+  - *Context:* The app currently has a `PlacesPanel` (`lib/ui/reader/places_panel.dart`) that uses `flutter_map` and OpenBible data to plot places for the active chapter.
+  - *Next Steps:* To elevate this to an advanced study tool, build a dedicated, full-screen interactive Atlas. It should allow tracking sequential events (like Paul's missionary journeys or David's flight) step-by-step, drawing animated paths between locations.
+  - *Data Integration:* Tie the existing Theographic timeline events (used in `people_timeline_screen.dart`) to geographic coordinates so users can scrub the timeline and watch events unfold on the map simultaneously.
+
+- [ ] **Hierarchical Topic Explorer**
+  - *Context:* We currently use Theographic metadata for people and timelines, but lack a dedicated topical navigation tool for Nave's Topical Bible or the Theographic concept graph.
+  - *Next Steps:* Design a schema for the Content DB to represent parent/child topic relationships (`topics` and `topic_verses` tables). 
+  - *UI:* Build a "Topic Explorer" pane — a drill-down list or expandable tree view (e.g., God -> Attributes -> Holiness) that pulls up all associated verses and dictionary articles for a given node, acting as a unified topical study dashboard.
+
+- [ ] **Aggregated Passage / Exegetical Guide**
+  - *Context:* Currently, users must manually open separate panes to see commentaries, cross-references, dictionaries, and maps for a passage.
+  - *Next Steps:* Build a unified `PassageGuideScreen` (similar to Logos' Passage Guide) where a user enters a reference (e.g., John 1).
+  - *Data Integration:* Create a composite Riverpod provider that concurrently fetches from existing providers (`commentaryEntriesProvider`, `crossReferencesProvider`, `currentPassagePlacesProvider`, and user-linked `notesProvider` / `sermonListProvider`).
+  - *UI:* Present these as expandable, stacked cards in a single scrolling dashboard, giving a complete exegetical overview of the passage at a glance.
+
 - [ ] **Import SWORD modules** (CrossWire format — translations, commentaries,
   dictionaries). Implementation lives in `lib/data/importer/sword/`. Phases
   1, 2, 4, and 5 are **DONE** and verified in the macOS app; **Phase 3 is the
