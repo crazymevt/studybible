@@ -19,6 +19,7 @@ class ParallelView extends ConsumerStatefulWidget {
   final Map<int, String> savedHighlights;
   final Set<int> versesWithNotes;
   final Set<int> versesWithTags;
+  final Set<int> versesWithRibbons;
   final Function(int) onVerseTap;
   final ValueChanged<int>? onFootnoteTap;
   final ValueChanged<String>? onStrongTap;
@@ -37,6 +38,7 @@ class ParallelView extends ConsumerStatefulWidget {
     required this.selectedVerses,
     this.versesWithNotes = const {},
     this.versesWithTags = const {},
+    this.versesWithRibbons = const {},
     required this.savedHighlights,
     required this.onVerseTap,
     this.onFootnoteTap,

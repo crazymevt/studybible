@@ -152,6 +152,21 @@ class VerseActionBar extends ConsumerWidget {
     );
   }
 
+  /// True when every currently-selected verse already carries a ribbon, so the
+  /// action shows a "filled" icon that will remove rather than add.
+  bool _allSelectedRibboned(WidgetRef ref) {
+    final selected = ref.watch(selectedVersesProvider);
+    if (selected.isEmpty) return false;
+    final ribboned = ref
+        .watch(chapterVersesWithRibbonsFamilyProvider((
+          bookName: ref.watch(selectedBookNameProvider),
+          chapter: ref.watch(selectedChapterProvider),
+        )))
+        .value ??
+        const <int>{};
+    return selected.every(ribboned.contains);
+  }
+
   List<Widget> _buildActions(BuildContext context, WidgetRef ref, Color onBarColor,
       {required bool showLabels}) {
     return [
@@ -193,6 +208,55 @@ class VerseActionBar extends ConsumerWidget {
                 },
               ),
 
+              _ActionIcon(
+                // Filled when every selected verse already carries a ribbon, so
+                // a single tap communicates whether it will add or remove.
+                icon: _allSelectedRibboned(ref)
+                    ? Icons.bookmark
+                    : Icons.bookmark_add_outlined,
+                label: 'Ribbon',
+                color: onBarColor,
+                showLabel: showLabels,
+                onTap: () async {
+                  final selected = ref.read(selectedVersesProvider).toList()..sort();
+                  if (selected.isEmpty) return;
+                  HapticFeedback.selectionClick();
+                  final action = ref.read(bookmarkActionProvider);
+                  // Add ribbons to any selected verse that lacks one; only
+                  // remove when every selected verse already has one. This keeps
+                  // a mixed selection (e.g. an already-ribboned verse still
+                  // selected from navigation) from silently un-ribboning it.
+                  final ribboned = ref
+                          .read(chapterVersesWithRibbonsFamilyProvider((
+                            bookName: ref.read(selectedBookNameProvider),
+                            chapter: ref.read(selectedChapterProvider),
+                          )))
+                          .value ??
+                      const <int>{};
+                  final removing = selected.every(ribboned.contains);
+                  for (final verse in selected) {
+                    if (removing) {
+                      await action.removeBookmark(verse);
+                    } else {
+                      await action.addBookmark(verse);
+                    }
+                  }
+                  ref.read(selectedVersesProvider.notifier).clear();
+                  if (context.mounted) {
+                    final plural = selected.length > 1;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          removing
+                              ? (plural ? 'Ribbons removed' : 'Ribbon removed')
+                              : (plural ? 'Ribbons added' : 'Ribbon added'),
+                        ),
+                        duration: const Duration(seconds: 1),
+                      ),
+                    );
+                  }
+                },
+              ),
               _ActionIcon(
                 icon: Icons.difference,
                 label: 'Compare',

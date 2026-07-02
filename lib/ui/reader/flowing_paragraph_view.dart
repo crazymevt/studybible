@@ -17,6 +17,7 @@ class FlowingParagraphView extends ConsumerStatefulWidget {
   final Map<int, String> savedHighlights;
   final Set<int> versesWithNotes;
   final Set<int> versesWithTags;
+  final Set<int> versesWithRibbons;
   final ValueChanged<int> onVerseTap;
   final ValueChanged<int>? onFootnoteTap;
   final ValueChanged<String>? onStrongTap;
@@ -33,6 +34,7 @@ class FlowingParagraphView extends ConsumerStatefulWidget {
     required this.savedHighlights,
     this.versesWithNotes = const {},
     this.versesWithTags = const {},
+    this.versesWithRibbons = const {},
     required this.onVerseTap,
     this.onFootnoteTap,
     this.onStrongTap,

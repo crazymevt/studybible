@@ -16,6 +16,7 @@ import '../common/skeleton.dart';
 
 import 'mobile_tools_drawer.dart';
 import 'history_panel.dart';
+import 'ribbons_panel.dart';
 import 'audio_player_widget.dart';
 import 'tts_player_widget.dart';
 import '../../app/tts_providers.dart';
@@ -494,6 +495,24 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
                       );
                     },
                   ),
+                  IconButton(
+                    icon: const Icon(Icons.bookmark_border),
+                    tooltip: 'Ribbons',
+                    onPressed: () {
+                      showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        useSafeArea: true,
+                        builder: (context) => DraggableScrollableSheet(
+                          initialChildSize: 0.9,
+                          minChildSize: 0.5,
+                          maxChildSize: 1.0,
+                          expand: false,
+                          builder: (_, _) => const RibbonsPanel(),
+                        ),
+                      );
+                    },
+                  ),
                   if (audioData != null)
                     IconButton(
                       icon: const Icon(Icons.headphones),
@@ -868,6 +887,8 @@ class _ChapterPage extends ConsumerWidget {
         ref.watch(chapterVersesWithNotesFamilyProvider(key)).value ?? <int>{};
     final versesWithTags =
         ref.watch(chapterVersesWithTagsFamilyProvider(key)).value ?? <int>{};
+    final versesWithRibbons =
+        ref.watch(chapterVersesWithRibbonsFamilyProvider(key)).value ?? <int>{};
     final subheadings = ref.watch(chapterSubheadingsProvider(key)).value ??
         <int, List<String>>{};
 
@@ -935,6 +956,7 @@ class _ChapterPage extends ConsumerWidget {
                   savedHighlights: savedHighlights,
                   versesWithNotes: versesWithNotes,
                   versesWithTags: versesWithTags,
+                  versesWithRibbons: versesWithRibbons,
                   subheadings: subheadings,
                   onVerseTap: onVerseTap,
                   onFootnoteTap: onFootnoteTap,
@@ -945,10 +967,13 @@ class _ChapterPage extends ConsumerWidget {
                 )
               : VerseListView(
                   verses: verses,
+                  bookName: bookName,
+                  chapter: chapter,
                   selectedVerses: selectedVerses,
                   savedHighlights: savedHighlights,
                   versesWithNotes: versesWithNotes,
                   versesWithTags: versesWithTags,
+                  versesWithRibbons: versesWithRibbons,
                   subheadings: subheadings,
                   onVerseTap: onVerseTap,
                   onFootnoteTap: onFootnoteTap,
@@ -974,6 +999,7 @@ class _ChapterPage extends ConsumerWidget {
           savedHighlights: savedHighlights,
           versesWithNotes: versesWithNotes,
           versesWithTags: versesWithTags,
+          versesWithRibbons: versesWithRibbons,
           subheadings: subheadings,
           onVerseTap: onVerseTap,
           onFootnoteTap: onFootnoteTap,

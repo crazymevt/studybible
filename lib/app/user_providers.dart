@@ -297,7 +297,7 @@ class NoteAction {
   }
 }
 
-// BOOKMARKS
+// BOOKMARKS ("ribbons" in the UI — simple single-verse return markers)
 final chapterBookmarksProvider = StreamProvider<List<Bookmark>>((ref) {
   final store = ref.watch(userStoreProvider);
   final bookName = ref.watch(selectedBookNameProvider);
@@ -309,6 +309,32 @@ final chapterBookmarksProvider = StreamProvider<List<Bookmark>>((ref) {
             (b.chapter.equals(chapter)) &
             (b.deleted.equals(false)),
       ))
+      .watch();
+});
+
+/// The set of verses in a given chapter that carry a ribbon, so the reader can
+/// mark them inline. Keyed by book/chapter like the highlight/note families so
+/// each swipe page loads its own chapter (see [chapterHighlightsFamilyProvider]).
+final chapterVersesWithRibbonsFamilyProvider = StreamProvider.family<Set<int>,
+    ({String bookName, int chapter})>((ref, args) {
+  final store = ref.watch(userStoreProvider);
+  return (store.select(store.bookmarks)..where(
+        (b) =>
+            (b.bookName.equals(args.bookName)) &
+            (b.chapter.equals(args.chapter)) &
+            (b.deleted.equals(false)),
+      ))
+      .watch()
+      .map((rows) => {for (final b in rows) b.verse});
+});
+
+/// Every non-deleted ribbon across the whole Bible, for the "Ribbons" jump
+/// list. Ordered newest-first; the panel re-sorts into canonical book order.
+final allBookmarksProvider = StreamProvider<List<Bookmark>>((ref) {
+  final store = ref.watch(userStoreProvider);
+  return (store.select(store.bookmarks)
+        ..where((b) => b.deleted.equals(false))
+        ..orderBy([(b) => OrderingTerm.desc(b.updatedAt)]))
       .watch();
 });
 
@@ -337,6 +363,48 @@ class BookmarkAction {
       label: label,
     );
     await store.into(store.bookmarks).insert(newBookmark);
+  }
+
+  /// The non-deleted ribbons on [verse] in the current chapter (usually 0 or 1).
+  Future<List<Bookmark>> _ribbonsOn(int verse) {
+    final store = ref.read(userStoreProvider);
+    final bookName = ref.read(selectedBookNameProvider);
+    final chapter = ref.read(selectedChapterProvider);
+    return (store.select(store.bookmarks)..where(
+          (b) =>
+              (b.bookName.equals(bookName)) &
+              (b.chapter.equals(chapter)) &
+              (b.verse.equals(verse)) &
+              (b.deleted.equals(false)),
+        ))
+        .get();
+  }
+
+  /// Drops a ribbon on [verse] in the current chapter if it has none (a no-op
+  /// if one already exists). The auto-label is the reference (e.g. "John 3:16").
+  Future<void> addBookmark(int verse) async {
+    if ((await _ribbonsOn(verse)).isNotEmpty) return;
+    final bookName = ref.read(selectedBookNameProvider);
+    final chapter = ref.read(selectedChapterProvider);
+    await saveBookmark(verse, '$bookName $chapter:$verse');
+  }
+
+  /// Removes any ribbon on [verse] in the current chapter.
+  Future<void> removeBookmark(int verse) async {
+    for (final row in await _ribbonsOn(verse)) {
+      await deleteBookmark(row.id);
+    }
+  }
+
+  /// One-tap placement for a single verse: adds a ribbon if absent, else
+  /// removes it. Returns true when a ribbon was added, false when removed.
+  Future<bool> toggleBookmark(int verse) async {
+    if ((await _ribbonsOn(verse)).isNotEmpty) {
+      await removeBookmark(verse);
+      return false;
+    }
+    await addBookmark(verse);
+    return true;
   }
 
   Future<void> deleteBookmark(String id) async {

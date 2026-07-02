@@ -19,6 +19,7 @@ class VerseListView extends ConsumerStatefulWidget {
   final Map<int, String> savedHighlights;
   final Set<int> versesWithNotes;
   final Set<int> versesWithTags;
+  final Set<int> versesWithRibbons;
   final Function(int) onVerseTap;
   final ValueChanged<int>? onFootnoteTap;
   final ValueChanged<String>? onStrongTap;
@@ -29,14 +30,23 @@ class VerseListView extends ConsumerStatefulWidget {
   final Map<int, List<String>> subheadings;
   final String? searchQuery;
   final Widget? headerWidget;
+  // This page's chapter identity. When set, the scroll-to-verse target is only
+  // honored while this is the selected chapter — so a page being swiped away
+  // (whose verses may share the target number) can't consume the target before
+  // the destination chapter's page mounts.
+  final String? bookName;
+  final int? chapter;
 
   const VerseListView({
     super.key,
     required this.verses,
     required this.selectedVerses,
     required this.savedHighlights,
+    this.bookName,
+    this.chapter,
     this.versesWithNotes = const {},
     this.versesWithTags = const {},
+    this.versesWithRibbons = const {},
     required this.onVerseTap,
     this.onFootnoteTap,
     this.onStrongTap,
@@ -80,6 +90,16 @@ class _VerseListViewState extends ConsumerState<VerseListView> {
       // deferred callback (and its self-reschedule below) can fire after this
       // page is gone — touching `ref` then throws.
       if (!mounted) return;
+      // Only the currently-selected chapter's page may act on / consume the
+      // target. A page for a different chapter (mid-swipe or pre-warmed) whose
+      // verses happen to include the target number would otherwise scroll
+      // itself and clear the target before the destination page ever sees it.
+      if (widget.bookName != null && widget.chapter != null) {
+        if (widget.bookName != ref.read(selectedBookNameProvider) ||
+            widget.chapter != ref.read(selectedChapterProvider)) {
+          return;
+        }
+      }
       final targetVerse = ref.read(targetVerseToScrollProvider);
       if (targetVerse != null) {
         if (!itemScrollController.isAttached) {
@@ -143,6 +163,13 @@ class _VerseListViewState extends ConsumerState<VerseListView> {
   @override
   Widget build(BuildContext context) {
     final spokenVerse = ref.watch(spokenVerseProvider);
+
+    // Scroll to a verse the moment something requests it (history, highlights,
+    // ribbons, find-in-page). Relying on didUpdateWidget alone misses same-
+    // chapter jumps, where no chapter change forces this page to rebuild.
+    ref.listen<int?>(targetVerseToScrollProvider, (previous, next) {
+      if (next != null) _checkScrollTarget();
+    });
 
     ref.listen<ActiveTool>(activeToolProvider, (previous, next) {
       if (previous == ActiveTool.none && next != ActiveTool.none) {
@@ -231,6 +258,7 @@ class _VerseListViewState extends ConsumerState<VerseListView> {
           subheadings: verseSubheadings,
           hasNote: widget.versesWithNotes.contains(verse.verse),
           hasTag: widget.versesWithTags.contains(verse.verse),
+          hasRibbon: widget.versesWithRibbons.contains(verse.verse),
           verseSpacing: verseSpacing,
           showStrongNumbers: widget.showStrongNumbers,
           searchQuery: widget.searchQuery,
@@ -254,6 +282,7 @@ class _VerseTile extends StatefulWidget {
   final List<String> subheadings;
   final bool hasNote;
   final bool hasTag;
+  final bool hasRibbon;
   final double verseSpacing;
   final bool showStrongNumbers;
   final String? searchQuery;
@@ -269,6 +298,7 @@ class _VerseTile extends StatefulWidget {
     required this.subheadings,
     required this.hasNote,
     required this.hasTag,
+    required this.hasRibbon,
     required this.verseSpacing,
     required this.showStrongNumbers,
     required this.searchQuery,
@@ -356,6 +386,14 @@ class _VerseTileState extends State<_VerseTile> {
                       child: Padding(
                         padding: const EdgeInsets.only(right: 4.0),
                         child: Icon(Icons.label, size: 12, color: theme.colorScheme.primary.withValues(alpha: 0.8)),
+                      ),
+                    ),
+                  if (widget.hasRibbon)
+                    WidgetSpan(
+                      alignment: PlaceholderAlignment.middle,
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: 4.0),
+                        child: Icon(Icons.bookmark, size: 12, color: theme.colorScheme.primary.withValues(alpha: 0.8)),
                       ),
                     ),
                   ...buildVerseSpans(
