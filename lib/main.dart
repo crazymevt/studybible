@@ -106,6 +106,21 @@ void main() {
 
     final prefs = await SharedPreferences.getInstance();
 
+    // Own the ProviderContainer directly (rather than letting ProviderScope
+    // create it) so the user database can be opened and migrated once, up
+    // front, before any widget subscribes to it. See [_warmUpUserDatabase].
+    final container = ProviderContainer(
+      overrides: [sharedPreferencesProvider.overrideWithValue(prefs)],
+    );
+    await _warmUpUserDatabase(container);
+
+    runApp(
+      UncontrolledProviderScope(
+        container: container,
+        child: const StudyBibleApp(),
+      ),
+    );
+
     if (!kIsWeb &&
         (Platform.isMacOS || Platform.isWindows || Platform.isLinux)) {
       final width = prefs.getDouble('window_width') ?? 1200;
@@ -135,21 +150,6 @@ void main() {
       await autoUpdater.checkForUpdates(inBackground: true);
       await autoUpdater.setScheduledCheckInterval(3600);
     }
-
-    // Own the ProviderContainer directly (rather than letting ProviderScope
-    // create it) so the user database can be opened and migrated once, up
-    // front, before any widget subscribes to it. See [_warmUpUserDatabase].
-    final container = ProviderContainer(
-      overrides: [sharedPreferencesProvider.overrideWithValue(prefs)],
-    );
-    await _warmUpUserDatabase(container);
-
-    runApp(
-      UncontrolledProviderScope(
-        container: container,
-        child: const StudyBibleApp(),
-      ),
-    );
   }, (Object error, StackTrace stack) {
     logError(error, stack, context: 'Uncaught');
   });
