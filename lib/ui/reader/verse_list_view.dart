@@ -17,6 +17,9 @@ class VerseListView extends ConsumerStatefulWidget {
   final List<Verse> verses;
   final Set<int> selectedVerses;
   final Map<int, String> savedHighlights;
+  // Verses covered by the active scripture-navigation stop. A transient visual
+  // marker only — unlike savedHighlights, nothing is persisted.
+  final Set<int> navHighlights;
   final Set<int> versesWithNotes;
   final Set<int> versesWithTags;
   final Set<int> versesWithRibbons;
@@ -42,6 +45,7 @@ class VerseListView extends ConsumerStatefulWidget {
     required this.verses,
     required this.selectedVerses,
     required this.savedHighlights,
+    this.navHighlights = const {},
     this.bookName,
     this.chapter,
     this.versesWithNotes = const {},
@@ -246,7 +250,12 @@ class _VerseListViewState extends ConsumerState<VerseListView> {
                     .colorScheme
                     .tertiaryContainer
                     .withValues(alpha: 0.6)
-                : highlightColor?.withValues(alpha: 0.2);
+                : widget.navHighlights.contains(verse.verse)
+                    ? Theme.of(context)
+                        .colorScheme
+                        .secondaryContainer
+                        .withValues(alpha: 0.5)
+                    : highlightColor?.withValues(alpha: 0.2);
 
         final verseSpacing = ref.watch(appVerseSpacingProvider);
         final verseSubheadings = widget.subheadings[verse.verse] ?? [];

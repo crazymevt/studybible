@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../app/scripture_nav_providers.dart';
 import '../../data/user_store.dart';
 import '../../data/logging.dart';
 import '../common/reference_autolink.dart';
@@ -42,6 +43,29 @@ class _SermonPresentationScreenState extends ConsumerState<SermonPresentationScr
     super.dispose();
   }
 
+  /// Builds the scripture route from the presented document's references and
+  /// starts navigation mode, returning to the reader.
+  void _startScriptureNavigation() {
+    final stops = scanSermonRoute(
+      _controller.document.toPlainText(),
+      autolinkBooks(ref),
+    );
+    if (stops.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No scripture references found in this sermon.'),
+        ),
+      );
+      return;
+    }
+    final title =
+        widget.sermon.title.isEmpty ? 'Untitled Sermon' : widget.sermon.title;
+    ref
+        .read(scriptureNavProvider.notifier)
+        .start(sermonTitle: title, stops: stops);
+    Navigator.of(context).popUntil((route) => route.isFirst);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -50,6 +74,13 @@ class _SermonPresentationScreenState extends ConsumerState<SermonPresentationScr
         title: Text(widget.sermon.title),
         elevation: 0,
         backgroundColor: Colors.transparent,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.route_outlined),
+            tooltip: 'Navigate Scriptures',
+            onPressed: _startScriptureNavigation,
+          ),
+        ],
       ),
       body: Center(
         child: ConstrainedBox(

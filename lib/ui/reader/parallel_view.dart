@@ -17,6 +17,9 @@ class ParallelView extends ConsumerStatefulWidget {
   final Map<String, List<Verse>> versesMap;
   final Set<int> selectedVerses;
   final Map<int, String> savedHighlights;
+  // Verses covered by the active scripture-navigation stop. A transient visual
+  // marker only — unlike savedHighlights, nothing is persisted.
+  final Set<int> navHighlights;
   final Set<int> versesWithNotes;
   final Set<int> versesWithTags;
   final Set<int> versesWithRibbons;
@@ -36,6 +39,7 @@ class ParallelView extends ConsumerStatefulWidget {
     super.key,
     required this.versesMap,
     required this.selectedVerses,
+    this.navHighlights = const {},
     this.versesWithNotes = const {},
     this.versesWithTags = const {},
     this.versesWithRibbons = const {},
@@ -211,6 +215,7 @@ class _ParallelViewState extends ConsumerState<ParallelView> {
                     verses: verses,
                     selectedVerses: widget.selectedVerses,
                     savedHighlights: widget.savedHighlights,
+                    navHighlights: widget.navHighlights,
                     subheadings: widget.subheadings,
                     onVerseTap: widget.onVerseTap,
                     onFootnoteTap: widget.onFootnoteTap,
@@ -272,7 +277,12 @@ class _ParallelViewState extends ConsumerState<ParallelView> {
                   ? Theme.of(
                       context,
                     ).colorScheme.primaryContainer.withValues(alpha: 0.5)
-                  : highlightColor?.withValues(alpha: 0.2);
+                  : widget.navHighlights.contains(verseNum)
+                      ? Theme.of(context)
+                          .colorScheme
+                          .secondaryContainer
+                          .withValues(alpha: 0.5)
+                      : highlightColor?.withValues(alpha: 0.2);
 
               final verseSpacing = ref.watch(appVerseSpacingProvider);
               final verseSubheadings = widget.subheadings[verseNum] ?? [];

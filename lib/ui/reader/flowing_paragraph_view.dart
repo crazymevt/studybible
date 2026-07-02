@@ -15,6 +15,9 @@ class FlowingParagraphView extends ConsumerStatefulWidget {
   final List<Verse> verses;
   final Set<int> selectedVerses;
   final Map<int, String> savedHighlights;
+  // Verses covered by the active scripture-navigation stop. A transient visual
+  // marker only — unlike savedHighlights, nothing is persisted.
+  final Set<int> navHighlights;
   final Set<int> versesWithNotes;
   final Set<int> versesWithTags;
   final Set<int> versesWithRibbons;
@@ -32,6 +35,7 @@ class FlowingParagraphView extends ConsumerStatefulWidget {
     required this.verses,
     required this.selectedVerses,
     required this.savedHighlights,
+    this.navHighlights = const {},
     this.versesWithNotes = const {},
     this.versesWithTags = const {},
     this.versesWithRibbons = const {},
@@ -210,7 +214,11 @@ class _FlowingParagraphViewState extends ConsumerState<FlowingParagraphView> {
           ? Theme.of(
               context,
             ).colorScheme.primaryContainer.withValues(alpha: 0.6)
-          : highlightColor?.withValues(alpha: 0.4);
+          : widget.navHighlights.contains(verse.verse)
+              ? Theme.of(
+                  context,
+                ).colorScheme.secondaryContainer.withValues(alpha: 0.5)
+              : highlightColor?.withValues(alpha: 0.4);
       final recognizer = _recognizers[index];
       
       final verseSubheadings = widget.subheadings[verse.verse] ?? [];

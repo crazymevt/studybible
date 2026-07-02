@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app/content_providers.dart';
 import '../../app/reader_state.dart';
+import '../../app/scripture_nav_providers.dart';
 import '../../app/user_providers.dart';
+import '../../domain/scripture/scripture_route.dart';
 import '../../app/tag_providers.dart';
 import '../../app/audio_providers.dart';
 import 'verse_list_view.dart';
@@ -15,6 +17,7 @@ import '../common/empty_state.dart';
 import '../common/skeleton.dart';
 
 import 'mobile_tools_drawer.dart';
+import 'scripture_nav_bar.dart';
 import 'history_panel.dart';
 import 'ribbons_panel.dart';
 import 'audio_player_widget.dart';
@@ -509,6 +512,10 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
             ref.read(selectedVersesProvider.notifier).clear();
             return KeyEventResult.handled;
           }
+          if (ref.read(scriptureNavProvider) != null) {
+            ref.read(scriptureNavProvider.notifier).exit();
+            return KeyEventResult.handled;
+          }
         }
         
         // Don't hijack arrow keys while the user is typing in a text field
@@ -706,6 +713,9 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
               );
             },
           ),
+          // Scripture navigation (sermon route) bar; renders nothing while the
+          // mode is inactive.
+          const ScriptureNavBar(),
           if (_showSearchBox)
             Container(
               color: Theme.of(context).colorScheme.surfaceContainerHighest,
@@ -994,6 +1004,10 @@ class _ChapterPage extends ConsumerWidget {
         ref.watch(chapterVersesWithRibbonsFamilyProvider(key)).value ?? <int>{};
     final subheadings = ref.watch(chapterSubheadingsProvider(key)).value ??
         <int, List<String>>{};
+    // The current scripture-navigation stop (if the mode is active). Its verse
+    // range in this chapter gets a temporary, non-persisted highlight.
+    final navStop =
+        ref.watch(scriptureNavProvider.select((nav) => nav?.current));
 
     return versesAsync.when(
       loading: () => const SkeletonList(rows: 8),
@@ -1049,6 +1063,13 @@ class _ChapterPage extends ConsumerWidget {
           ],
         );
 
+        final navHighlights = navStop == null
+            ? const <int>{}
+            : stopHighlightVerses(navStop, bookName, chapter, {
+                for (final verses in versesMap.values)
+                  ...verses.map((v) => v.verse),
+              });
+
         final versionIds = versesMap.keys.toList();
         if (versionIds.length == 1) {
           final verses = versesMap[versionIds.first] ?? [];
@@ -1057,6 +1078,7 @@ class _ChapterPage extends ConsumerWidget {
                   verses: verses,
                   selectedVerses: selectedVerses,
                   savedHighlights: savedHighlights,
+                  navHighlights: navHighlights,
                   versesWithNotes: versesWithNotes,
                   versesWithTags: versesWithTags,
                   versesWithRibbons: versesWithRibbons,
@@ -1074,6 +1096,7 @@ class _ChapterPage extends ConsumerWidget {
                   chapter: chapter,
                   selectedVerses: selectedVerses,
                   savedHighlights: savedHighlights,
+                  navHighlights: navHighlights,
                   versesWithNotes: versesWithNotes,
                   versesWithTags: versesWithTags,
                   versesWithRibbons: versesWithRibbons,
@@ -1100,6 +1123,7 @@ class _ChapterPage extends ConsumerWidget {
           isFlowing: isFlowing,
           selectedVerses: selectedVerses,
           savedHighlights: savedHighlights,
+          navHighlights: navHighlights,
           versesWithNotes: versesWithNotes,
           versesWithTags: versesWithTags,
           versesWithRibbons: versesWithRibbons,

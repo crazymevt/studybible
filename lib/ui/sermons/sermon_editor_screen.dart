@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter_quill/quill_delta.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../app/scripture_nav_providers.dart';
 import '../../app/sermon_providers.dart';
 import '../common/reference_autolink.dart';
 import '../../app/revision_common.dart';
@@ -14,8 +15,13 @@ import '../../data/user_store.dart';
 import 'export_dialog.dart';
 import 'sermon_presentation_screen.dart';
 import 'sermon_revisions_dialog.dart';
+import '../common/breakpoints.dart';
 import '../tags/tag_editor_dialog.dart';
 
+/// Actions collapsed into the editor's overflow menu when the header is too
+/// narrow for a full icon row (phones, and the inline panel beside the
+/// reader); wider full-screen layouts show each as its own button.
+enum _SermonAction { export, print, tags, revisions, outline }
 
 class SermonEditorScreen extends ConsumerStatefulWidget {
   final String sermonId;
@@ -297,6 +303,132 @@ class _SermonEditorScreenState extends ConsumerState<SermonEditorScreen> {
     }
   }
 
+  /// Builds the scripture route from the references in the open document (so
+  /// unsaved edits count) and starts navigation mode in the reader.
+  void _startScriptureNavigation(BuildContext context) {
+    if (!_isInitialized) return;
+    final stops = scanSermonRoute(
+      _controller.document.toPlainText(),
+      autolinkBooks(ref),
+    );
+    if (stops.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No scripture references found in this sermon.'),
+        ),
+      );
+      return;
+    }
+    final title =
+        _titleController.text.isEmpty ? 'Untitled Sermon' : _titleController.text;
+    ref
+        .read(scriptureNavProvider.notifier)
+        .start(sermonTitle: title, stops: stops);
+    // Surface the reader (a no-op on desktop where the editor is an inline
+    // panel beside it).
+    Navigator.of(context).popUntil((route) => route.isFirst);
+  }
+
+  void _openPresentation(BuildContext context) {
+    final store = ref.read(userStoreProvider);
+    (store.select(store.sermons)..where((t) => t.id.equals(widget.sermonId)))
+        .getSingleOrNull()
+        .then((sermon) {
+      if (sermon != null && context.mounted) {
+        Navigator.of(context).push(MaterialPageRoute(
+          builder: (_) => SermonPresentationScreen(sermon: sermon),
+        ));
+      }
+    });
+  }
+
+  void _exportSermon(BuildContext context) {
+    final store = ref.read(userStoreProvider);
+    (store.select(store.sermons)..where((t) => t.id.equals(widget.sermonId)))
+        .getSingleOrNull()
+        .then((sermon) {
+      if (sermon != null && context.mounted) {
+        ExportDialog.show(context, [sermon]);
+      }
+    });
+  }
+
+  void _manageTags(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (_) => TagEditorDialog(
+        entityId: widget.sermonId,
+        entityType: 'sermon',
+      ),
+    );
+  }
+
+  void _handleSermonAction(BuildContext context, _SermonAction action) {
+    switch (action) {
+      case _SermonAction.export:
+        _exportSermon(context);
+      case _SermonAction.print:
+        _printSermon(context, ref);
+      case _SermonAction.tags:
+        _manageTags(context);
+      case _SermonAction.revisions:
+        _openRevisions();
+      case _SermonAction.outline:
+        _showOutlineGeneratorDialog(context);
+    }
+  }
+
+  /// Overflow menu holding the secondary actions, used wherever the header
+  /// can't fit the full icon row.
+  Widget _buildOverflowMenu(BuildContext context) {
+    return PopupMenuButton<_SermonAction>(
+      tooltip: 'More',
+      onSelected: (action) => _handleSermonAction(context, action),
+      itemBuilder: (context) => const [
+        PopupMenuItem(
+          value: _SermonAction.export,
+          child: ListTile(
+            leading: Icon(Icons.file_upload),
+            title: Text('Export'),
+            contentPadding: EdgeInsets.zero,
+          ),
+        ),
+        PopupMenuItem(
+          value: _SermonAction.print,
+          child: ListTile(
+            leading: Icon(Icons.print),
+            title: Text('Print'),
+            contentPadding: EdgeInsets.zero,
+          ),
+        ),
+        PopupMenuItem(
+          value: _SermonAction.tags,
+          child: ListTile(
+            leading: Icon(Icons.label),
+            title: Text('Manage Tags'),
+            contentPadding: EdgeInsets.zero,
+          ),
+        ),
+        PopupMenuItem(
+          value: _SermonAction.revisions,
+          child: ListTile(
+            leading: Icon(Icons.history),
+            title: Text('Revision History'),
+            contentPadding: EdgeInsets.zero,
+          ),
+        ),
+        PopupMenuItem(
+          value: _SermonAction.outline,
+          child: ListTile(
+            leading: Icon(Icons.list_alt),
+            title: Text('Outline'),
+            contentPadding: EdgeInsets.zero,
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   void dispose() {
     _autolinkDebounce?.cancel();
@@ -404,65 +536,50 @@ class _SermonEditorScreenState extends ConsumerState<SermonEditorScreen> {
           backgroundColor: Theme.of(context).colorScheme.primaryContainer,
           foregroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
           title: const Text('Edit Sermon'),
+          // Phones can't fit the full action row, so they keep the two
+          // hands-on actions (presentation, scripture navigation) as icons and
+          // collapse the rest into an overflow menu — mirroring the reader's
+          // app bar. Wider layouts show every action.
           actions: [
             IconButton(
               icon: const Icon(Icons.slideshow),
               tooltip: 'Presentation Mode',
-              onPressed: () {
-                final store = ref.read(userStoreProvider);
-                store.select(store.sermons)
-                  ..where((t) => t.id.equals(widget.sermonId))
-                  ..getSingleOrNull().then((sermon) {
-                    if (sermon != null && context.mounted) {
-                      Navigator.of(context).push(MaterialPageRoute(
-                        builder: (_) => SermonPresentationScreen(sermon: sermon),
-                      ));
-                    }
-                  });
-              },
+              onPressed: () => _openPresentation(context),
             ),
             IconButton(
-              icon: const Icon(Icons.file_upload),
-              tooltip: 'Export',
-              onPressed: () {
-                final store = ref.read(userStoreProvider);
-                store.select(store.sermons)
-                  ..where((t) => t.id.equals(widget.sermonId))
-                  ..getSingleOrNull().then((sermon) {
-                    if (sermon != null && context.mounted) {
-                      ExportDialog.show(context, [sermon]);
-                    }
-                  });
-              },
+              icon: const Icon(Icons.route_outlined),
+              tooltip: 'Navigate Scriptures',
+              onPressed: () => _startScriptureNavigation(context),
             ),
-            IconButton(
-              icon: const Icon(Icons.print),
-              tooltip: 'Print',
-              onPressed: () => _printSermon(context, ref),
-            ),
-            IconButton(
-              icon: const Icon(Icons.label),
-              tooltip: 'Manage Tags',
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (_) => TagEditorDialog(
-                    entityId: widget.sermonId,
-                    entityType: 'sermon',
-                  ),
-                );
-              },
-            ),
-            IconButton(
-              icon: const Icon(Icons.history),
-              tooltip: 'Revision History',
-              onPressed: () => _openRevisions(),
-            ),
-            TextButton.icon(
-              icon: const Icon(Icons.list_alt),
-              label: const Text('Outline'),
-              onPressed: () => _showOutlineGeneratorDialog(context),
-            ),
+            if (context.isPhone)
+              _buildOverflowMenu(context)
+            else ...[
+              IconButton(
+                icon: const Icon(Icons.file_upload),
+                tooltip: 'Export',
+                onPressed: () => _exportSermon(context),
+              ),
+              IconButton(
+                icon: const Icon(Icons.print),
+                tooltip: 'Print',
+                onPressed: () => _printSermon(context, ref),
+              ),
+              IconButton(
+                icon: const Icon(Icons.label),
+                tooltip: 'Manage Tags',
+                onPressed: () => _manageTags(context),
+              ),
+              IconButton(
+                icon: const Icon(Icons.history),
+                tooltip: 'Revision History',
+                onPressed: () => _openRevisions(),
+              ),
+              TextButton.icon(
+                icon: const Icon(Icons.list_alt),
+                label: const Text('Outline'),
+                onPressed: () => _showOutlineGeneratorDialog(context),
+              ),
+            ],
             const SizedBox(width: 8),
           ],
         ),
@@ -480,95 +597,45 @@ class _SermonEditorScreenState extends ConsumerState<SermonEditorScreen> {
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.surfaceContainerHighest,
             ),
+            // The panel shares the window with the reader, so this header can
+            // get narrow. Keep the hands-on actions (presentation, scripture
+            // navigation, full screen) as icons and collapse the rest into an
+            // overflow menu; the title yields first if space still runs out.
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.arrow_back),
-                      tooltip: 'Back to sermons',
-                      onPressed: () {
-                        ref.read(selectedSermonIdProvider.notifier).set(null);
-                      },
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      'Edit Sermon',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
+                IconButton(
+                  icon: const Icon(Icons.arrow_back),
+                  tooltip: 'Back to sermons',
+                  onPressed: () {
+                    ref.read(selectedSermonIdProvider.notifier).set(null);
+                  },
                 ),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.slideshow),
-                      tooltip: 'Presentation Mode',
-                      onPressed: () {
-                        final store = ref.read(userStoreProvider);
-                        store.select(store.sermons)
-                          ..where((t) => t.id.equals(widget.sermonId))
-                          ..getSingleOrNull().then((sermon) {
-                            if (sermon != null && context.mounted) {
-                              Navigator.of(context).push(MaterialPageRoute(
-                                builder: (_) => SermonPresentationScreen(sermon: sermon),
-                              ));
-                            }
-                          });
-                      },
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Edit Sermon',
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.file_upload),
-                      tooltip: 'Export',
-                      onPressed: () {
-                        final store = ref.read(userStoreProvider);
-                        store.select(store.sermons)
-                          ..where((t) => t.id.equals(widget.sermonId))
-                          ..getSingleOrNull().then((sermon) {
-                            if (sermon != null && context.mounted) {
-                              ExportDialog.show(context, [sermon]);
-                            }
-                          });
-                      },
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.print),
-                      tooltip: 'Print',
-                      onPressed: () => _printSermon(context, ref),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.label),
-                      tooltip: 'Manage Tags',
-                      onPressed: () {
-                        showDialog(
-                          context: context,
-                          builder: (_) => TagEditorDialog(
-                            entityId: widget.sermonId,
-                            entityType: 'sermon',
-                          ),
-                        );
-                      },
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.history),
-                      tooltip: 'Revision History',
-                      onPressed: () => _openRevisions(),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.list_alt),
-                      tooltip: 'Outline',
-                      onPressed: () => _showOutlineGeneratorDialog(context),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.open_in_new),
-                      tooltip: 'Full Screen',
-                      onPressed: _openFullScreen,
-                    ),
-                  ],
+                  ),
                 ),
+                IconButton(
+                  icon: const Icon(Icons.slideshow),
+                  tooltip: 'Presentation Mode',
+                  onPressed: () => _openPresentation(context),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.route_outlined),
+                  tooltip: 'Navigate Scriptures',
+                  onPressed: () => _startScriptureNavigation(context),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.open_in_new),
+                  tooltip: 'Full Screen',
+                  onPressed: _openFullScreen,
+                ),
+                _buildOverflowMenu(context),
               ],
             ),
           ),
