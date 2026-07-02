@@ -1,5 +1,17 @@
 [
   {
+    "version": "26.7.2+2",
+    "date": "2026-07-02",
+    "features": [
+      {
+        "category": "Bugfixes",
+        "title": "prevent black screen during startup with large databases",
+        "description": "",
+        "icon": "bug_report"
+      }
+    ]
+  },
+  {
     "version": "26.7.2+1",
     "date": "2026-07-02",
     "features": [
