@@ -37,6 +37,7 @@ The Sermons panel has its own controls for working through a large collection:
 - **Search box:** Type to filter the list by title, series name, or tag.
 - **Tag chips:** Each sermon's colored tags show beside its series. Tap a chip to pin that tag and see only the sermons filed under it; tap again to clear.
 - **Sort menu:** Reorder the list by title (A–Z or Z–A) or by date (newest or oldest first).
+- **Pin to top:** Tap the pin icon on a sermon to keep it at the top of the list no matter how the list is sorted—handy for the sermon you're actively working on. Tap it again to unpin. Pins sync across your devices.
 
 ## Revision History
 Every sermon keeps a history of past versions. Tap **Revision History** to look back at—and restore—an earlier draft, so you never lose work.

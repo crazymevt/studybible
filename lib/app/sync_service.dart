@@ -41,8 +41,9 @@ final syncServiceProvider = Provider<SyncService>((ref) {
 
 /// The platform-appropriate Google Drive auth handler (loopback on desktop,
 /// google_sign_in on mobile).
-final googleDriveAuthProvider =
-    Provider<GoogleDriveAuth>((ref) => GoogleDriveAuth());
+final googleDriveAuthProvider = Provider<GoogleDriveAuth>(
+  (ref) => GoogleDriveAuth(),
+);
 
 class SyncService {
   final UserStore _store;
@@ -54,7 +55,6 @@ class SyncService {
   SyncService(this._store, this._ref);
 
   Future<void> _ensureInit() async {
-
     final deviceId = await _ref.read(deviceIdProvider.future);
 
     final customPath = _ref.read(syncFolderPathProvider);
@@ -72,8 +72,7 @@ class SyncService {
       _driveClient ??= await _ref.read(googleDriveAuthProvider).restore();
       if (_driveClient != null) {
         final account = _ref.read(googleDriveAccountProvider) ?? 'connected';
-        storage =
-            GoogleDriveSyncStorage(_driveClient!, accountId: account);
+        storage = GoogleDriveSyncStorage(_driveClient!, accountId: account);
       } else {
         // Drive is enabled but we have no usable credentials (revoked, or this
         // build lacks OAuth config). Fall back to the default local folder so
@@ -131,11 +130,13 @@ class SyncService {
       final localNotes = await _store.select(_store.notes).get();
       final localBookmarks = await _store.select(_store.bookmarks).get();
       final localJournals = await _store.select(_store.journals).get();
-      final localJournalRevisions =
-          await _store.select(_store.journalRevisions).get();
+      final localJournalRevisions = await _store
+          .select(_store.journalRevisions)
+          .get();
       final localSermons = await _store.select(_store.sermons).get();
-      final localSermonRevisions =
-          await _store.select(_store.sermonRevisions).get();
+      final localSermonRevisions = await _store
+          .select(_store.sermonRevisions)
+          .get();
       final localPrayers = await _store.select(_store.prayers).get();
       final localActionItems = await _store.select(_store.actionItems).get();
       final localReadingprogresses = await _store
@@ -239,6 +240,7 @@ class SyncService {
               'title': item.title,
               'series': item.series,
               'content': item.content,
+              'pinned': item.pinned,
             },
           ),
         ),
@@ -532,20 +534,24 @@ class SyncService {
             // before a different winning version overwrites it. This matters
             // more for journals — their updatedAt is the entry's date, so
             // same-day edits on two devices tie and break on deviceId.
-            final localJournal = await (_store.select(_store.journals)
-                  ..where((t) => t.id.equals(rec.id)))
-                .getSingleOrNull();
+            final localJournal = await (_store.select(
+              _store.journals,
+            )..where((t) => t.id.equals(rec.id))).getSingleOrNull();
             if (localJournal != null &&
                 !localJournal.deleted &&
                 localJournal.content != content) {
-              final already = await (_store.select(_store.journalRevisions)
-                    ..where((t) =>
-                        t.journalId.equals(rec.id) &
-                        t.deleted.equals(false) &
-                        t.content.equals(localJournal.content)))
-                  .getSingleOrNull();
+              final already =
+                  await (_store.select(_store.journalRevisions)..where(
+                        (t) =>
+                            t.journalId.equals(rec.id) &
+                            t.deleted.equals(false) &
+                            t.content.equals(localJournal.content),
+                      ))
+                      .getSingleOrNull();
               if (already == null) {
-                await _store.into(_store.journalRevisions).insert(
+                await _store
+                    .into(_store.journalRevisions)
+                    .insert(
                       JournalRevisionsCompanion.insert(
                         id: const Uuid().v4(),
                         updatedAt: DateTime.now().millisecondsSinceEpoch,
@@ -583,22 +589,26 @@ class SyncService {
             // sermon's content with a different (winning) version, snapshot the
             // local losing content first so a cross-device clobber can never
             // silently destroy work. See lib/domain/sync/lww_merge.dart.
-            final localSermon = await (_store.select(_store.sermons)
-                  ..where((t) => t.id.equals(rec.id)))
-                .getSingleOrNull();
+            final localSermon = await (_store.select(
+              _store.sermons,
+            )..where((t) => t.id.equals(rec.id))).getSingleOrNull();
             if (localSermon != null &&
                 !localSermon.deleted &&
                 localSermon.content != content) {
               // Dedupe: don't re-snapshot content we've already preserved for
               // this sermon (e.g. across repeated syncs).
-              final already = await (_store.select(_store.sermonRevisions)
-                    ..where((t) =>
-                        t.sermonId.equals(rec.id) &
-                        t.deleted.equals(false) &
-                        t.content.equals(localSermon.content)))
-                  .getSingleOrNull();
+              final already =
+                  await (_store.select(_store.sermonRevisions)..where(
+                        (t) =>
+                            t.sermonId.equals(rec.id) &
+                            t.deleted.equals(false) &
+                            t.content.equals(localSermon.content),
+                      ))
+                      .getSingleOrNull();
               if (already == null) {
-                await _store.into(_store.sermonRevisions).insert(
+                await _store
+                    .into(_store.sermonRevisions)
+                    .insert(
                       SermonRevisionsCompanion.insert(
                         id: const Uuid().v4(),
                         updatedAt: DateTime.now().millisecondsSinceEpoch,
@@ -629,6 +639,8 @@ class SyncService {
               // content_plain is not synced (derived); recompute it locally so
               // the search index for synced sermons is plain text too.
               contentPlain: deltaToPlainText(content),
+              // Older peers won't send 'pinned'; default to unpinned.
+              pinned: (rec.payload['pinned'] as bool?) ?? false,
             );
             await _store
                 .into(_store.sermons)
@@ -826,19 +838,22 @@ class SyncService {
       // 4b. Prune the conflict-backup revisions just created to the per-entity
       // retention cap (manual revisions are excluded and never pruned).
       for (final sermonId in conflictedSermonIds) {
-        final auto = await (_store.select(_store.sermonRevisions)
-              ..where((t) =>
-                  t.sermonId.equals(sermonId) &
-                  t.deleted.equals(false) &
-                  t.kind.equals(RevisionKind.manual).not())
-              ..orderBy([(t) => OrderingTerm.desc(t.createdAt)]))
-            .get();
+        final auto =
+            await (_store.select(_store.sermonRevisions)
+                  ..where(
+                    (t) =>
+                        t.sermonId.equals(sermonId) &
+                        t.deleted.equals(false) &
+                        t.kind.equals(RevisionKind.manual).not(),
+                  )
+                  ..orderBy([(t) => OrderingTerm.desc(t.createdAt)]))
+                .get();
         if (auto.length <= kMaxAutoRevisions) continue;
         final pruneTs = DateTime.now().millisecondsSinceEpoch;
         for (final stale in auto.skip(kMaxAutoRevisions)) {
-          await (_store.update(_store.sermonRevisions)
-                ..where((t) => t.id.equals(stale.id)))
-              .write(
+          await (_store.update(
+            _store.sermonRevisions,
+          )..where((t) => t.id.equals(stale.id))).write(
             SermonRevisionsCompanion(
               deleted: const Value(true),
               updatedAt: Value(pruneTs),
@@ -847,19 +862,22 @@ class SyncService {
         }
       }
       for (final journalId in conflictedJournalIds) {
-        final auto = await (_store.select(_store.journalRevisions)
-              ..where((t) =>
-                  t.journalId.equals(journalId) &
-                  t.deleted.equals(false) &
-                  t.kind.equals(RevisionKind.manual).not())
-              ..orderBy([(t) => OrderingTerm.desc(t.createdAt)]))
-            .get();
+        final auto =
+            await (_store.select(_store.journalRevisions)
+                  ..where(
+                    (t) =>
+                        t.journalId.equals(journalId) &
+                        t.deleted.equals(false) &
+                        t.kind.equals(RevisionKind.manual).not(),
+                  )
+                  ..orderBy([(t) => OrderingTerm.desc(t.createdAt)]))
+                .get();
         if (auto.length <= kMaxAutoRevisions) continue;
         final pruneTs = DateTime.now().millisecondsSinceEpoch;
         for (final stale in auto.skip(kMaxAutoRevisions)) {
-          await (_store.update(_store.journalRevisions)
-                ..where((t) => t.id.equals(stale.id)))
-              .write(
+          await (_store.update(
+            _store.journalRevisions,
+          )..where((t) => t.id.equals(stale.id))).write(
             JournalRevisionsCompanion(
               deleted: const Value(true),
               updatedAt: Value(pruneTs),

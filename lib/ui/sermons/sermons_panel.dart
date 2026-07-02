@@ -67,6 +67,8 @@ class _SermonsPanelState extends ConsumerState<SermonsPanel> {
     }).toList();
 
     filtered.sort((a, b) {
+      // Pinned sermons always float to the top, whatever the chosen sort.
+      if (a.pinned != b.pinned) return a.pinned ? -1 : 1;
       switch (_sort) {
         case _SermonSort.titleAsc:
           return _titleKey(a).compareTo(_titleKey(b));
@@ -211,37 +213,57 @@ class _SermonsPanelState extends ConsumerState<SermonsPanel> {
                         ),
                         subtitle: _buildSubtitle(context, sermon, tags),
                         isThreeLine: tags.isNotEmpty,
-                        trailing: IconButton(
-                          icon: const Icon(Icons.delete_outline, size: 20),
-                          tooltip: 'Delete Sermon',
-                          onPressed: () async {
-                            final confirm = await showDialog<bool>(
-                              context: context,
-                              builder: (context) => AlertDialog(
-                                title: const Text('Delete Sermon'),
-                                content: const Text(
-                                  'Are you sure you want to delete this sermon?',
-                                ),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () =>
-                                        Navigator.of(context).pop(false),
-                                    child: const Text('Cancel'),
-                                  ),
-                                  TextButton(
-                                    onPressed: () =>
-                                        Navigator.of(context).pop(true),
-                                    child: const Text('Delete'),
-                                  ),
-                                ],
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: Icon(
+                                sermon.pinned
+                                    ? Icons.push_pin
+                                    : Icons.push_pin_outlined,
+                                size: 20,
                               ),
-                            );
-                            if (confirm == true) {
-                              ref
+                              color: sermon.pinned
+                                  ? Theme.of(context).colorScheme.primary
+                                  : null,
+                              tooltip: sermon.pinned ? 'Unpin' : 'Pin to top',
+                              onPressed: () => ref
                                   .read(sermonActionProvider)
-                                  .deleteSermon(sermon.id);
-                            }
-                          },
+                                  .setPinned(sermon.id, !sermon.pinned),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.delete_outline, size: 20),
+                              tooltip: 'Delete Sermon',
+                              onPressed: () async {
+                                final confirm = await showDialog<bool>(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    title: const Text('Delete Sermon'),
+                                    content: const Text(
+                                      'Are you sure you want to delete this sermon?',
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () =>
+                                            Navigator.of(context).pop(false),
+                                        child: const Text('Cancel'),
+                                      ),
+                                      TextButton(
+                                        onPressed: () =>
+                                            Navigator.of(context).pop(true),
+                                        child: const Text('Delete'),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                                if (confirm == true) {
+                                  ref
+                                      .read(sermonActionProvider)
+                                      .deleteSermon(sermon.id);
+                                }
+                              },
+                            ),
+                          ],
                         ),
                         onTap: () {
                           if (MediaQuery.sizeOf(context).width >

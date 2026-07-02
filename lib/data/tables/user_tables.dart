@@ -72,7 +72,8 @@ class Journals extends Table {
   BoolColumn get deleted => boolean().withDefault(const Constant(false))();
 
   TextColumn get title => text()();
-  TextColumn get content => text()(); // Quill Delta JSON (legacy rows: plain/markdown)
+  TextColumn get content =>
+      text()(); // Quill Delta JSON (legacy rows: plain/markdown)
   // Plain-text projection of [content], derived on save, used only for the
   // full-text search index so the FTS vocab isn't polluted with Delta JSON.
   // Nullable so legacy rows migrate in cleanly (backfilled on upgrade).
@@ -121,6 +122,9 @@ class Sermons extends Table {
   // Plain-text projection of [content], derived on save, used only for the
   // full-text search index so the FTS vocab isn't polluted with Delta JSON.
   TextColumn get contentPlain => text().nullable()();
+  // Whether the sermon is pinned to the top of the list. Synced like the other
+  // fields (Last-Writer-Wins), so a pin travels with the sermon across devices.
+  BoolColumn get pinned => boolean().withDefault(const Constant(false))();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -182,7 +186,8 @@ class ActionItems extends Table {
   TextColumn get title => text()(); // the action
   TextColumn get description => text().withDefault(const Constant(''))();
   IntColumn get createdAt => integer()(); // epoch ms
-  IntColumn get dueAt => integer().nullable()(); // epoch ms, optional due date/time
+  IntColumn get dueAt =>
+      integer().nullable()(); // epoch ms, optional due date/time
   IntColumn get completedAt =>
       integer().nullable()(); // epoch ms, null while not completed
 

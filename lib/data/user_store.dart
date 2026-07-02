@@ -36,7 +36,7 @@ class UserStore extends _$UserStore {
   UserStore([QueryExecutor? e]) : super(e ?? _openConnection());
 
   @override
-  int get schemaVersion => 22;
+  int get schemaVersion => 23;
 
   @override
   MigrationStrategy get migration {
@@ -140,7 +140,7 @@ class UserStore extends _$UserStore {
               DELETE FROM user_search WHERE text_content = (SELECT '#' || name FROM tags WHERE id = old.tag_id) AND reference_id = old.entity_id AND type = old.entity_type;
             END;
           ''');
-          
+
           // Cleanup any orphaned tags from user_search that were soft-deleted before this trigger existed
           await customStatement('''
             DELETE FROM user_search 
@@ -207,13 +207,17 @@ class UserStore extends _$UserStore {
           await customStatement('DROP TRIGGER IF EXISTS sermons_au;');
 
           // Backfill content_plain for existing sermons (Delta -> plain text).
-          final existingSermons =
-              await customSelect('SELECT id, content FROM sermons').get();
+          final existingSermons = await customSelect(
+            'SELECT id, content FROM sermons',
+          ).get();
           for (final row in existingSermons) {
-            await customStatement('UPDATE sermons SET content_plain = ? WHERE id = ?', [
-              deltaToPlainText(row.read<String>('content')),
-              row.read<String>('id'),
-            ]);
+            await customStatement(
+              'UPDATE sermons SET content_plain = ? WHERE id = ?',
+              [
+                deltaToPlainText(row.read<String>('content')),
+                row.read<String>('id'),
+              ],
+            );
           }
 
           await customStatement('''
@@ -228,7 +232,9 @@ class UserStore extends _$UserStore {
           ''');
 
           // Re-index existing sermons with the plain text.
-          await customStatement("DELETE FROM user_search WHERE type = 'sermon';");
+          await customStatement(
+            "DELETE FROM user_search WHERE type = 'sermon';",
+          );
           await customStatement('''
             INSERT INTO user_search(type, reference_id, text_content)
             SELECT 'sermon', id, title || ' ' || COALESCE(series, '') || ' ' || COALESCE(content_plain, '') FROM sermons WHERE deleted = 0;
@@ -295,9 +301,15 @@ class UserStore extends _$UserStore {
           await customStatement('DROP TRIGGER IF EXISTS prayers_au;');
           await customStatement('DROP TRIGGER IF EXISTS prayers_ad;');
           await customStatement('DROP TRIGGER IF EXISTS notes_soft_delete_au;');
-          await customStatement('DROP TRIGGER IF EXISTS sermons_soft_delete_au;');
-          await customStatement('DROP TRIGGER IF EXISTS journals_soft_delete_au;');
-          await customStatement('DROP TRIGGER IF EXISTS prayers_soft_delete_au;');
+          await customStatement(
+            'DROP TRIGGER IF EXISTS sermons_soft_delete_au;',
+          );
+          await customStatement(
+            'DROP TRIGGER IF EXISTS journals_soft_delete_au;',
+          );
+          await customStatement(
+            'DROP TRIGGER IF EXISTS prayers_soft_delete_au;',
+          );
 
           // Recreate with robust INSERT OR REPLACE support
           await customStatement('''
@@ -386,10 +398,18 @@ class UserStore extends _$UserStore {
 
           // Wipe and rebuild the FTS index completely to guarantee perfection
           await customStatement('DELETE FROM user_search;');
-          await customStatement("INSERT INTO user_search(type, reference_id, text_content) SELECT 'note', id, content FROM notes WHERE deleted = 0;");
-          await customStatement("INSERT INTO user_search(type, reference_id, text_content) SELECT 'journal', id, title || ' ' || content FROM journals WHERE deleted = 0;");
-          await customStatement("INSERT INTO user_search(type, reference_id, text_content) SELECT 'sermon', id, title || ' ' || COALESCE(series, '') || ' ' || COALESCE(content_plain, '') FROM sermons WHERE deleted = 0;");
-          await customStatement("INSERT INTO user_search(type, reference_id, text_content) SELECT 'prayer', id, name || ' ' || description FROM prayers WHERE deleted = 0;");
+          await customStatement(
+            "INSERT INTO user_search(type, reference_id, text_content) SELECT 'note', id, content FROM notes WHERE deleted = 0;",
+          );
+          await customStatement(
+            "INSERT INTO user_search(type, reference_id, text_content) SELECT 'journal', id, title || ' ' || content FROM journals WHERE deleted = 0;",
+          );
+          await customStatement(
+            "INSERT INTO user_search(type, reference_id, text_content) SELECT 'sermon', id, title || ' ' || COALESCE(series, '') || ' ' || COALESCE(content_plain, '') FROM sermons WHERE deleted = 0;",
+          );
+          await customStatement(
+            "INSERT INTO user_search(type, reference_id, text_content) SELECT 'prayer', id, name || ' ' || description FROM prayers WHERE deleted = 0;",
+          );
         }
 
         if (from < 15) {
@@ -524,8 +544,9 @@ class UserStore extends _$UserStore {
           // back after adding the column.
           await _ensureJournalContentPlainColumn(m);
 
-          final existingJournals =
-              await customSelect('SELECT id, content FROM journals').get();
+          final existingJournals = await customSelect(
+            'SELECT id, content FROM journals',
+          ).get();
           for (final row in existingJournals) {
             await customStatement(
               'UPDATE journals SET content_plain = ? WHERE id = ?',
@@ -542,7 +563,8 @@ class UserStore extends _$UserStore {
           // be dropped by the delete.
           await _installSearchTriggers();
           await customStatement(
-              "DELETE FROM user_search WHERE type = 'journal';");
+            "DELETE FROM user_search WHERE type = 'journal';",
+          );
           await customStatement(
             "INSERT INTO user_search(type, reference_id, text_content) "
             "SELECT 'journal', id, title || ' ' || COALESCE(content_plain, '') "
@@ -560,6 +582,15 @@ class UserStore extends _$UserStore {
           // Local-only scratch pad. Not synced and not FTS-indexed, so just
           // create the table.
           await m.createTable(scratches);
+        }
+        if (from < 23) {
+          // Pin sermons to the top of the list. ALTER TABLE ADD COLUMN
+          // auto-commits in SQLite, so if this migration later rolls back
+          // (e.g. the first-launch read race) the column survives while the
+          // schema version does not — the retry would then throw "duplicate
+          // column name" and wedge the upgrade. Guard the add so it's
+          // idempotent (mirrors _ensureJournalContentPlainColumn).
+          await _ensureSermonPinnedColumn(m);
         }
       },
     );
@@ -580,6 +611,18 @@ class UserStore extends _$UserStore {
     }
   }
 
+  /// Idempotently adds the sermons.pinned column. Guarded because ALTER TABLE
+  /// ADD COLUMN auto-commits, so a rolled-back v23 migration retry must not
+  /// re-throw "duplicate column name" and wedge the upgrade.
+  Future<void> _ensureSermonPinnedColumn(Migrator m) async {
+    final hasColumn = await customSelect(
+      "SELECT 1 FROM pragma_table_info('sermons') WHERE name = 'pinned'",
+    ).get();
+    if (hasColumn.isEmpty) {
+      await m.addColumn(sermons, sermons.pinned);
+    }
+  }
+
   /// (Re)installs the FTS maintenance triggers for the user-content tables in
   /// their robust form: every INSERT/UPDATE first clears any stale index row
   /// for the id, then re-indexes only when the row is live. The unconditional
@@ -592,9 +635,13 @@ class UserStore extends _$UserStore {
       [
         'sermon',
         'sermons',
-        "new.title || ' ' || COALESCE(new.series, '') || ' ' || COALESCE(new.content_plain, '')"
+        "new.title || ' ' || COALESCE(new.series, '') || ' ' || COALESCE(new.content_plain, '')",
       ],
-      ['journal', 'journals', "new.title || ' ' || COALESCE(new.content_plain, '')"],
+      [
+        'journal',
+        'journals',
+        "new.title || ' ' || COALESCE(new.content_plain, '')",
+      ],
       ['prayer', 'prayers', "new.name || ' ' || new.description"],
     ];
     for (final c in configs) {
@@ -635,13 +682,17 @@ class UserStore extends _$UserStore {
   Future<void> _rebuildSearchIndex() async {
     await customStatement('DELETE FROM user_search;');
     await customStatement(
-        "INSERT INTO user_search(type, reference_id, text_content) SELECT 'note', id, content FROM notes WHERE deleted = 0;");
+      "INSERT INTO user_search(type, reference_id, text_content) SELECT 'note', id, content FROM notes WHERE deleted = 0;",
+    );
     await customStatement(
-        "INSERT INTO user_search(type, reference_id, text_content) SELECT 'journal', id, title || ' ' || COALESCE(content_plain, '') FROM journals WHERE deleted = 0;");
+      "INSERT INTO user_search(type, reference_id, text_content) SELECT 'journal', id, title || ' ' || COALESCE(content_plain, '') FROM journals WHERE deleted = 0;",
+    );
     await customStatement(
-        "INSERT INTO user_search(type, reference_id, text_content) SELECT 'sermon', id, title || ' ' || COALESCE(series, '') || ' ' || COALESCE(content_plain, '') FROM sermons WHERE deleted = 0;");
+      "INSERT INTO user_search(type, reference_id, text_content) SELECT 'sermon', id, title || ' ' || COALESCE(series, '') || ' ' || COALESCE(content_plain, '') FROM sermons WHERE deleted = 0;",
+    );
     await customStatement(
-        "INSERT INTO user_search(type, reference_id, text_content) SELECT 'prayer', id, name || ' ' || description FROM prayers WHERE deleted = 0;");
+      "INSERT INTO user_search(type, reference_id, text_content) SELECT 'prayer', id, name || ' ' || description FROM prayers WHERE deleted = 0;",
+    );
     // Restore tag rows, which share (type, reference_id) with their content row.
     await customStatement('''
       INSERT INTO user_search(type, reference_id, text_content)
@@ -657,13 +708,16 @@ LazyDatabase _openConnection() {
   return LazyDatabase(() async {
     final dbFolder = await appDataDir();
     final file = File(p.join(dbFolder.path, 'user.db'));
-    return NativeDatabase.createInBackground(file, setup: (db) {
-      // Set busy_timeout *before* switching to WAL — see the matching note in
-      // content_store.dart. Otherwise the WAL switch can fail instantly with
-      // SQLITE_BUSY when another connection is opening the db concurrently.
-      db.execute('PRAGMA busy_timeout=10000;');
-      db.execute('PRAGMA journal_mode=WAL;');
-      db.execute('PRAGMA synchronous=NORMAL;');
-    });
+    return NativeDatabase.createInBackground(
+      file,
+      setup: (db) {
+        // Set busy_timeout *before* switching to WAL — see the matching note in
+        // content_store.dart. Otherwise the WAL switch can fail instantly with
+        // SQLITE_BUSY when another connection is opening the db concurrently.
+        db.execute('PRAGMA busy_timeout=10000;');
+        db.execute('PRAGMA journal_mode=WAL;');
+        db.execute('PRAGMA synchronous=NORMAL;');
+      },
+    );
   });
 }

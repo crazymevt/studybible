@@ -6592,6 +6592,19 @@ class $SermonsTable extends Sermons with TableInfo<$SermonsTable, Sermon> {
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _pinnedMeta = const VerificationMeta('pinned');
+  @override
+  late final GeneratedColumn<bool> pinned = GeneratedColumn<bool>(
+    'pinned',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("pinned" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -6603,6 +6616,7 @@ class $SermonsTable extends Sermons with TableInfo<$SermonsTable, Sermon> {
     series,
     content,
     contentPlain,
+    pinned,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -6682,6 +6696,12 @@ class $SermonsTable extends Sermons with TableInfo<$SermonsTable, Sermon> {
         ),
       );
     }
+    if (data.containsKey('pinned')) {
+      context.handle(
+        _pinnedMeta,
+        pinned.isAcceptableOrUnknown(data['pinned']!, _pinnedMeta),
+      );
+    }
     return context;
   }
 
@@ -6727,6 +6747,10 @@ class $SermonsTable extends Sermons with TableInfo<$SermonsTable, Sermon> {
         DriftSqlType.string,
         data['${effectivePrefix}content_plain'],
       ),
+      pinned: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}pinned'],
+      )!,
     );
   }
 
@@ -6746,6 +6770,7 @@ class Sermon extends DataClass implements Insertable<Sermon> {
   final String? series;
   final String content;
   final String? contentPlain;
+  final bool pinned;
   const Sermon({
     required this.id,
     required this.createdAt,
@@ -6756,6 +6781,7 @@ class Sermon extends DataClass implements Insertable<Sermon> {
     this.series,
     required this.content,
     this.contentPlain,
+    required this.pinned,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -6773,6 +6799,7 @@ class Sermon extends DataClass implements Insertable<Sermon> {
     if (!nullToAbsent || contentPlain != null) {
       map['content_plain'] = Variable<String>(contentPlain);
     }
+    map['pinned'] = Variable<bool>(pinned);
     return map;
   }
 
@@ -6791,6 +6818,7 @@ class Sermon extends DataClass implements Insertable<Sermon> {
       contentPlain: contentPlain == null && nullToAbsent
           ? const Value.absent()
           : Value(contentPlain),
+      pinned: Value(pinned),
     );
   }
 
@@ -6809,6 +6837,7 @@ class Sermon extends DataClass implements Insertable<Sermon> {
       series: serializer.fromJson<String?>(json['series']),
       content: serializer.fromJson<String>(json['content']),
       contentPlain: serializer.fromJson<String?>(json['contentPlain']),
+      pinned: serializer.fromJson<bool>(json['pinned']),
     );
   }
   @override
@@ -6824,6 +6853,7 @@ class Sermon extends DataClass implements Insertable<Sermon> {
       'series': serializer.toJson<String?>(series),
       'content': serializer.toJson<String>(content),
       'contentPlain': serializer.toJson<String?>(contentPlain),
+      'pinned': serializer.toJson<bool>(pinned),
     };
   }
 
@@ -6837,6 +6867,7 @@ class Sermon extends DataClass implements Insertable<Sermon> {
     Value<String?> series = const Value.absent(),
     String? content,
     Value<String?> contentPlain = const Value.absent(),
+    bool? pinned,
   }) => Sermon(
     id: id ?? this.id,
     createdAt: createdAt ?? this.createdAt,
@@ -6847,6 +6878,7 @@ class Sermon extends DataClass implements Insertable<Sermon> {
     series: series.present ? series.value : this.series,
     content: content ?? this.content,
     contentPlain: contentPlain.present ? contentPlain.value : this.contentPlain,
+    pinned: pinned ?? this.pinned,
   );
   Sermon copyWithCompanion(SermonsCompanion data) {
     return Sermon(
@@ -6861,6 +6893,7 @@ class Sermon extends DataClass implements Insertable<Sermon> {
       contentPlain: data.contentPlain.present
           ? data.contentPlain.value
           : this.contentPlain,
+      pinned: data.pinned.present ? data.pinned.value : this.pinned,
     );
   }
 
@@ -6875,7 +6908,8 @@ class Sermon extends DataClass implements Insertable<Sermon> {
           ..write('title: $title, ')
           ..write('series: $series, ')
           ..write('content: $content, ')
-          ..write('contentPlain: $contentPlain')
+          ..write('contentPlain: $contentPlain, ')
+          ..write('pinned: $pinned')
           ..write(')'))
         .toString();
   }
@@ -6891,6 +6925,7 @@ class Sermon extends DataClass implements Insertable<Sermon> {
     series,
     content,
     contentPlain,
+    pinned,
   );
   @override
   bool operator ==(Object other) =>
@@ -6904,7 +6939,8 @@ class Sermon extends DataClass implements Insertable<Sermon> {
           other.title == this.title &&
           other.series == this.series &&
           other.content == this.content &&
-          other.contentPlain == this.contentPlain);
+          other.contentPlain == this.contentPlain &&
+          other.pinned == this.pinned);
 }
 
 class SermonsCompanion extends UpdateCompanion<Sermon> {
@@ -6917,6 +6953,7 @@ class SermonsCompanion extends UpdateCompanion<Sermon> {
   final Value<String?> series;
   final Value<String> content;
   final Value<String?> contentPlain;
+  final Value<bool> pinned;
   final Value<int> rowid;
   const SermonsCompanion({
     this.id = const Value.absent(),
@@ -6928,6 +6965,7 @@ class SermonsCompanion extends UpdateCompanion<Sermon> {
     this.series = const Value.absent(),
     this.content = const Value.absent(),
     this.contentPlain = const Value.absent(),
+    this.pinned = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   SermonsCompanion.insert({
@@ -6940,6 +6978,7 @@ class SermonsCompanion extends UpdateCompanion<Sermon> {
     this.series = const Value.absent(),
     required String content,
     this.contentPlain = const Value.absent(),
+    this.pinned = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        createdAt = Value(createdAt),
@@ -6957,6 +6996,7 @@ class SermonsCompanion extends UpdateCompanion<Sermon> {
     Expression<String>? series,
     Expression<String>? content,
     Expression<String>? contentPlain,
+    Expression<bool>? pinned,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -6969,6 +7009,7 @@ class SermonsCompanion extends UpdateCompanion<Sermon> {
       if (series != null) 'series': series,
       if (content != null) 'content': content,
       if (contentPlain != null) 'content_plain': contentPlain,
+      if (pinned != null) 'pinned': pinned,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -6983,6 +7024,7 @@ class SermonsCompanion extends UpdateCompanion<Sermon> {
     Value<String?>? series,
     Value<String>? content,
     Value<String?>? contentPlain,
+    Value<bool>? pinned,
     Value<int>? rowid,
   }) {
     return SermonsCompanion(
@@ -6995,6 +7037,7 @@ class SermonsCompanion extends UpdateCompanion<Sermon> {
       series: series ?? this.series,
       content: content ?? this.content,
       contentPlain: contentPlain ?? this.contentPlain,
+      pinned: pinned ?? this.pinned,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -7029,6 +7072,9 @@ class SermonsCompanion extends UpdateCompanion<Sermon> {
     if (contentPlain.present) {
       map['content_plain'] = Variable<String>(contentPlain.value);
     }
+    if (pinned.present) {
+      map['pinned'] = Variable<bool>(pinned.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -7047,6 +7093,7 @@ class SermonsCompanion extends UpdateCompanion<Sermon> {
           ..write('series: $series, ')
           ..write('content: $content, ')
           ..write('contentPlain: $contentPlain, ')
+          ..write('pinned: $pinned, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -13148,6 +13195,7 @@ typedef $$SermonsTableCreateCompanionBuilder =
       Value<String?> series,
       required String content,
       Value<String?> contentPlain,
+      Value<bool> pinned,
       Value<int> rowid,
     });
 typedef $$SermonsTableUpdateCompanionBuilder =
@@ -13161,6 +13209,7 @@ typedef $$SermonsTableUpdateCompanionBuilder =
       Value<String?> series,
       Value<String> content,
       Value<String?> contentPlain,
+      Value<bool> pinned,
       Value<int> rowid,
     });
 
@@ -13215,6 +13264,11 @@ class $$SermonsTableFilterComposer
 
   ColumnFilters<String> get contentPlain => $composableBuilder(
     column: $table.contentPlain,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get pinned => $composableBuilder(
+    column: $table.pinned,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -13272,6 +13326,11 @@ class $$SermonsTableOrderingComposer
     column: $table.contentPlain,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<bool> get pinned => $composableBuilder(
+    column: $table.pinned,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$SermonsTableAnnotationComposer
@@ -13311,6 +13370,9 @@ class $$SermonsTableAnnotationComposer
     column: $table.contentPlain,
     builder: (column) => column,
   );
+
+  GeneratedColumn<bool> get pinned =>
+      $composableBuilder(column: $table.pinned, builder: (column) => column);
 }
 
 class $$SermonsTableTableManager
@@ -13350,6 +13412,7 @@ class $$SermonsTableTableManager
                 Value<String?> series = const Value.absent(),
                 Value<String> content = const Value.absent(),
                 Value<String?> contentPlain = const Value.absent(),
+                Value<bool> pinned = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => SermonsCompanion(
                 id: id,
@@ -13361,6 +13424,7 @@ class $$SermonsTableTableManager
                 series: series,
                 content: content,
                 contentPlain: contentPlain,
+                pinned: pinned,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -13374,6 +13438,7 @@ class $$SermonsTableTableManager
                 Value<String?> series = const Value.absent(),
                 required String content,
                 Value<String?> contentPlain = const Value.absent(),
+                Value<bool> pinned = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => SermonsCompanion.insert(
                 id: id,
@@ -13385,6 +13450,7 @@ class $$SermonsTableTableManager
                 series: series,
                 content: content,
                 contentPlain: contentPlain,
+                pinned: pinned,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
