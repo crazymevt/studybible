@@ -195,6 +195,27 @@ class ActionItems extends Table {
   Set<Column> get primaryKey => {id};
 }
 
+/// Where each device last left the reader — one row per device, keyed by that
+/// device's id, so devices never contend over the same row under LWW merge.
+/// Powers the dashboard's "Continue reading" cross-device handoff card.
+@DataClassName('ReadingPosition')
+class ReadingPositions extends Table {
+  TextColumn get id => text()(); // == the writing device's deviceId
+  IntColumn get updatedAt => integer()();
+  TextColumn get deviceId => text()();
+  BoolColumn get deleted => boolean().withDefault(const Constant(false))();
+
+  TextColumn get bookName => text()();
+  IntColumn get chapter => integer()();
+  IntColumn get verse => integer().nullable()();
+  // Platform.operatingSystem of the writer ('android', 'macos', …) so the
+  // handoff card can say which device the position came from.
+  TextColumn get platform => text().withDefault(const Constant(''))();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
 @DataClassName('ReadingProgress')
 class ReadingProgresses extends Table {
   TextColumn get id => text()();

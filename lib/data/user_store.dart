@@ -17,6 +17,7 @@ part 'user_store.g.dart';
     Scratches,
     Journals,
     Prayers,
+    ReadingPositions,
     ReadingProgresses,
     TimeTrackers,
     Achievements,
@@ -36,7 +37,7 @@ class UserStore extends _$UserStore {
   UserStore([QueryExecutor? e]) : super(e ?? _openConnection());
 
   @override
-  int get schemaVersion => 23;
+  int get schemaVersion => 24;
 
   @override
   MigrationStrategy get migration {
@@ -591,6 +592,13 @@ class UserStore extends _$UserStore {
           // column name" and wedge the upgrade. Guard the add so it's
           // idempotent (mirrors _ensureJournalContentPlainColumn).
           await _ensureSermonPinnedColumn(m);
+        }
+        if (from < 24) {
+          // Per-device last reading position for the cross-device
+          // "Continue reading" handoff. New table only (drift emits CREATE
+          // TABLE IF NOT EXISTS, so a re-run after a rolled-back attempt is
+          // safe); not FTS-indexed.
+          await m.createTable(readingPositions);
         }
       },
     );

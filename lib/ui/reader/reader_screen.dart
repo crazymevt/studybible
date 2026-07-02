@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app/content_providers.dart';
 import '../../app/reader_state.dart';
 import '../../app/scripture_nav_providers.dart';
+import '../../app/reading_position_providers.dart';
 import '../../app/user_providers.dart';
 import '../../domain/scripture/scripture_route.dart';
 import '../../app/tag_providers.dart';
@@ -434,6 +435,10 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
     // now watched per page by _ChapterPage so the swipe PageView can load each
     // chapter independently.
     final audioData = ref.watch(chapterAudioProvider);
+
+    // Keeps this device's synced "last reading position" row current while the
+    // reader is on screen (see ContinueReadingCard on the dashboard).
+    ref.watch(readingPositionTrackerProvider);
 
     // Auto-tracking logic
     ref.listen<String>(selectedBookNameProvider, (prev, next) {

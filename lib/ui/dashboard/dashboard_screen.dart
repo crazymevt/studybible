@@ -18,6 +18,7 @@ import '../common/search_title_bar.dart';
 import '../../app/sync_service.dart';
 import '../common/breakpoints.dart';
 import 'action_items_widget.dart';
+import 'continue_reading_card.dart';
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
@@ -116,6 +117,7 @@ class DashboardScreen extends ConsumerWidget {
                   ),
                 ),
                 const SizedBox(height: 24),
+                const ContinueReadingCard(),
                 // Top Row: Quick Stats
                 if (prefs['showQuickStats'] ?? true) ...[
                   if (isDesktop)

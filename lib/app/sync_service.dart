@@ -142,6 +142,9 @@ class SyncService {
       final localReadingprogresses = await _store
           .select(_store.readingProgresses)
           .get();
+      final localReadingpositions = await _store
+          .select(_store.readingPositions)
+          .get();
       final localTimetrackers = await _store.select(_store.timeTrackers).get();
       final localAchievements = await _store.select(_store.achievements).get();
       final localNavigationhistories = await _store
@@ -333,6 +336,23 @@ class SyncService {
               'chapter': item.chapter,
               'readAt': item.readAt,
               'iteration': item.iteration,
+            },
+          ),
+        ),
+      );
+      localRecords.addAll(
+        localReadingpositions.map(
+          (item) => GenericSyncRecord(
+            id: item.id,
+            updatedAt: item.updatedAt,
+            deviceId: item.deviceId,
+            deleted: item.deleted,
+            payload: {
+              'type': 'readingPosition',
+              'bookName': item.bookName,
+              'chapter': item.chapter,
+              'verse': item.verse,
+              'platform': item.platform,
             },
           ),
         ),
@@ -721,6 +741,20 @@ class SyncService {
             );
             await _store
                 .into(_store.readingProgresses)
+                .insert(item, mode: InsertMode.replace);
+          } else if (type == 'readingPosition') {
+            final item = ReadingPosition(
+              id: rec.id,
+              updatedAt: rec.updatedAt,
+              deviceId: rec.deviceId,
+              deleted: rec.deleted,
+              bookName: rec.payload['bookName'] as String,
+              chapter: (rec.payload['chapter'] as num).toInt(),
+              verse: (rec.payload['verse'] as num?)?.toInt(),
+              platform: (rec.payload['platform'] as String?) ?? '',
+            );
+            await _store
+                .into(_store.readingPositions)
                 .insert(item, mode: InsertMode.replace);
           } else if (type == 'timeTracker') {
             final item = TimeTracker(

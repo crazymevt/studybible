@@ -4,6 +4,9 @@ The Dashboard is your home base—a quick snapshot of your reading life every ti
 
 Every section below can be turned on or off individually under **Settings → Dashboard**, so you can keep only what's useful to you.
 
+## Continue Reading
+If you read on more than one synced device, a **Continue reading** card appears when another device has read past this one—tap **Resume** to jump straight to where you left off there. The card only shows after a sync brings in a newer position, and disappears once you've caught up. Turn on **Settings → Sync → Auto sync** and the card stays fresh on its own, without pressing Sync.
+
 ## Quick Stats
 A compact top row showing your **active reading streak** and other at-a-glance numbers to help you stay consistent.
 
