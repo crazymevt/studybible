@@ -6,6 +6,8 @@ Running list of known issues and follow-ups.
 
 ## Enhancements
 
+- [ ] **Drag and drop verses.** Support dragging a verse from the reader and dropping it into the sermon editor or scratch space to copy the text.
+
 ## Research
 
 - [ ] **Interactive Atlas / Geographic Tracker** (Advanced Map Tool)
